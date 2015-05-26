@@ -1,0 +1,42 @@
+{
+	"manifest_version": 2,
+	
+	"name": "Seek 'n Play",
+	"description": "__MSG_appDescription__",
+	"version": "1.5",  
+	"homepage_url": "https://chrome.google.com/webstore/detail/aiaeaehoebdkelhnbomepbijjjeakkld/",
+	"options_page": "options.html",
+
+	"icons": { 
+		"16": "icon16.png",
+        "48": "icon48.png",
+        "128": "icon128.png" 
+	},
+	
+	"permissions": [
+		"storage",
+		"webRequest",	
+		"*://*.youtube.com/*", 
+		"*://*.ytimg.com/*", 
+		"webRequestBlocking"
+	],
+
+	"content_scripts": [
+		{
+			"matches": ["*://*.youtube.com/*"],
+			"js": [
+				"contentscript.js"
+			],
+			"run_at": "document_end"
+		}
+	],
+	
+	"background": 
+	{ 
+		"scripts": ["background.js"] 
+	},
+	
+	"web_accessible_resources" : [ "ytspf.js" ],
+	
+	"default_locale": "en"
+}

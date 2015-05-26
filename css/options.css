@@ -1,0 +1,144 @@
+/*
+ * Seek 'n Play is an application developed by Circularify
+ */
+ 
+body, button, td {
+  font-family: 'Noto Sans', 'Segoe UI', 'Lucida Grande', 'Open Sans', arial,
+      sans-serif;
+  font-size: 12px;
+  color: rgb(48, 57, 66);
+}
+
+body {
+  background-color: white;
+  font-size: 12px;
+  margin-left: 155px;
+  margin-right: 0px;
+  overflow-x: hidden;
+}
+
+h1 {
+  font-weight: 400;
+  font-size: 18px;
+  display: inline;
+  line-height: 18px;
+  vertical-align: middle;
+}
+
+.top-title {
+  padding-left: 4px;
+}
+
+#sp-icon {
+  width: 36px;
+  height: 36px;
+  line-height: 18px;
+  vertical-align: middle;
+}
+
+header {
+  display: block;
+  padding-top: 10px;
+  padding-bottom: 8px;
+  min-width: 600px;
+}
+
+section {
+  -webkit-padding-start: 18px;
+  margin-bottom: 24px;
+  margin-top: 8px;
+  max-width: 600px;
+}
+
+section h3 {
+  -webkit-margin-start: -18px;
+  color: black;
+  line-height: 14px;
+  font-size: 14px;
+  font-weight: normal;
+  margin-bottom: 11px;
+}
+
+.device-icon {
+  padding-top: 11px;
+  padding-right: 3px;
+}
+
+.checkbox {
+  height: 30px;
+}
+
+.controlled-setting-with-label {
+  -webkit-box-align: center;
+  display: -webkit-box;
+  padding-bottom: 7px;
+  padding-top: 7px;
+}
+
+p {
+  line-height: 1.4em;
+  font-weight: 400;
+}
+
+label {
+  display: block;
+}
+
+label:hover {
+  color: black;
+}
+
+label[for] {
+  display: inline;
+}
+
+button {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.options-sections {
+  margin-top: 80px;
+}
+
+.options-sections section {
+  margin-top: 8px;
+  margin-bottom: 24px;
+  max-width: 600px;
+}
+
+.hidden {
+  visibility: collapse
+}
+
+.savedMessage {
+  display: inline;
+}
+
+a {
+  text-decoration: none;
+}
+
+.fixed-top {
+  position: fixed;
+  top: 0;
+  background-color: white;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.fixed-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  border-top: 1px solid rgb(181, 199, 222);
+  background-color: white;
+  width: 100%;
+  padding-bottom: 25px;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-top: 15px;
+}
+
+input[type="radio"]:disabled+label{
+  color:#ccc;
+}
