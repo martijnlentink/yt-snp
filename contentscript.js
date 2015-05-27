@@ -171,6 +171,7 @@ inject(function () {
 		
 		// Reference the player and get the ID from the player object
 		var player = getPlayer();
+		
 		var currVid = player.getVideoUrl().match(/[?&]v=([^&]+)/);
 		
 		// Check if the two match, and if not we load the new video
@@ -255,6 +256,9 @@ inject(function () {
 				else {
 					decornerize(element);
 				}
+			} else {
+				var videoId = getVideoIdFromUrl();
+				player.loadVideoById(videoId, 0, "hd720");
 			}
 		}
 	};
