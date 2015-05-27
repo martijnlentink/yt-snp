@@ -19,8 +19,9 @@ inject(function () {
 	}	
 	
 	// Get the video ID from the current URL.
-	function getVideoIdFromUrl()
+	function retrieveIdFromUrl()
 	{
+		var url = document.location.href;
 		var regExp = /.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#\&\?]*).*/;
 	    var match = url.match(regExp);
 	    if (match&&match[1])
@@ -259,7 +260,7 @@ inject(function () {
 					decornerize(element);
 				}
 			} else {
-				var videoId = getVideoIdFromUrl();
+				var videoId = retrieveIdFromUrl();
 				player.loadVideoById(videoId, 0, "default");
 			}
 		}
