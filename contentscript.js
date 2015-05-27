@@ -19,9 +19,9 @@ inject(function () {
 	}	
 	
 	// Get the video ID from the current URL.
-	function retrieveIdFromUrl()
+	function retrieveIdFromUrl(url)
 	{
-		var url = document.location.href;
+		var url = url || document.location.href;
 		var regExp = /.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#\&\?]*).*/;
 	    var match = url.match(regExp);
 	    if (match&&match[1])
@@ -53,7 +53,7 @@ inject(function () {
 			hideButtons();
 		});
 		
-		// Inject close button code in YouTube player
+		// Inject back to video button code in YouTube player
 		button = document.createElement('div');
 		button.className = 'ytp-button backToVideoButton';
 		button.setAttribute('role', 'button');
@@ -163,26 +163,6 @@ inject(function () {
 	
 	// Removes the player from the corner and resets player size
 	function decornerize(element) {
-		
-		/* 
-			Code below is used to check if the current video playing is the
-			video that is supposed to play 
-		*/
-		
-		// Retrieve "supposed to play" video ID from URL
-		var videoId = retrieveIdFromUrl();
-		
-		// Reference the player and get the ID from the player object
-		var player = getPlayer();
-		
-		var currVid = player.getVideoData().video_id;
-		
-		// Check if the two match, and if not we load the new video
-		if(videoId != currVid) {
-			player.loadVideoById(videoId, 0, "default");
-		}
-			
-		// Continue as you were.
 		element.removeAttribute("style");
 		element.firstChild.firstChild.lastChild.removeAttribute("style");
 		document.getElementsByClassName("html5-main-video")[0].removeAttribute("style");
@@ -234,7 +214,13 @@ inject(function () {
 		navigateBackward(url);
 	}
 	
+
+	function doesVideoIdMatchCurrent (video_id) {
+		return video_id == retrieveIdFromUrl();
+	};
+
 	// Navigating function
+	window.YTSPPreventRequeue = doesVideoIdMatchCurrent;
 	window.YTSPNavigating = navigateForward;
 	function navigateForward(url) {		
 		
@@ -259,9 +245,6 @@ inject(function () {
 				else {
 					decornerize(element);
 				}
-			} else {
-				var videoId = retrieveIdFromUrl();
-				player.loadVideoById(videoId, 0, "default");
 			}
 		}
 	};

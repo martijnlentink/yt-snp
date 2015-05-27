@@ -28,7 +28,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 			var secondRegex = new RegExp(/([A-Za-z]{1,3}\(this\,\"loadVideoByPlayerVars\"\,)(this\.[A-Za-z]{1,3})(\)\;)/);
 			secondRegex.multiline = true;
 			
-			resp = resp.replace(secondRegex, "$1 function (obj) { if (!YTSPPreventRequeue(obj.video_id)) { $2.apply(this, arguments); } } $3");
+			resp = resp.replace(secondRegex, "$1 function (obj) { if (typeof (YTSPPreventRequeue) != \"function\" || YTSPPreventRequeue(obj.video_id)) { $2.apply(this, arguments); } } $3");
 			
 			// Remove the stopVideo command from the API, so we can keep on playin'
 			var result = resp.replace(regex, '');
@@ -55,7 +55,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 			regex2.multiline = true;
 	
 			// Our own function
-			var replaceString = '$1 if (window.YTSPNavigating && typeof (window.YTSPNavigating) == "function") {window.YTSPNavigating();}';
+			var replaceString = '$1 if (typeof (window.YTSPNavigating) == "function") {window.YTSPNavigating();}';
 						
 			// Add our own code and return
 			//var result = resp.replace(regex, replaceString); 
