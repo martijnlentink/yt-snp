@@ -65,9 +65,14 @@ var changelog = {
 	"de": [
 		
 		{
+			"title": "Version 1.6",
+			"log": [
+				{ "message": "Fest groﬂen Fehler, weil Seek 'n Play nicht mehr funktioniert." }
+			]
+		},{
 			"title": "Version 1.5",
 			"log": [
-				{ "message": "Fest groﬂen Fehler, weil Seek 'n Play nicht mehr funktionieren." }
+				{ "message": "Fest groﬂen Fehler, weil Seek 'n Play nicht mehr funktioniert." }
 			]
 		},{
 			"title": "Version 1.4.1",
@@ -130,6 +135,11 @@ var changelog = {
 	"en": [
 		
 		{
+			"title": "Version 1.6",
+			"log": [
+				{ "message": "Fixed large bug causing Seek 'n Play to no longer work." }
+			]
+		},{
 			"title": "Version 1.5",
 			"log": [
 				{ "message": "Fixed large bug causing Seek 'n Play to no longer work." }
@@ -195,6 +205,11 @@ var changelog = {
 	"nl": [
 		
 		{
+			"title": "Version 1.6",
+			"log": [
+				{ "message": "Grote fout opgelost die er voor zorgde dat Seek 'n Play niet meer werkte." }
+			]
+		},{
 			"title": "Version 1.5",
 			"log": [
 				{ "message": "Grote fout opgelost die er voor zorgde dat Seek 'n Play niet meer werkte." }

@@ -17,6 +17,14 @@ inject(function () {
 			&& window.yt.player.getPlayerByElement
 			&& window.yt.player.getPlayerByElement(document.getElementById('player-api'));
 	}	
+	
+	// Get the video ID from the current URL.
+	function getVideoIdFromUrl()
+	{
+		var url = window.location.href;
+		var vidIdSplit = url.split("watch?v=");
+		return vidIdSplit[1];
+	}
 
 	// Reference the player object using a 'wait' call.
 	var el;
@@ -152,6 +160,25 @@ inject(function () {
 	
 	// Removes the player from the corner and resets player size
 	function decornerize(element) {
+		
+		/* 
+			Code below is used to check if the current video playing is the
+			video that is supposed to play 
+		*/
+		
+		// Retrieve "supposed to play" video ID from URL
+		var videoId = retrieveIdFromUrl();
+		
+		// Reference the player and get the ID from the player object
+		var player = getPlayer();
+		var currVid = player.getVideoUrl().match(/[?&]v=([^&]+)/);
+		
+		// Check if the two match, and if not we load the new video
+		if(videoId != currVid) {
+			player.loadVideoById(videoId, 0, "hd720");
+		}
+			
+		// Continue as you were.
 		element.removeAttribute("style");
 		element.firstChild.firstChild.lastChild.removeAttribute("style");
 		document.getElementsByClassName("html5-main-video")[0].removeAttribute("style");
