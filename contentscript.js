@@ -21,9 +21,11 @@ inject(function () {
 	// Get the video ID from the current URL.
 	function getVideoIdFromUrl()
 	{
-		var url = window.location.href;
-		var vidIdSplit = url.split("watch?v=");
-		return vidIdSplit[1];
+		var regExp = /.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#\&\?]*).*/;
+	    var match = url.match(regExp);
+	    if (match&&match[1])
+	        return match[1];
+	    return null;
 	}
 
 	// Reference the player object using a 'wait' call.
@@ -172,11 +174,11 @@ inject(function () {
 		// Reference the player and get the ID from the player object
 		var player = getPlayer();
 		
-		var currVid = player.getVideoUrl().match(/[?&]v=([^&]+)/);
+		var currVid = player.getVideoData().video_id;
 		
 		// Check if the two match, and if not we load the new video
 		if(videoId != currVid) {
-			player.loadVideoById(videoId, 0, "hd720");
+			player.loadVideoById(videoId, 0, "default");
 		}
 			
 		// Continue as you were.
@@ -258,7 +260,7 @@ inject(function () {
 				}
 			} else {
 				var videoId = getVideoIdFromUrl();
-				player.loadVideoById(videoId, 0, "hd720");
+				player.loadVideoById(videoId, 0, "default");
 			}
 		}
 	};
