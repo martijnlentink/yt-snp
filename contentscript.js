@@ -280,3 +280,22 @@ function injectCss(css) {
 // Inject custom css
 injectCss(".ytp-button.closeButton { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAbCAYAAABr/T8RAAABsklEQVR42u2Vu2oCURCGLazEIpLNYikiFkLuiw9gEsyTKCS1cZM001r6DFZWllYiVlYWCiLe76uyL5H5h5yFQDqPpMgO/Hh2Ocw3/8zZYyDghx9+/EUsl8vIZrPJOI6T2+12BWi/3+e32+3jYDA4Pwl0vV5fMeiNIcRrT3iGuAB7sVjc6YZeMpTYMR0OB8JagbF2XddbM/xWC3Q+n59xUhtQJG40GtTpdASGIvr9PtXrdXGNPTyKDy1tZwcZ5RSAYDBIiUSCut2ugNLpNPE2qlQqUgzerVarrI4DlWPX4rbVapFpmgJKpVIeNBQKUa1Wk+IA5mJfjwbPZrMCwBASN5tNisViAoRQCKBwq/axilrBcI1fy7I8cDwel7ajKK3gyWSSRzKcWgBUe8PhMBmGIetkMkntdlsOGPZysce3ejqdPrDEbbVa/TFTzDwajcq7crnstXs8Hj8fDe71ehEG26qNAKAA9TnhpJdKJUJx324/h8OhoeVb5kTXSAypC0Q9o71qvnjm0dxrvb1Go9ENJy0q4C96Z1knua9xI3ErnxjwgiIgHCR2m+W5Xvh/o3787/gC1AnEP1lhBDEAAAAASUVORK5CYII=); float: right; width: 30px; height: 27px; background-repeat: no-repeat; }");
 injectCss(".ytp-button.backToVideoButton { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAbCAYAAABr/T8RAAAA30lEQVR42mNgGAWjYBTQA9TX1/MBcURdXV07kF4PxNeB+D0QR9HaYruGhob/2DBQroZuFgP5n4G4DIh9gFiJrj4Gim0FYh66BTWQvR+JfRaIJWhpsRmSZVpAXAHEf6H8+0AsQ0vLs4D4N8hiKD8IiL9CUzko1eshqZUDYg9qWu4BMhSJrwe1dD3UEUFQcS2oI7NoGRIyoOCGBvtfaDRoIUWNGS0tlwAlNBwJ0I7WKZ8HlMWwZDs7WlqqBC1MQIXKZ3paXIOnSKV5UEdBKw5QBbIeWqFEgFL9aDU7CkYWAAC9I/K7az2Q5QAAAABJRU5ErkJggg==); float: right; width: 30px; height: 27px; background-repeat: no-repeat; }");
+
+/* Communication with the APP */
+
+var port = chrome.runtime.connect({name: "time-listener"});
+setInterval(function () {
+	port.postMessage({time: document.querySelector(".html5-progress-bar.ytp-force-transform").getAttribute("aria-valuenow")});
+}, 500);
+
+chrome.runtime.onMessage.addListener(function (message) {
+	if (message.action == "pause")
+	{
+		inject(function () { var player = getPlayer(); player.stopVideo(); });
+	}
+	else
+	{
+		localStorage["starttime"] = message.time;
+		inject(function () { var player = getPlayer(); player.seekTo(localStorage["starttime"]); player.playVideo(); });
+	}
+});

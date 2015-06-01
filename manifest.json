@@ -18,7 +18,9 @@
 		"webRequest",	
 		"*://*.youtube.com/*", 
 		"*://*.ytimg.com/*", 
-		"webRequestBlocking"
+		"webRequestBlocking",
+		"tabs",
+		"management"
 	],
 
 	"content_scripts": [

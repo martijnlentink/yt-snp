@@ -77,3 +77,81 @@ chrome.runtime.onInstalled.addListener(function(details){
 			chrome.tabs.create({'url': chrome.extension.getURL('welcome.html')});
 	});
 });
+
+/* Communication with the APP */
+ chrome.management.launchApp("mgflnabaldboiahifonjgnoodgnccefm");
+var currentTime = 0;
+var tabList = [];
+var currentTab = 0;
+var previousTab = 0;
+
+/* Create a list of all the tabs that are open */
+chrome.tabs.query({ windowType: "normal" }, function (tabs) {
+	tabList = tabs;
+	
+	for (i = 0; i < tabList.length; i++)
+	{
+		if (tabList[i].active)
+		{
+			currentTab = tabList[i].id;
+			break;
+		}
+	}
+});
+
+/* Because chrome.tabs.OnBeforeUpdated does not exist we mimic it by watching the requests */
+chrome.webRequest.onBeforeRequest.addListener(
+	function(details) {
+		previousTab = details.tabId;
+	},
+	{ urls: ["<all_urls>"], types: ["main_frame"] }
+);
+
+// chrome.tabs.query({'active': true}, function (activeTabs) {
+        // chrome.tabs.connect(activeTabs[0].tabId,{name: "time-listener"});
+// });
+
+// chrome.runtime.onMessage.addListener(
+  // function(request, sender, sendResponse) {
+    // currentTime = request.time;
+  // });
+  
+chrome.runtime.onConnect.addListener(function (port) {
+	port.onMessage.addListener(function (request) {
+		currentTime = request.time;
+	});
+});
+
+chrome.tabs.onActivated.addListener(function(activeInfo) {
+    chrome.tabs.get(activeInfo.tabId, function (tab) {
+        mySuperCallback(activeInfo.tabId, tab.url);
+    });
+});
+
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, updatedTab) {
+    //chrome.tabs.query({'active': true}, function (activeTabs) {
+        //var activeTab = activeTabs[0];
+
+        //if (activeTab == updatedTab) {
+		previousTab = currentTab;
+		currentTab = tabId;
+            mySuperCallback(tabId, updatedTab.url);
+        //}
+   // });
+});
+
+function mySuperCallback(tabId, newUrl) {
+	if (newUrl.indexOf("youtube") == -1)
+	{
+		sendMessageToContent({action: "pause"});
+	}
+	chrome.runtime.sendMessage("mgflnabaldboiahifonjgnoodgnccefm", {url: newUrl, time: currentTime}, null, function (resp) {
+		/* Set the time of the frame to the Youtube tab */
+		sendMessageToContent({action: "play", time: resp.time},currentTab);
+	});
+}
+
+function sendMessageToContent(message, tabId)
+{
+	chrome.tabs.sendMessage(tabId || previousTab, message);
+}
