@@ -12,7 +12,7 @@ inject(function () {
 	delete ytplayer.config.args.ad3_module;*/
 		
 	// Returns the player API interface or false if it's not ready.
-	function getPlayer() {
+	window.getPlayer = function () {
 		return window.yt.player 
 			&& window.yt.player.getPlayerByElement
 			&& window.yt.player.getPlayerByElement(document.getElementById('player-api'));
@@ -291,7 +291,7 @@ setInterval(function () {
 chrome.runtime.onMessage.addListener(function (message) {
 	if (message.action == "pause")
 	{
-		inject(function () { var player = getPlayer(); player.stopVideo(); });
+		inject(function () { var player = getPlayer(); player.YTSNPpauseVideo(); });
 	}
 	else
 	{

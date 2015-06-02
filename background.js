@@ -19,9 +19,9 @@ chrome.webRequest.onBeforeRequest.addListener(
 			regex.multiline = true;
 			var resp = xhr.responseText;
 			
-			var regex1 = new RegExp(/[A-Za-z]{1,3}\(this\,\"pauseVideo\"\,this\.[A-Za-z]{1,}\)\;/);
+			var regex1 = new RegExp(/([A-Za-z]{1,3}\(this\,\")(pauseVideo\"\,this\.[A-Za-z]{1,}\)\;)/);
 			regex.multiline = true;
-			var resp = resp.replace(regex1, '');
+			var resp = resp.replace(regex1, '$1YTSNP$2');
 			
 			//V(this,"loadVideoByPlayerVars",this.cq);
 			
@@ -145,7 +145,7 @@ function mySuperCallback(tabId, newUrl) {
 	{
 		sendMessageToContent({action: "pause"});
 	}
-	chrome.runtime.sendMessage("mgflnabaldboiahifonjgnoodgnccefm", {url: newUrl, time: currentTime}, null, function (resp) {
+	chrome.runtime.sendMessage("fhlpaegcnkjbiiabokhfipkefdfjopki", {url: newUrl, time: currentTime}, null, function (resp) {
 		/* Set the time of the frame to the Youtube tab */
 		sendMessageToContent({action: "play", time: resp.time},currentTab);
 	});
