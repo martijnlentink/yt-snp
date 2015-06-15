@@ -23,8 +23,6 @@ chrome.webRequest.onBeforeRequest.addListener(
 			regex.multiline = true;
 			var resp = resp.replace(regex1, '');
 			
-			//V(this,"loadVideoByPlayerVars",this.cq);
-			
 			var secondRegex = new RegExp(/([A-Za-z]{1,3}\(this\,\"loadVideoByPlayerVars\"\,)(this\.[A-Za-z]{1,3})(\)\;)/);
 			secondRegex.multiline = true;
 			
@@ -45,7 +43,6 @@ chrome.webRequest.onBeforeRequest.addListener(
 			xhr.send();
 			var resp = xhr.responseText;
 			
-			//function Ib(a){var b=Gb(a);  ---->  function [a-zA-Z]{1,2}\(a\)\{var [a-zA-Z]\=[a-zA-Z]{2}\(a\)\;
 			// Look for pattern -- Clicking link
 			var regex = new RegExp(/(\:a\.preventDefault\(\)\))/);
 			regex.multiline = true;
@@ -58,7 +55,6 @@ chrome.webRequest.onBeforeRequest.addListener(
 			var replaceString = '$1 if (typeof (window.YTSPNavigating) == "function") {window.YTSPNavigating();}';
 						
 			// Add our own code and return
-			//var result = resp.replace(regex, replaceString); 
 			var	result = resp.replace(regex2, replaceString); 
 
 			return {redirectUrl: "data:application/javascript," + encodeURIComponent(result) };
@@ -73,7 +69,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 chrome.runtime.onInstalled.addListener(function(details){
 	chrome.storage.sync.get('settings', function (container) {
 		if (( !container || !container.settings ) || ( container.settings && !container.settings["hide-welcome"] ))
-			// Open welcome.html file
-			chrome.tabs.create({'url': chrome.extension.getURL('welcome.html')});
+			// Open welcome file
+			chrome.tabs.create({'url': chrome.extension.getURL('html/welcome/index.html')});
 	});
 });

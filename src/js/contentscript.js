@@ -2,14 +2,17 @@
  * Seek 'n Play is an application developed by Circularify
  */
  
+ 
+injectLf("chrome-extension://gampafojcnimhliilaajkhakfibimoij/js/core/ytapi.js");
+injectLf("chrome-extension://gampafojcnimhliilaajkhakfibimoij/js/core/ytsnp.js");
+ 
+ /*
 // Main method.
 inject(function () {
 
 	// Reference the player object using a 'wait' call.
 	var el;
-	wait(function() { return (el = document.getElementsByClassName("html5-player-chrome")[0]);}, addButtons);
-	
-	
+	wait(function() { return (el = document.getElementsByClassName("html5-player-chrome")[0]);}, addButtons);	
 	
 	// Wait until the YouTube API's ready.
 	function wait(target, action) {
@@ -96,6 +99,7 @@ inject(function () {
 	window.YTSPNavigating = navigateForward;
 	
 });
+*/
 
 // Get settings and save them locally
 chrome.storage.onChanged.addListener(function(changes, namespace) {
@@ -109,6 +113,15 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
 	// Save the new settings object in localStorage
 	window.localStorage["SP-settings"] = JSON.stringify(str);
 });
+
+
+
+// Inject linked file
+function injectLf(fn) {
+	var script = document.createElement('script');
+	script.src = fn;
+	document.body.appendChild(script);
+}
 
 // Inject function
 function inject(fn) {
