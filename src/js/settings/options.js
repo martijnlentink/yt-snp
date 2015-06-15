@@ -6,10 +6,10 @@
 window.onload = function() {
  
 	// First globalize the options page
-	YTSNP.i18n.performTranslation();
+	circularify.i18n.performTranslation();
 
 	// Bind the settings
-	YTSNP.settings.ready = function () {
-		YTSNP.settings.bind();
-	};
+	circularify.settings.registerSettingsLoaded(function () {
+		circularify.settings.bind();
+	});
 }

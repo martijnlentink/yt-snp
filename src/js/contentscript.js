@@ -169,21 +169,6 @@ inject(function () {
 		};
 	}
 	
-	// Add 'endsWith' method for URL sake
-	// Reference: https://coderwall.com/p/9nfu0a
-	if (typeof String.prototype.endsWith === 'undefined') {
-		String.prototype.endsWith = function(suffix) {
-			if (typeof suffix === 'String') {
-				return this.indexOf(suffix, this.length - suffix.length) !== -1;
-			}else if(suffix instanceof Array){
-				return _.find(suffix, function(value){
-					console.log(value, (this.indexOf(value, this.length - value.length) !== -1));
-					return this.indexOf(value, this.length - value.length) !== -1;
-				}, this);
-			}
-		};
-	}
-	
 	// Perform an spf navigation and inform the player
 	function performNavigation(url) {
 		spf.navigate(url);

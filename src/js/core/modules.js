@@ -3,51 +3,59 @@
  */
 
 // Main method
-var YTSNP = (function (snp, chrome) {
+var circularify = (function (circularify, chrome) {
 	
-	var mergeObjects = function (obj1,obj2){
+	circularify.mergeObjects = function (obj1,obj2){
 		var obj3 = {};
 		for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
 		for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
 		return obj3;
 	};
 
-	/* Settings */
-	var defaultSettings = {
-		'position': 'bottom',
-		'hide-welcome': false
-	};
-	
-	var settings;
+	circularify.settings = circularify.settings || {};
+	// --- Private fields ---
+	// Callback registrations for when the settings are loaded
+	_registeredCallbacks = [];
+
+	// Default settings are implemented by the project
+	circularify.settings.defaultSettings = circularify.defaultSettings || {};
+	circularify.settings.currentSettings = circularify.settings.currentSettings || {};
 	
 	chrome.storage.sync.get("settings", function (set) {
-		settings = mergeObjects(defaultSettings, set.settings || {});
-		if (typeof (snp.settings.ready) === "function") {
-			snp.settings.ready();
-		}
+		// Merge saved settings with defaults
+		circularify.settings.defaultSettings = mergeObjects(circularify.defaultSettings, circularify.settings.currentSettings);
+		for (var i = _registeredCallbacks.length - 1; i >= 0; i--) {
+			var callback = _registeredCallbacks[i];
+			callback();
+		};
 	});
+
+	circularify.settings.registerSettingsLoaded = function (callback) {
+		if (typeof (callback) !== "function")
+			throw new Exception("Callback must be of type 'function'");
+		_registeredCallbacks[] = callback;
+	};
 	
-	snp.settings = snp.settings || {};
 	
 	// Retrieve a setting
-	snp.settings.get = function (setting) {
-		return settings[setting];
+	circularify.settings.get = function (setting) {
+		return circularify.currentSettings.settings[setting];
 	}
 	
 	// Set a setting
-	snp.settings.set = function (setting, value) {
+	circularify.settings.set = function (setting, value) {
 		settings[setting] = value;
 		chrome.storage.sync.set( { settings: settings } );
 	}
 	
 	// Creates a simple two-way binding
-	snp.settings.bind = function () {
+	circularify.settings.bind = function () {
 		var elements = document.querySelectorAll("[data-setting]");
 		for (var i = 0; i < elements.length; i++) {
 			var element = elements[i];
 			var value = element.value;
 			var settingString = element.getAttribute("data-setting");
-			var settingValue = snp.settings.get(settingString);
+			var settingValue = circularify.settings.get(settingString);
 			var type = element.getAttribute("type");
 			
 			// We know the following two way bindings -- TODO is add more as we go
@@ -55,22 +63,22 @@ var YTSNP = (function (snp, chrome) {
 				// Multiple radio buttons
 				case 'radio':
 					element.checked = value === settingValue;
-					element.addEventListener('click', function (event) { if (event.target.checked) snp.settings.set(event.target.getAttribute("data-setting"), event.target.value); });
+					element.addEventListener('click', function (event) { if (event.target.checked) circularify.settings.set(event.target.getAttribute("data-setting"), event.target.value); });
 					break;
 				// Single checkboxes
 				case 'checkbox':
 					var bool = value == 'true';
 					element.checked = bool == settingValue;
-					element.addEventListener('change', function () { var val = event.target.value == 'true'; snp.settings.set(event.target.getAttribute("data-setting"), event.target.checked ? val : !val ); });
+					element.addEventListener('change', function () { var val = event.target.value == 'true'; circularify.settings.set(event.target.getAttribute("data-setting"), event.target.checked ? val : !val ); });
 					break;
 			}
 		}
 	};
 	
-	snp.i18n = snp.i18n || {};
+	circularify.i18n = circularify.i18n || {};
 	
 	/* Internationalization */
-	snp.i18n.performTranslation = function () {
+	circularify.i18n.performTranslation = function () {
 
 		var elements = document.querySelectorAll("[data-translation]");
 		for (var i = 0; i < elements.length; i++) {
@@ -81,5 +89,22 @@ var YTSNP = (function (snp, chrome) {
 		}
 	};
 
-	return snp;
-}(YTSNP || {}, chrome));
+	return circularify;
+}(circularify || {}, chrome));
+
+// JavaScript extensions;
+
+// Add 'endsWith' method for URL sake
+// Reference: https://coderwall.com/p/9nfu0a
+if (typeof String.prototype.endsWith === 'undefined') {
+	String.prototype.endsWith = function(suffix) {
+		if (typeof suffix === 'String') {
+			return this.indexOf(suffix, this.length - suffix.length) !== -1;
+		}else if(suffix instanceof Array){
+			return _.find(suffix, function(value){
+				console.log(value, (this.indexOf(value, this.length - value.length) !== -1));
+				return this.indexOf(value, this.length - value.length) !== -1;
+			}, this);
+		}
+	};
+}
