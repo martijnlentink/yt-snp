@@ -24,17 +24,28 @@ var ytapi = function() {
 	    return null;
 	};
 	
-	// Perform an spf navigation and inform the player
-	function _performNavigation(url) {
-		spf.navigate(url);
-		navigateBackward(url);
+			
+	// Saves the time of the player and restores it when it's reloaded
+	function _restoreTime() {
+		var player = _getPlayer();
+		var time = player.getCurrentTime();
+		// Wait for the page to load, and then set the old time so we can continue.
+		wait(function () { return document.getElementById("eow-title"); }, function () {
+			player.seekTo(time);
+		});
+	}
+	
+	function _callWait() {
+		var el;
+		wait(function() { return (el = document.getElementsByClassName("html5-player-chrome")[0]);}, addButtons);	
 	}
 
 	// Exposable Object
 	return {
 		getPlayer	: _getPlayer,
 		getVideoId	: _retrieveIdFromUrl,
-		navigate	: _performNavigation
+		restoreTime	: _restoreTime,
+		callWait 	: _callWait
 	};
 };
 

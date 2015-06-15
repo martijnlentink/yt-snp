@@ -2,16 +2,35 @@
  * Seek 'n Play is an application developed by Circularify
  */
 
-// Main method
-var circularify = (function (circularify, chrome) {
+var circularify = circularify || {};
+
+
+// Circularify Utils Class
+circularify.utils = circularify.utils ||  function() {
 	
-	circularify.mergeObjects = function (obj1,obj2){
+	// Wait until the YouTube API's ready.	
+	function _wait(target, action) {
+		setTimeout(target() ? action : function () { wait(target, action)}, 100);
+	}
+	
+	function _mergeObjects(obj1,obj2){
 		var obj3 = {};
 		for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
 		for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
 		return obj3;
 	};
+	
+	return {
+		mergeObjects: _mergeObjects,
+		wait: _wait
+	}
 
+}();
+
+
+// Main method
+(function (circularify, chrome) {
+	
 	circularify.settings = circularify.settings || {};
 	// --- Private fields ---
 	// Callback registrations for when the settings are loaded
@@ -23,7 +42,7 @@ var circularify = (function (circularify, chrome) {
 	
 	chrome.storage.sync.get("settings", function (set) {
 		// Merge saved settings with defaults
-		circularify.settings.defaultSettings = mergeObjects(circularify.defaultSettings, circularify.settings.currentSettings);
+		circularify.settings.defaultSettings = circularify.utils.mergeObjects(circularify.defaultSettings, circularify.settings.currentSettings);
 		for (var i = _registeredCallbacks.length - 1; i >= 0; i--) {
 			var callback = _registeredCallbacks[i];
 			callback();
@@ -33,7 +52,7 @@ var circularify = (function (circularify, chrome) {
 	circularify.settings.registerSettingsLoaded = function (callback) {
 		if (typeof (callback) !== "function")
 			throw new Exception("Callback must be of type 'function'");
-		_registeredCallbacks[] = callback;
+		_registeredCallbacks.push(callback);
 	};
 	
 	
@@ -91,6 +110,7 @@ var circularify = (function (circularify, chrome) {
 
 	return circularify;
 }(circularify || {}, chrome));
+
 
 // JavaScript extensions;
 

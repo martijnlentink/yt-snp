@@ -3,9 +3,10 @@
  */
  
  
+injectLf("chrome-extension://gampafojcnimhliilaajkhakfibimoij/js/core/modules.js");
 injectLf("chrome-extension://gampafojcnimhliilaajkhakfibimoij/js/core/ytapi.js");
 injectLf("chrome-extension://gampafojcnimhliilaajkhakfibimoij/js/core/ytsnp.js");
- 
+  
  /*
 // Main method.
 inject(function () {
@@ -64,16 +65,13 @@ inject(function () {
 	}
 
 	
-			
-	// Saves the time of the player and restores it when it's reloaded
-	function restoreTime() {
-		var player = getPlayer();
-		var time = player.getCurrentTime();
-		// Wait for the page to load, and then set the old time so we can continue.
-		wait(function () { return document.getElementById("eow-title"); }, function () {
-			player.seekTo(time);
-		});
+		
+	// Perform an spf navigation and inform the player
+	function _performNavigation(url) {
+		spf.navigate(url);
+		navigateBackward(url);
 	}
+
 	
 	// Get the locally saved settings
 	function getSettings() {

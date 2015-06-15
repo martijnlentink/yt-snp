@@ -37,6 +37,7 @@
 	},
 	
 	"web_accessible_resources": [
+		"js/core/modules.js",		
 		"js/core/ytapi.js",		
 		"js/core/ytsnp.js"
 	],
