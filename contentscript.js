@@ -31,31 +31,10 @@ inject(function () {
 
 	// Reference the player object using a 'wait' call.
 	var el;
-	if(checkNewPlayer()) {
-		wait(function() { return (el = document.getElementsByClassName("ytp-chrome-controls")[0]);}, addButtons);
-	} else {
-		wait(function() { return (el = document.getElementsByClassName("html5-player-chrome")[0]);}, addButtons);
-	}
-	
-	// General AddButtons function
-	function addButtons() {
-	
-		console.log('addingbuttons');
-	
-		// Add the new buttons when the new player is used.
-		if(checkNewPlayer()) {
-			
-			addButtonsNew();
-			console.log('new');
-		} else {
-			addButtonsOld();
-			console.log('old');
-		}
-	
-	}
+	wait(function() { return (el = document.getElementsByClassName("html5-player-chrome")[0]);}, addButtons);
 	
 	// Function to add the close & back buttons to the player
-	function addButtonsOld() {
+	function addButtons() {
 		// Inject close button code in YouTube player
 		var button = document.createElement('div');
 		button.className = 'ytp-button closeButton snpButtonOld';
@@ -91,31 +70,6 @@ inject(function () {
 		});
 	}
 	
-	function addButtonsNew() {
-
-		var img = document.createElement("img");
-		img.setAttribute('src', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAtUlEQVR42u2ZUQqAMAxDPfpuPhH0RxCda9q90oC/yQs43bptK5VKJYx67+14kP6n+aWG8r+Zm4dI/R/MzUKk/i/m0yFS/4/mv0PU/qMBQyFKb3mQG7wi0B3eMjgM3gIgHH4GZBn4iRLrwItL+MCLSvjCG5eIgTcqEQs/WWINeHwB9CuEXsTozyj6R4beSqA3c+jtNPpAgz5Sog/1+LEKfrCFHy2mGO6mGK+nuOBIccVUKpVKEu0fhMn/KTmm8QAAAABJRU5ErkJggg==-');
-			
-		// Inject close button code in YouTube player
-		var button = document.createElement('button');
-		button.className = 'ytp-button closeButton snpButtonNew';
-		button.setAttribute('role', 'button');
-		button.setAttribute('aria-label', 'Close player');
-		button.setAttribute('tabindex', '6240');
-		button.style.display = 'none';
-		button.appendChild(img);
-		el.appendChild(button);
-		
-		// Add an eventlistener on event 'click', so we can handle the closing
-		button.addEventListener('click', function (event) {
-			var playel = document.getElementById('player-api');
-			playel.removeAttribute("style");
-			var player = getPlayer();
-			player.cueVideoById();
-			hideButtons();
-		});
-	}
-		
 	// Function to add buttons to the page
 	function displayButtons() {
 		var closeButton;
@@ -211,26 +165,14 @@ inject(function () {
 					videoAdvertisements[0].style.height = "270px";
 				}
 				
-				if(!checkNewPlayer()) {
-					// Put the "Continue To Video" button a little higher
-					var continueToVideoContainer = document.getElementsByClassName("videoAdUiPreSkipContainer");
-					var continueToVideoButton = document.getElementsByClassName("videoAdUiSkipContainer html5-stop-propagation");
-					if(continueToVideoContainer.length == 1) {
-						continueToVideoContainer[0].style.bottom = "20px";
-					}
-					if(continueToVideoButton.length == 1) {
-						continueToVideoButton[0].style.bottom = "20px";
-					}
-				} else {
-					// Put the "Continue To Video" button a little higher
-					var continueToVideoContainer = document.getElementsByClassName("videoAdUiPreSkipContainer");
-					var continueToVideoButton = document.getElementsByClassName("videoAdUiSkipContainer html5-stop-propagation");
-					if(continueToVideoContainer.length == 1) {
-						continueToVideoContainer[0].style.bottom = "70px";
-					}
-					if(continueToVideoButton.length == 1) {
-						continueToVideoButton[0].style.bottom = "70px";
-					}				
+				// Put the "Continue To Video" button a little higher
+				var continueToVideoContainer = document.getElementsByClassName("videoAdUiPreSkipContainer");
+				var continueToVideoButton = document.getElementsByClassName("videoAdUiSkipContainer html5-stop-propagation");
+				if(continueToVideoContainer.length == 1) {
+					continueToVideoContainer[0].style.bottom = "25px";
+				}
+				if(continueToVideoButton.length == 1) {
+					continueToVideoButton[0].style.bottom = "25px";
 				}
 				
 				// Get the saved settings object and position the player according to the setting
@@ -240,7 +182,7 @@ inject(function () {
 				} else {						// Positioned on bottoms
 					element.style.bottom = "10px";
 				}
-				
+								
 				// Making sure the video scales when cornerizing
 				var video = document.getElementsByClassName("html5-main-video");
 				video[0].style.width = "480px";
@@ -261,15 +203,8 @@ inject(function () {
 		element.firstChild.firstChild.lastChild.removeAttribute("style");
 		document.getElementsByClassName("html5-main-video")[0].removeAttribute("style");
 		
-		// Put the "Continue To Video" button back where it belongs.
-		var continueToVideoContainer = document.getElementsByClassName("videoAdUiPreSkipContainer");
-		var continueToVideoButton = document.getElementsByClassName("videoAdUiSkipContainer html5-stop-propagation");
-		if(continueToVideoContainer.length == 1) {
-			continueToVideoContainer[0].removeAttribute("style");
-		}
-		if(continueToVideoButton.length == 1) {
-			continueToVideoButton[0].removeAttribute("style");
-		}
+		document.getElementsByClassName("videoAdUiPreSkipContainer")[0].removeAttribute("style");
+		document.getElementsByClassName("videoAdUiSkipContainer html5-stop-propagation")[0].removeAttribute("style");
 		
 		hideButtons();
 	}
