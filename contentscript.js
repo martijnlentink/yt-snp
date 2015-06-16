@@ -31,13 +31,34 @@ inject(function () {
 
 	// Reference the player object using a 'wait' call.
 	var el;
-	wait(function() { return (el = document.getElementsByClassName("html5-player-chrome")[0]);}, addButtons);
+	if(checkNewPlayer()) {
+		wait(function() { return (el = document.getElementsByClassName("ytp-chrome-controls")[0]);}, addButtons);
+	} else {
+		wait(function() { return (el = document.getElementsByClassName("html5-player-chrome")[0]);}, addButtons);
+	}
+	
+	// General AddButtons function
+	function addButtons() {
+	
+		console.log('addingbuttons');
+	
+		// Add the new buttons when the new player is used.
+		if(checkNewPlayer()) {
+			
+			addButtonsNew();
+			console.log('new');
+		} else {
+			addButtonsOld();
+			console.log('old');
+		}
+	
+	}
 	
 	// Function to add the close & back buttons to the player
-	function addButtons() {
+	function addButtonsOld() {
 		// Inject close button code in YouTube player
 		var button = document.createElement('div');
-		button.className = 'ytp-button closeButton';
+		button.className = 'ytp-button closeButton snpButtonOld';
 		button.setAttribute('role', 'button');
 		button.setAttribute('aria-label', 'Close player');
 		button.setAttribute('tabindex', '6240');
@@ -55,7 +76,7 @@ inject(function () {
 		
 		// Inject back to video button code in YouTube player
 		button = document.createElement('div');
-		button.className = 'ytp-button backToVideoButton';
+		button.className = 'ytp-button backToVideoButton snpButtonOld';
 		button.setAttribute('role', 'button');
 		button.setAttribute('aria-label', 'Back to video');
 		button.setAttribute('tabindex', '6241');
@@ -70,7 +91,31 @@ inject(function () {
 		});
 	}
 	
-	
+	function addButtonsNew() {
+
+		var img = document.createElement("img");
+		img.setAttribute('src', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAtUlEQVR42u2ZUQqAMAxDPfpuPhH0RxCda9q90oC/yQs43bptK5VKJYx67+14kP6n+aWG8r+Zm4dI/R/MzUKk/i/m0yFS/4/mv0PU/qMBQyFKb3mQG7wi0B3eMjgM3gIgHH4GZBn4iRLrwItL+MCLSvjCG5eIgTcqEQs/WWINeHwB9CuEXsTozyj6R4beSqA3c+jtNPpAgz5Sog/1+LEKfrCFHy2mGO6mGK+nuOBIccVUKpVKEu0fhMn/KTmm8QAAAABJRU5ErkJggg==-');
+			
+		// Inject close button code in YouTube player
+		var button = document.createElement('button');
+		button.className = 'ytp-button closeButton snpButtonNew';
+		button.setAttribute('role', 'button');
+		button.setAttribute('aria-label', 'Close player');
+		button.setAttribute('tabindex', '6240');
+		button.style.display = 'none';
+		button.appendChild(img);
+		el.appendChild(button);
+		
+		// Add an eventlistener on event 'click', so we can handle the closing
+		button.addEventListener('click', function (event) {
+			var playel = document.getElementById('player-api');
+			playel.removeAttribute("style");
+			var player = getPlayer();
+			player.cueVideoById();
+			hideButtons();
+		});
+	}
+		
 	// Function to add buttons to the page
 	function displayButtons() {
 		var closeButton;
@@ -119,6 +164,17 @@ inject(function () {
 			decornerize(element);
 		}
 	}
+	
+	// Check if the user has the new Player enabled
+	function checkNewPlayer() {
+	
+		var newControls = document.getElementsByClassName("ytp-chrome-controls");
+		
+		if(newControls.length == 1) 
+			return true;
+		
+		return false;	
+	}
 
 	// Put the element in the corner
 	function cornerize(element) {		
@@ -155,6 +211,28 @@ inject(function () {
 					videoAdvertisements[0].style.height = "270px";
 				}
 				
+				if(!checkNewPlayer()) {
+					// Put the "Continue To Video" button a little higher
+					var continueToVideoContainer = document.getElementsByClassName("videoAdUiPreSkipContainer");
+					var continueToVideoButton = document.getElementsByClassName("videoAdUiSkipContainer html5-stop-propagation");
+					if(continueToVideoContainer.length == 1) {
+						continueToVideoContainer[0].style.bottom = "20px";
+					}
+					if(continueToVideoButton.length == 1) {
+						continueToVideoButton[0].style.bottom = "20px";
+					}
+				} else {
+					// Put the "Continue To Video" button a little higher
+					var continueToVideoContainer = document.getElementsByClassName("videoAdUiPreSkipContainer");
+					var continueToVideoButton = document.getElementsByClassName("videoAdUiSkipContainer html5-stop-propagation");
+					if(continueToVideoContainer.length == 1) {
+						continueToVideoContainer[0].style.bottom = "70px";
+					}
+					if(continueToVideoButton.length == 1) {
+						continueToVideoButton[0].style.bottom = "70px";
+					}				
+				}
+				
 				// Get the saved settings object and position the player according to the setting
 				var settings = getSettings();
 				if(settings.position == "top") { // Positioned on top
@@ -167,6 +245,8 @@ inject(function () {
 				var video = document.getElementsByClassName("html5-main-video");
 				video[0].style.width = "480px";
 				video[0].style.height = "270px";
+				video[0].style.top = "0px";
+				video[0].style.left = "0px";
 
 				// We're searching, so add the buttons (close & back)
 				displayButtons();
@@ -180,6 +260,17 @@ inject(function () {
 		element.removeAttribute("style");
 		element.firstChild.firstChild.lastChild.removeAttribute("style");
 		document.getElementsByClassName("html5-main-video")[0].removeAttribute("style");
+		
+		// Put the "Continue To Video" button back where it belongs.
+		var continueToVideoContainer = document.getElementsByClassName("videoAdUiPreSkipContainer");
+		var continueToVideoButton = document.getElementsByClassName("videoAdUiSkipContainer html5-stop-propagation");
+		if(continueToVideoContainer.length == 1) {
+			continueToVideoContainer[0].removeAttribute("style");
+		}
+		if(continueToVideoButton.length == 1) {
+			continueToVideoButton[0].removeAttribute("style");
+		}
+		
 		hideButtons();
 	}
 			
@@ -292,5 +383,5 @@ function injectCss(css) {
 }
 
 // Inject custom css
-injectCss(".ytp-button.closeButton { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAbCAYAAABr/T8RAAABsklEQVR42u2Vu2oCURCGLazEIpLNYikiFkLuiw9gEsyTKCS1cZM001r6DFZWllYiVlYWCiLe76uyL5H5h5yFQDqPpMgO/Hh2Ocw3/8zZYyDghx9+/EUsl8vIZrPJOI6T2+12BWi/3+e32+3jYDA4Pwl0vV5fMeiNIcRrT3iGuAB7sVjc6YZeMpTYMR0OB8JagbF2XddbM/xWC3Q+n59xUhtQJG40GtTpdASGIvr9PtXrdXGNPTyKDy1tZwcZ5RSAYDBIiUSCut2ugNLpNPE2qlQqUgzerVarrI4DlWPX4rbVapFpmgJKpVIeNBQKUa1Wk+IA5mJfjwbPZrMCwBASN5tNisViAoRQCKBwq/axilrBcI1fy7I8cDwel7ajKK3gyWSSRzKcWgBUe8PhMBmGIetkMkntdlsOGPZysce3ejqdPrDEbbVa/TFTzDwajcq7crnstXs8Hj8fDe71ehEG26qNAKAA9TnhpJdKJUJx324/h8OhoeVb5kTXSAypC0Q9o71qvnjm0dxrvb1Go9ENJy0q4C96Z1knua9xI3ErnxjwgiIgHCR2m+W5Xvh/o3787/gC1AnEP1lhBDEAAAAASUVORK5CYII=); float: right; width: 30px; height: 27px; background-repeat: no-repeat; }");
-injectCss(".ytp-button.backToVideoButton { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAbCAYAAABr/T8RAAAA30lEQVR42mNgGAWjYBTQA9TX1/MBcURdXV07kF4PxNeB+D0QR9HaYruGhob/2DBQroZuFgP5n4G4DIh9gFiJrj4Gim0FYh66BTWQvR+JfRaIJWhpsRmSZVpAXAHEf6H8+0AsQ0vLs4D4N8hiKD8IiL9CUzko1eshqZUDYg9qWu4BMhSJrwe1dD3UEUFQcS2oI7NoGRIyoOCGBvtfaDRoIUWNGS0tlwAlNBwJ0I7WKZ8HlMWwZDs7WlqqBC1MQIXKZ3paXIOnSKV5UEdBKw5QBbIeWqFEgFL9aDU7CkYWAAC9I/K7az2Q5QAAAABJRU5ErkJggg==); float: right; width: 30px; height: 27px; background-repeat: no-repeat; }");
+injectCss(".ytp-button.closeButton.snpButtonOld { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAbCAYAAABr/T8RAAABsklEQVR42u2Vu2oCURCGLazEIpLNYikiFkLuiw9gEsyTKCS1cZM001r6DFZWllYiVlYWCiLe76uyL5H5h5yFQDqPpMgO/Hh2Ocw3/8zZYyDghx9+/EUsl8vIZrPJOI6T2+12BWi/3+e32+3jYDA4Pwl0vV5fMeiNIcRrT3iGuAB7sVjc6YZeMpTYMR0OB8JagbF2XddbM/xWC3Q+n59xUhtQJG40GtTpdASGIvr9PtXrdXGNPTyKDy1tZwcZ5RSAYDBIiUSCut2ugNLpNPE2qlQqUgzerVarrI4DlWPX4rbVapFpmgJKpVIeNBQKUa1Wk+IA5mJfjwbPZrMCwBASN5tNisViAoRQCKBwq/axilrBcI1fy7I8cDwel7ajKK3gyWSSRzKcWgBUe8PhMBmGIetkMkntdlsOGPZysce3ejqdPrDEbbVa/TFTzDwajcq7crnstXs8Hj8fDe71ehEG26qNAKAA9TnhpJdKJUJx324/h8OhoeVb5kTXSAypC0Q9o71qvnjm0dxrvb1Go9ENJy0q4C96Z1knua9xI3ErnxjwgiIgHCR2m+W5Xvh/o3787/gC1AnEP1lhBDEAAAAASUVORK5CYII=); float: right; width: 30px; height: 27px; background-repeat: no-repeat; }");
+injectCss(".ytp-button.backToVideoButton.snpButtonOld { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAbCAYAAABr/T8RAAAA30lEQVR42mNgGAWjYBTQA9TX1/MBcURdXV07kF4PxNeB+D0QR9HaYruGhob/2DBQroZuFgP5n4G4DIh9gFiJrj4Gim0FYh66BTWQvR+JfRaIJWhpsRmSZVpAXAHEf6H8+0AsQ0vLs4D4N8hiKD8IiL9CUzko1eshqZUDYg9qWu4BMhSJrwe1dD3UEUFQcS2oI7NoGRIyoOCGBvtfaDRoIUWNGS0tlwAlNBwJ0I7WKZ8HlMWwZDs7WlqqBC1MQIXKZ3paXIOnSKV5UEdBKw5QBbIeWqFEgFL9aDU7CkYWAAC9I/K7az2Q5QAAAABJRU5ErkJggg==); float: right; width: 30px; height: 27px; background-repeat: no-repeat; }");

@@ -65,6 +65,11 @@ var changelog = {
 	"de": [
 		
 		{
+			"title": "Version 1.7",
+			"log": [
+				{ "message": "Seek 'n Play funktioniert nur auch ohne AdBlocker!" }
+			]
+		},{
 			"title": "Version 1.6",
 			"log": [
 				{ "message": "Fest groﬂen Fehler, weil Seek 'n Play nicht mehr funktioniert." }
@@ -140,6 +145,11 @@ var changelog = {
 	"en": [
 		
 		{
+			"title": "Version 1.7",
+			"log": [
+				{ "message": "Seek 'n Play now works without an Ad Blocker!" }
+			]
+		},{
 			"title": "Version 1.6",
 			"log": [
 				{ "message": "Fixed large bug causing Seek 'n Play to no longer work." }
@@ -215,6 +225,11 @@ var changelog = {
 	"nl": [
 		
 		{
+			"title": "Versie 1.7",
+			"log": [
+				{ "message": "Seek 'n Play werkt nu ook zonder AdBlocker!" }
+			]
+		},{
 			"title": "Versie 1.6",
 			"log": [
 				{ "message": "Grote fout opgelost die er voor zorgde dat Seek 'n Play niet meer werkte." }
