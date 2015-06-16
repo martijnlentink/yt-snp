@@ -13,25 +13,23 @@ chrome.webRequest.onBeforeRequest.addListener(
 			var xhr = new XMLHttpRequest();
 			xhr.open("GET", details.url, false);
 			xhr.send();
-			
-			// Set up regular expression that I will match on
-			var regex = new RegExp(/[A-Za-z]{1,3}\(this\,\"stopVideo\"\,this\.[A-Za-z]{1,3}\)\;/);
-			regex.multiline = true;
 			var resp = xhr.responseText;
-			
-			var regex1 = new RegExp(/[A-Za-z]{1,3}\(this\,\"pauseVideo\"\,this\.[A-Za-z]{1,}\)\;/);
-			regex.multiline = true;
-			var resp = resp.replace(regex1, '');
-			
-			//V(this,"loadVideoByPlayerVars",this.cq);
-			
-			var secondRegex = new RegExp(/([A-Za-z]{1,3}\(this\,\"loadVideoByPlayerVars\"\,)(this\.[A-Za-z]{1,3})(\)\;)/);
-			secondRegex.multiline = true;
-			
-			resp = resp.replace(secondRegex, "$1 function (obj) { if (typeof (YTSPPreventRequeue) != \"function\" || YTSPPreventRequeue(obj.video_id)) { $2.apply(this, arguments); } } $3");
-			
+
+			// Makes sure that YT doens't restart buffering when we navigate to the video we're watching
+			resp = resp.replace(/([A-Za-z]{1,3}\(this\,\"loadVideoByPlayerVars\"\,)(this\.[A-Za-z]{1,3})(\)\;)/, "$1 function (obj) { if (typeof (YTSPPreventRequeue) != \"function\" || YTSPPreventRequeue(obj.video_id)) { $2.apply(this, arguments); } } $3");
+			// Matches: this.j&&this.A&&this.ha.pauseVideo()
+			// Disable the pauseVideo function that the advertisers call so that the original video can get loaded
+			resp = resp.replace(/(this\.[a-zA-Z]{1,2}&&this\.[a-zA-Z]{1,2})&&this\.[a-zA-Z]{1,3}\.pauseVideo\(\)/, "$1");
+			// Matches: function H(a,b){this.width=a;this.height=b}
+			// Solves the ad container so that the skip button is visible in the corner
+			 resp = resp.replace(/(function [a-zA-Z]{1,2}\(a\,b\)\{)(this.width=a;this.height=b\})/, "$1if(window.YTSNPIsCorner){a='480';b='300';}$2");
+			 // Matches: function oh(a,b,c){if(b instanceof H)c=b.height,b=b.width;else if(void 0==c)throw Error("missing height argument");
+			 // Makes sure that the video is always of the size of the player
+			 resp = resp.replace(/(function [a-zA-Z]{1,2}\(a\,b\,c\)\{if\(b instanceof [a-zA-Z]{1,2}\)c=b.height,b=b.width\;else if\(void 0==c\)throw Error\(\"[\w\s]+"\)\;)/, "$1if(window.YTSNPIsCorner){c=300;b=480;}");
+			// Remove the pauseVideo command from the API, so we can keep on playin'
+			resp = resp.replace(/[A-Za-z]{1,3}\(this\,\"pauseVideo\"\,this\.[A-Za-z]{1,}\)\;/, '');
 			// Remove the stopVideo command from the API, so we can keep on playin'
-			var result = resp.replace(regex, '');
+			var result = resp.replace(/[A-Za-z]{1,3}\(this\,\"stopVideo\"\,this\.[A-Za-z]{1,3}\)\;/, '');
 			
 			// Let's nicely return the JavaScript so that YouTube can access it
 			return {redirectUrl: "data:application/javascript," + encodeURIComponent(result) };

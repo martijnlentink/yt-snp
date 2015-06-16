@@ -12,7 +12,7 @@ inject(function () {
 	delete ytplayer.config.args.ad3_module;*/
 		
 	// Returns the player API interface or false if it's not ready.
-	function getPlayer() {
+	window.getPlayer = function () {
 		return window.yt.player 
 			&& window.yt.player.getPlayerByElement
 			&& window.yt.player.getPlayerByElement(document.getElementById('player-api'));
@@ -122,7 +122,7 @@ inject(function () {
 
 	// Put the element in the corner
 	function cornerize(element) {		
-		
+		window.YTSNPIsCorner = true;
 		// Get a reference job
 		var player = getPlayer();
 		
@@ -141,6 +141,19 @@ inject(function () {
 				element.style.right = "10px";
 				element.style.position = "fixed";
 				element.style.zIndex = "999";
+
+				var advertisements = document.getElementsByClassName("container autoalign");
+				if (advertisements.length > 0)
+				{
+					advertisements[0].style.width = "auto";
+				}
+
+				var videoAdvertisements = document.getElementsByClassName("ad-container ad-container-single-media-element-annotations");
+				if (videoAdvertisements.length > 0)
+				{
+					videoAdvertisements[0].style.width = "480px";
+					videoAdvertisements[0].style.height = "270px";
+				}
 				
 				// Get the saved settings object and position the player according to the setting
 				var settings = getSettings();
@@ -163,6 +176,7 @@ inject(function () {
 	
 	// Removes the player from the corner and resets player size
 	function decornerize(element) {
+		window.YTSNPIsCorner = false;
 		element.removeAttribute("style");
 		element.firstChild.firstChild.lastChild.removeAttribute("style");
 		document.getElementsByClassName("html5-main-video")[0].removeAttribute("style");
