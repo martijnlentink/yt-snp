@@ -43,20 +43,13 @@ chrome.webRequest.onBeforeRequest.addListener(
 			xhr.send();
 			var resp = xhr.responseText;
 			
-			//function Ib(a){var b=Gb(a);  ---->  function [a-zA-Z]{1,2}\(a\)\{var [a-zA-Z]\=[a-zA-Z]{2}\(a\)\;
-			// Look for pattern -- Clicking link
-			var regex = new RegExp(/(\:a\.preventDefault\(\)\))/);
-			regex.multiline = true;
-			
 			// Look for pattern -- Dynamically called
 			var regex2 = new RegExp(/(function [a-zA-Z]\([a-zA-Z]\)\{var [a-zA-Z]\=new [a-zA-Z]{2};)/);
-			regex2.multiline = true;
 	
 			// Our own function
-			var replaceString = '$1 if (typeof (window.YTSPNavigating) == "function") {window.YTSPNavigating();}';
+			var replaceString = '$1 if (typeof (window.YTSPNavigating) == "function") {try{window.YTSPNavigating();}catch(error){}}';
 						
 			// Add our own code and return
-			//var result = resp.replace(regex, replaceString); 
 			var	result = resp.replace(regex2, replaceString); 
 
 			return {redirectUrl: "data:application/javascript," + encodeURIComponent(result) };
