@@ -65,6 +65,11 @@ var changelog = {
 	"de": [
 		
 		{
+			"title": "Version 1.7.1",
+			"log": [
+				{ "message": "Kommentare ist wieder angezeigt!" }
+			]
+		},{
 			"title": "Version 1.7",
 			"log": [
 				{ "message": "Seek 'n Play funktioniert nur auch ohne AdBlocker!" }
@@ -145,6 +150,11 @@ var changelog = {
 	"en": [
 		
 		{
+			"title": "Version 1.7.1",
+			"log": [
+				{ "message": "Comment section now works." }
+			]
+		},{
 			"title": "Version 1.7",
 			"log": [
 				{ "message": "Seek 'n Play now works without an Ad Blocker!" }
@@ -225,6 +235,11 @@ var changelog = {
 	"nl": [
 		
 		{
+			"title": "Versie 1.7.1",
+			"log": [
+				{ "message": "Reacties worden weer getoond." }
+			]
+		},{
 			"title": "Versie 1.7",
 			"log": [
 				{ "message": "Seek 'n Play werkt nu ook zonder AdBlocker!" }

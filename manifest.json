@@ -3,7 +3,7 @@
 	
 	"name": "Seek 'n Play",
 	"description": "__MSG_appDescription__",
-	"version": "1.7",  
+	"version": "1.7.1",  
 	"homepage_url": "https://chrome.google.com/webstore/detail/aiaeaehoebdkelhnbomepbijjjeakkld/",
 	"options_page": "options.html",
 
@@ -35,8 +35,6 @@
 	{ 
 		"scripts": ["background.js"] 
 	},
-	
-	"web_accessible_resources" : [ "ytspf.js" ],
 	
 	"default_locale": "en"
 }
