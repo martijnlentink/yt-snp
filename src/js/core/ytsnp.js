@@ -22,6 +22,9 @@ function ytsnp() {
 	// Put the element in the corner
 	function _cornerize(element) {		
 		
+		// The player is cornerized
+		window.YTSNPIsCorner = true;
+		
 		var player = _getPlayer();
 		
 		// Check if the player exists
@@ -40,9 +43,30 @@ function ytsnp() {
 				element.style.position = "fixed";
 				element.style.zIndex = "999";
 				
+				var advertisements = document.getElementsByClassName("container autoalign");
+				if (advertisements.length > 0) {
+					advertisements[0].style.width = "auto";
+				}
+
+				var videoAdvertisements = document.getElementsByClassName("ad-container ad-container-single-media-element-annotations");
+				if (videoAdvertisements.length > 0) {
+					videoAdvertisements[0].style.width = "480px";
+					videoAdvertisements[0].style.height = "270px";
+				}
+				
+				// Put the "Continue To Video" button a little higher
+				var continueToVideoContainer = document.getElementsByClassName("videoAdUiPreSkipContainer");
+				var continueToVideoButton = document.getElementsByClassName("videoAdUiSkipContainer html5-stop-propagation");
+				if(continueToVideoContainer.length == 1) {
+					continueToVideoContainer[0].style.bottom = "25px";
+				}
+				if(continueToVideoButton.length == 1) {
+					continueToVideoButton[0].style.bottom = "25px";
+				}
+			
 				// Get the saved settings object and position the player according to the setting
-				var settings = getSettings();
-				if(settings.position == "top") { // Positioned on top
+				var settings = window.getSettings();
+				if(settings && settings.position == "top") { // Positioned on top
 					element.style.top = "70px";
 				} else {						// Positioned on bottoms
 					element.style.bottom = "10px";
@@ -52,6 +76,8 @@ function ytsnp() {
 				var video = document.getElementsByClassName("html5-main-video");
 				video[0].style.width = "480px";
 				video[0].style.height = "270px";
+				video[0].style.top = "0px";
+				video[0].style.left = "0px";
 
 				// We're searching, so add the buttons (close & back)
 				_displayButtons();
@@ -61,15 +87,23 @@ function ytsnp() {
 	
 	// Removes the player from the corner and resets player size
 	function _decornerize(element) {
+		// The player is no longer cornerized
+		window.YTSNPIsCorner = false;
 		element.removeAttribute("style");
 		element.firstChild.firstChild.lastChild.removeAttribute("style");
 		document.getElementsByClassName("html5-main-video")[0].removeAttribute("style");
+		
+		document.getElementsByClassName("videoAdUiPreSkipContainer")[0].removeAttribute("style");
+		document.getElementsByClassName("videoAdUiSkipContainer html5-stop-propagation")[0].removeAttribute("style");
+		
 		hideButtons();
 	}
 	
-	
-	
 	/* Player Options */
+	
+	// Reference the player object using a 'wait' call.
+	var el;
+	circularify.utils.wait(function() { return (el = document.getElementsByClassName("html5-player-chrome")[0]);}, addButtons);	
 	
 	// Function to add the close & back buttons to the player
 	function addButtons() {

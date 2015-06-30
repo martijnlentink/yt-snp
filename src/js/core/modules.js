@@ -10,7 +10,7 @@ circularify.utils = circularify.utils ||  function() {
 	
 	// Wait until the YouTube API's ready.	
 	function _wait(target, action) {
-		setTimeout(target() ? action : function () { wait(target, action)}, 100);
+		setTimeout(target() ? action : function () { _wait(target, action)}, 100);
 	}
 	
 	function _mergeObjects(obj1,obj2){
@@ -27,6 +27,28 @@ circularify.utils = circularify.utils ||  function() {
 
 }();
 
+// Observer pattern, uses publisher - subscriber model
+circularify.mailoffice = circularify.mailoffice || {
+
+	receipients: [],
+	subscribe: function(receipient) {
+		console.log('>Receipient added: ' + receipient);
+		this.receipients.push(receipient);
+	},
+	ubsubscribe: function(receipient) {
+		console.log('>Receipient removed: ' + receipient);
+		var index = this.receipients.indexOf(receipient);
+		
+		if(~index) {
+			this.receipients.splice(index, 1);
+		}
+	},
+	sendMailman: function() {		
+		for(var i = 0; i < circularify.mailoffice.receipients.length; i++) {
+			circularify.mailoffice.receipients[i]();
+		}
+	}
+};
 
 // Main method
 (function (circularify, chrome) {

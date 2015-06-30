@@ -7,19 +7,8 @@ injectLf("chrome-extension://gampafojcnimhliilaajkhakfibimoij/js/core/modules.js
 injectLf("chrome-extension://gampafojcnimhliilaajkhakfibimoij/js/core/ytapi.js");
 injectLf("chrome-extension://gampafojcnimhliilaajkhakfibimoij/js/core/ytsnp.js");
   
- /*
 // Main method.
 inject(function () {
-
-	// Reference the player object using a 'wait' call.
-	var el;
-	wait(function() { return (el = document.getElementsByClassName("html5-player-chrome")[0]);}, addButtons);	
-	
-	// Wait until the YouTube API's ready.
-	function wait(target, action) {
-		setTimeout(target() ? action : function () { wait(target, action)}, 100);
-	}
-	
 	
 	// Subscribe to the popstate event to handle going back in history
 	window.addEventListener("popstate", function () { navigateBackward(); });
@@ -32,7 +21,7 @@ inject(function () {
 		var element = document.getElementById("player-api");
 	
 		// Get a reference job
-		var player = getPlayer();
+		var player = circularify.ytapi.getPlayer();
 		
 		// Check if the player exists
 		if(player) {
@@ -40,12 +29,12 @@ inject(function () {
 			if(player.getVideoUrl() && !player.getVideoUrl().endsWith("youtube.com/watch")) {
 		
 				// While navigation we put the video in the bottom right corner
-				if (shouldCornerize(url)) {
-					cornerize(element);
+				if (circularify.ytsnp.shouldCornerize(url)) {
+					circularify.ytsnp.cornerize(element);
 				}
 				// And if we go (back) to a video, put it back to normal position and size
 				else {
-					decornerize(element);
+					decircularify.ytsnp.decornerize(element);
 				}
 			}
 		}
@@ -55,12 +44,12 @@ inject(function () {
 	function navigateBackward(url) {
 
 		var element = document.getElementById("player-api");
-		if (shouldCornerize(url)) {
-			cornerize(element);
+		if (circularify.ytsnp.shouldCornerize(url)) {
+			circularify.ytsnp.cornerize(element);
 		}
 		else {
-			restoreTime();
-			decornerize(element);
+			circularify.ytapi.restoreTime();
+			decircularify.ytsnp.decornerize(element);
 		}
 	}
 
@@ -89,15 +78,23 @@ inject(function () {
 	
 
 	function doesVideoIdMatchCurrent (video_id) {
-		return video_id == retrieveIdFromUrl();
+		return video_id == circularify.ytapi.getVideoId();
 	};
 
 	// Navigating function
 	window.YTSPPreventRequeue = doesVideoIdMatchCurrent;
-	window.YTSPNavigating = navigateForward;
 	
+	// Set Navigation Subscribtion
+	setTimeout(function() {
+		if(circularify !== undefined) {
+			window.YTSPNavigating = circularify.mailoffice.sendMailman;
+			circularify.mailoffice.subscribe(navigateForward);
+			clearTimeout(this);
+		}
+	}, 1000);
+	
+	window.getSettings = getSettings;
 });
-*/
 
 // Get settings and save them locally
 chrome.storage.onChanged.addListener(function(changes, namespace) {
