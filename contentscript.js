@@ -203,8 +203,12 @@ inject(function () {
 		element.firstChild.firstChild.lastChild.removeAttribute("style");
 		document.getElementsByClassName("html5-main-video")[0].removeAttribute("style");
 		
-		document.getElementsByClassName("videoAdUiPreSkipContainer")[0].removeAttribute("style");
-		document.getElementsByClassName("videoAdUiSkipContainer html5-stop-propagation")[0].removeAttribute("style");
+		var skipAdContainer = document.getElementsByClassName("videoAdUiPreSkipContainer");
+		if (skipAdContainer.length > 0)
+			skipAdContainer[0].removeAttribute("style");
+		var skipAdButton = document.getElementsByClassName("videoAdUiSkipContainer html5-stop-propagation");
+		if (skipAdButton.length > 0)
+			skipAdButton[0].removeAttribute("style");
 		
 		hideButtons();
 	}
