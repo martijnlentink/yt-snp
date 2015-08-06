@@ -22,14 +22,17 @@ chrome.webRequest.onBeforeRequest.addListener(
 			resp = resp.replace(/(this\.[a-zA-Z]{1,2}&&this\.[a-zA-Z]{1,2}&&this\.[a-zA-Z]{1,3}\.)(pauseVideo\(\))/, "$1YTSNP$2");
 			// Matches: function H(a,b){this.width=a;this.height=b}
 			// Solves the ad container so that the skip button is visible in the corner
-			 resp = resp.replace(/(function [a-zA-Z]{1,2}\(a\,b\)\{)(this.width=a;this.height=b\})/, "$1if(window.YTSNPIsCorner){a='480';b='300';}$2");
+			 resp = resp.replace(/(function [a-zA-Z]{1,2}\(a\,b\)\{)(this.width=a;this.height=b\})/, "$1if(window.YTSNPIsCorner){a='480';b='270';}$2");
 			 // Matches: function oh(a,b,c){if(b instanceof H)c=b.height,b=b.width;else if(void 0==c)throw Error("missing height argument");
 			 // Makes sure that the video is always of the size of the player
-			 resp = resp.replace(/(function [a-zA-Z]{1,2}\(a\,b\,c\)\{if\(b instanceof [a-zA-Z]{1,2}\)c=b.height,b=b.width\;else if\(void 0==c\)throw Error\(\"[\w\s]+"\)\;)/, "$1if(window.YTSNPIsCorner){c=300;b=480;}");
+			 resp = resp.replace(/(function [a-zA-Z]{1,2}\(a\,b\,c\)\{if\(b instanceof [a-zA-Z]{1,2}\)c=b.height,b=b.width\;else if\(void 0==c\)throw Error\(\"[\w\s]+"\)\;)/, "$1if(window.YTSNPIsCorner){c=270;b=480;}");
 			// Remove the pauseVideo command from the API, so we can keep on playin'
 			resp = resp.replace(/([A-Za-z]{1,3}\(this\,\")(pauseVideo\"\,this\.[A-Za-z]{1,}\)\;)/, '$1YTSNP$2');
 			// Remove the stopVideo command from the API, so we can keep on playin'
-			var result = resp.replace(/[A-Za-z]{1,3}\(this\,\"stopVideo\"\,this\.[A-Za-z]{1,3}\)\;/, '');
+			resp = resp.replace(/[A-Za-z]{1,3}\(this\,\"stopVideo\"\,this\.[A-Za-z]{1,3}\)\;/, '');
+			// Remove offset when cornerized
+			var result = resp.replace(/([a-zA-Z]{1,3}\(a,b,c\)\{var d;b instanceof [a-zA-Z]{1,3}\?\(d=b\.[a-zA-Z]{1,2},b=b\.[a-zA-Z]{1,2}\):\(d=b,b=c\);)/, '$1if (window.YTSNPIsCorner){d=b=0;} ');
+			
 			
 			// Let's nicely return the JavaScript so that YouTube can access it
 			return {redirectUrl: "data:application/javascript," + encodeURIComponent(result) };

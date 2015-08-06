@@ -31,7 +31,7 @@ inject(function () {
 
 	// Reference the player object using a 'wait' call.
 	var el;
-	wait(function() { return (el = document.getElementsByClassName("html5-player-chrome")[0]);}, addButtons);
+	wait(function() { return (el = document.getElementsByClassName("ytp-time-display")[0]);}, addButtons);
 	
 	// Function to add the close & back buttons to the player
 	function addButtons() {
@@ -132,7 +132,9 @@ inject(function () {
 
 	var videoSize = {
 		width: "640px",
-		height: "360px"
+		height: "360px",
+		left: 0,
+		top: "15px"
 	};
 
 	// Put the element in the corner
@@ -152,7 +154,7 @@ inject(function () {
 
 				// Player sizing and positioning
 				element.style.width = "480px";
-				element.style.height = "300px";
+				element.style.height = "270px";
 				element.style.right = "10px";
 				element.style.position = "fixed";
 				element.style.zIndex = "999";
@@ -214,6 +216,8 @@ inject(function () {
 		// document.getElementsByClassName("html5-main-video")[0].removeAttribute("style");
 		document.getElementsByClassName("html5-main-video")[0].width = videoSize.width;
 		document.getElementsByClassName("html5-main-video")[0].height = videoSize.height;
+		document.getElementsByClassName("html5-main-video")[0].top = videoSize.top;
+		document.getElementsByClassName("html5-main-video")[0].left = videoSize.left;
 		
 		var skipAdContainer = document.getElementsByClassName("videoAdUiPreSkipContainer");
 		if (skipAdContainer.length > 0)
