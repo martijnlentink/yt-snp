@@ -130,6 +130,11 @@ inject(function () {
 		return false;	
 	}
 
+	var videoSize = {
+		width: "640px",
+		height: "360px"
+	};
+
 	// Put the element in the corner
 	function cornerize(element) {		
 		window.YTSNPIsCorner = true;
@@ -185,6 +190,11 @@ inject(function () {
 								
 				// Making sure the video scales when cornerizing
 				var video = document.getElementsByClassName("html5-main-video");
+
+				// Save for decornerizing
+				videoSize.width = video[0].style.width;
+				videoSize.height = video[0].style.height;
+
 				video[0].style.width = "480px";
 				video[0].style.height = "270px";
 				video[0].style.top = "0px";
@@ -200,8 +210,10 @@ inject(function () {
 	function decornerize(element) {
 		window.YTSNPIsCorner = false;
 		element.removeAttribute("style");
-		element.firstChild.firstChild.lastChild.removeAttribute("style");
-		document.getElementsByClassName("html5-main-video")[0].removeAttribute("style");
+		// element.firstChild.firstChild.lastChild.removeAttribute("style");
+		// document.getElementsByClassName("html5-main-video")[0].removeAttribute("style");
+		document.getElementsByClassName("html5-main-video")[0].width = videoSize.width;
+		document.getElementsByClassName("html5-main-video")[0].height = videoSize.height;
 		
 		var skipAdContainer = document.getElementsByClassName("videoAdUiPreSkipContainer");
 		if (skipAdContainer.length > 0)
