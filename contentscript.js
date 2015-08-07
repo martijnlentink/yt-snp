@@ -134,14 +134,16 @@ inject(function () {
 	}
 
 	var videoSize = {
-		width: "640px",
-		height: "360px",
+		width: null,
+		height: null,
 		left: 0,
-		top: "15px"
+		top: "15px",
+		smallWidth: "480px",
+		smallHeight: "270px"
 	};
 
 	// Put the element in the corner
-	function cornerize(element) {		
+	function cornerize(element) {	
 		window.YTSNPIsCorner = true;
 		// Get a reference job
 		var player = getPlayer();
@@ -156,8 +158,8 @@ inject(function () {
 				element.firstChild.style.display = "block";
 
 				// Player sizing and positioning
-				element.style.width = "480px";
-				element.style.height = "270px";
+				element.style.width = videoSize.smallWidth;
+				element.style.height = videoSize.smallHeight;
 				element.style.right = "10px";
 				element.style.position = "fixed";
 				element.style.zIndex = "999";
@@ -171,8 +173,8 @@ inject(function () {
 				var videoAdvertisements = document.getElementsByClassName("ad-container ad-container-single-media-element-annotations");
 				if (videoAdvertisements.length > 0)
 				{
-					videoAdvertisements[0].style.width = "480px";
-					videoAdvertisements[0].style.height = "270px";
+					videoAdvertisements[0].style.width = videoSize.smallWidth;
+					videoAdvertisements[0].style.height = videoSize.smallHeight;
 				}
 				
 				// Put the "Continue To Video" button a little higher
@@ -197,11 +199,16 @@ inject(function () {
 				var video = document.getElementsByClassName("html5-main-video");
 
 				// Save for decornerizing
-				videoSize.width = video[0].style.width;
-				videoSize.height = video[0].style.height;
+				saveWidth = video[0].style.width;
+				saveHeight = video[0].style.height;
+				if (saveWidth != videoSize.smallWidth && saveHeight != videoSize.smallHeight)
+				{
+					videoSize.width = saveWidth;
+					videoSize.height = saveHeight;	
+				}
 
-				video[0].style.width = "480px";
-				video[0].style.height = "270px";
+				video[0].style.width = videoSize.smallWidth;
+				video[0].style.height = videoSize.smallHeight;
 				video[0].style.top = "0px";
 				video[0].style.left = "0px";
 				
@@ -220,10 +227,14 @@ inject(function () {
 		element.removeAttribute("style");
 		// element.firstChild.firstChild.lastChild.removeAttribute("style");
 		// document.getElementsByClassName("html5-main-video")[0].removeAttribute("style");
-		document.getElementsByClassName("html5-main-video")[0].width = videoSize.width;
-		document.getElementsByClassName("html5-main-video")[0].height = videoSize.height;
-		document.getElementsByClassName("html5-main-video")[0].top = videoSize.top;
-		document.getElementsByClassName("html5-main-video")[0].left = videoSize.left;
+		if (videoSize.width != null && videoSize.height != null)
+		{
+			var videoElement = document.getElementsByClassName("html5-main-video")[0];
+			videoElement.style.width = videoSize.width;
+			videoElement.style.height = videoSize.height;
+			videoElement.style.top = videoSize.top;
+			videoElement.style.left = videoSize.left;
+		}
 		
 		var skipAdContainer = document.getElementsByClassName("videoAdUiPreSkipContainer");
 		if (skipAdContainer.length > 0)
