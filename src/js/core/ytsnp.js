@@ -100,7 +100,7 @@ function ytsnp() {
 		if (skipAdButton.length > 0)
 			skipAdButton[0].removeAttribute("style");
 		
-		hideButtons();
+		_hideButtons();
 	}
 	
 	/* Player Options */
@@ -124,9 +124,12 @@ function ytsnp() {
 		button.addEventListener('click', function (event) {
 			var playel = document.getElementById('player-api');
 			playel.removeAttribute("style");
+			playel.childNodes[0].childNodes[0].childNodes[0].removeAttribute("style");
+			document.getElementsByClassName("html5-progress-bar ytp-force-transform")[0].removeAttribute("style");
+			console.log(playel);
 			var player = _getPlayer();
 			player.cueVideoById();
-			hideButtons();
+			_hideButtons();
 		});
 		
 		// Inject back to video button code in YouTube player
@@ -141,7 +144,7 @@ function ytsnp() {
 		// Add an eventlistener on event 'click', so we can handle the closing
 		button.addEventListener('click', function (event) {
 			var url = _getPlayer().getVideoUrl();
-			circularify.ytapi.navigate(url);
+			performNavigation(url);
 			_hideButtons();
 		});
 	}
@@ -152,7 +155,7 @@ function ytsnp() {
 		var closeButton;
 		var backButton;
 		
-		wait(function () { return (closeButton = document.getElementsByClassName("closeButton")[0]) && (backButton = document.getElementsByClassName("backToVideoButton")[0]); }, function () {
+		circularify.utils.wait(function () { return (closeButton = document.getElementsByClassName("closeButton")[0]) && (backButton = document.getElementsByClassName("backToVideoButton")[0]); }, function () {
 			closeButton.style.display = 'block';
 			backButton.style.display = 'block';
 		});
@@ -163,7 +166,7 @@ function ytsnp() {
 		var closeButton;
 		var backButton;
 		
-		wait(function () { return (closeButton = document.getElementsByClassName("closeButton")[0]) && (backButton = document.getElementsByClassName("backToVideoButton")[0]); }, function () {
+		circularify.utils.wait(function () { return (closeButton = document.getElementsByClassName("closeButton")[0]) && (backButton = document.getElementsByClassName("backToVideoButton")[0]); }, function () {
 			closeButton.style.display = 'none';
 			backButton.style.display = 'none';
 		});

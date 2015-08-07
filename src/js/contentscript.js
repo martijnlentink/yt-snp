@@ -6,7 +6,7 @@
 injectLf("chrome-extension://gampafojcnimhliilaajkhakfibimoij/js/core/modules.js");
 injectLf("chrome-extension://gampafojcnimhliilaajkhakfibimoij/js/core/ytapi.js");
 injectLf("chrome-extension://gampafojcnimhliilaajkhakfibimoij/js/core/ytsnp.js");
-  
+
 // Main method.
 inject(function () {
 	
@@ -14,7 +14,7 @@ inject(function () {
 	window.addEventListener("popstate", function () { navigateBackward(); });
 	
 	function navigateForward(url) {		
-		
+	
 		// Get the URL
 		url = url || window.location.href;
 		// Reference to the player object
@@ -30,6 +30,10 @@ inject(function () {
 		
 				// While navigation we put the video in the bottom right corner
 				if (circularify.ytsnp.shouldCornerize(url)) {
+									
+					//console.log(chrome.extension);
+					//chrome.extension.sendMessage({action: "ytspNavigating"});
+				
 					circularify.ytsnp.cornerize(element);
 				}
 				// And if we go (back) to a video, put it back to normal position and size
@@ -52,15 +56,12 @@ inject(function () {
 			decircularify.ytsnp.decornerize(element);
 		}
 	}
-
 	
-		
 	// Perform an spf navigation and inform the player
-	function _performNavigation(url) {
+	function performNavigation(url) {
 		spf.navigate(url);
 		navigateBackward(url);
 	}
-
 	
 	// Get the locally saved settings
 	function getSettings() {
@@ -108,8 +109,6 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
 	// Save the new settings object in localStorage
 	window.localStorage["SP-settings"] = JSON.stringify(str);
 });
-
-
 
 // Inject linked file
 function injectLf(fn) {

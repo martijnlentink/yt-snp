@@ -28,27 +28,38 @@ circularify.utils = circularify.utils ||  function() {
 }();
 
 // Observer pattern, uses publisher - subscriber model
-circularify.mailoffice = circularify.mailoffice || {
+circularify.mailoffice = circularify.mailoffice || function() {
 
-	receipients: [],
-	subscribe: function(receipient) {
+	var _receipients = [];
+	
+	function _subscribe(receipient) {
 		console.log('>Receipient added: ' + receipient);
-		this.receipients.push(receipient);
-	},
-	ubsubscribe: function(receipient) {
+		circularify.mailoffice.receipients.push(receipient);
+	};
+
+	function _unubscribe(receipient) {
 		console.log('>Receipient removed: ' + receipient);
-		var index = this.receipients.indexOf(receipient);
+		var index = circularify.mailoffice.receipients.indexOf(receipient);
 		
 		if(~index) {
 			this.receipients.splice(index, 1);
 		}
-	},
-	sendMailman: function() {		
+	};
+	
+	function _sendMailman() {		
+		//console.info("Sending the mailman");
 		for(var i = 0; i < circularify.mailoffice.receipients.length; i++) {
 			circularify.mailoffice.receipients[i]();
 		}
 	}
-};
+	
+	return {
+		receipients: _receipients,
+		subscribe: _subscribe,
+		unsubscribe: _unubscribe,
+		sendMailman: _sendMailman
+	}
+}();
 
 // Main method
 (function (circularify, chrome) {
