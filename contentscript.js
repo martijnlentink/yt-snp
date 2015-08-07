@@ -31,9 +31,7 @@ inject(function () {
 
 	// Reference the player object using a 'wait' call.
 	var el;
-	wait(function() { return (el = document.getElementsByClassName("ytp-time-display")[0]);}, function(){});
-	var el2;
-	wait(function() { return (el2 = document.getElementsByClassName("ytp-chrome-controls")[0]);}, addButtons);
+	wait(function() { return (el = document.getElementsByClassName("ytp-chrome-controls")[0]);}, addButtons);
 	
 	
 	// Function to add the close & back buttons to the player
@@ -45,7 +43,7 @@ inject(function () {
 		button.setAttribute('aria-label', 'Close player');
 		button.setAttribute('tabindex', '6240');
 		button.style.display = 'none';
-		el2.insertBefore(button, el2.childNodes[8]);
+		el.appendChild(button);
 		
 		// Add an eventlistener on event 'click', so we can handle the closing
 		button.addEventListener('click', function (event) {
@@ -63,7 +61,7 @@ inject(function () {
 		button.setAttribute('aria-label', 'Back to video');
 		button.setAttribute('tabindex', '6241');
 		button.style.display = 'none';
-		el2.insertBefore(button, el2.childNodes[8]);
+		el.appendChild(button);
 		
 		// Add an eventlistener on event 'click', so we can handle the closing
 		button.addEventListener('click', function (event) {
