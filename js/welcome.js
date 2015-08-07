@@ -65,6 +65,11 @@ var changelog = {
 	"de": [
 		
 		{
+			"title": "Version 1.8",
+			"log": [
+				{ "message": "'Clear Player' Unterst&uuml;tzung." }
+			]
+		},{
 			"title": "Version 1.7.1",
 			"log": [
 				{ "message": "Kommentare ist wieder angezeigt!" }
@@ -150,6 +155,11 @@ var changelog = {
 	"en": [
 		
 		{
+			"title": "Version 1.8",
+			"log": [
+				{ "message": "'Clear Player' Support." }
+			]
+		},{
 			"title": "Version 1.7.1",
 			"log": [
 				{ "message": "Comment section now works." }
@@ -235,6 +245,11 @@ var changelog = {
 	"nl": [
 		
 		{
+			"title": "Versie 1.8",
+			"log": [
+				{ "message": "'Clear Player' ondersteuning." }
+			]
+		},{
 			"title": "Versie 1.7.1",
 			"log": [
 				{ "message": "Reacties worden weer getoond." }

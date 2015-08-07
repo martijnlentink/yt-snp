@@ -31,18 +31,21 @@ inject(function () {
 
 	// Reference the player object using a 'wait' call.
 	var el;
-	wait(function() { return (el = document.getElementsByClassName("ytp-time-display")[0]);}, addButtons);
+	wait(function() { return (el = document.getElementsByClassName("ytp-time-display")[0]);}, function(){});
+	var el2;
+	wait(function() { return (el2 = document.getElementsByClassName("ytp-chrome-controls")[0]);}, addButtons);
+	
 	
 	// Function to add the close & back buttons to the player
 	function addButtons() {
 		// Inject close button code in YouTube player
-		var button = document.createElement('div');
+		var button = document.createElement('button');
 		button.className = 'ytp-button closeButton snpButtonOld';
 		button.setAttribute('role', 'button');
 		button.setAttribute('aria-label', 'Close player');
 		button.setAttribute('tabindex', '6240');
 		button.style.display = 'none';
-		el.appendChild(button);
+		el2.insertBefore(button, el2.childNodes[8]);
 		
 		// Add an eventlistener on event 'click', so we can handle the closing
 		button.addEventListener('click', function (event) {
@@ -54,13 +57,13 @@ inject(function () {
 		});
 		
 		// Inject back to video button code in YouTube player
-		button = document.createElement('div');
+		button = document.createElement('button');
 		button.className = 'ytp-button backToVideoButton snpButtonOld';
 		button.setAttribute('role', 'button');
 		button.setAttribute('aria-label', 'Back to video');
 		button.setAttribute('tabindex', '6241');
 		button.style.display = 'none';
-		el.appendChild(button);
+		el2.insertBefore(button, el2.childNodes[8]);
 		
 		// Add an eventlistener on event 'click', so we can handle the closing
 		button.addEventListener('click', function (event) {
@@ -201,7 +204,10 @@ inject(function () {
 				video[0].style.height = "270px";
 				video[0].style.top = "0px";
 				video[0].style.left = "0px";
-
+				
+				var container = document.getElementsByClassName("ytp-chrome-bottom")[0];
+				container.className = "ytp-chrome-bottom chrmbtn-search";
+				
 				// We're searching, so add the buttons (close & back)
 				displayButtons();
 			}
@@ -225,6 +231,9 @@ inject(function () {
 		var skipAdButton = document.getElementsByClassName("videoAdUiSkipContainer html5-stop-propagation");
 		if (skipAdButton.length > 0)
 			skipAdButton[0].removeAttribute("style");
+			
+		var container = document.getElementsByClassName("ytp-chrome-bottom")[0];
+			container.className = "ytp-chrome-bottom";
 		
 		hideButtons();
 	}
@@ -338,5 +347,6 @@ function injectCss(css) {
 }
 
 // Inject custom css
-injectCss(".ytp-button.closeButton.snpButtonOld { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAbCAYAAABr/T8RAAABsklEQVR42u2Vu2oCURCGLazEIpLNYikiFkLuiw9gEsyTKCS1cZM001r6DFZWllYiVlYWCiLe76uyL5H5h5yFQDqPpMgO/Hh2Ocw3/8zZYyDghx9+/EUsl8vIZrPJOI6T2+12BWi/3+e32+3jYDA4Pwl0vV5fMeiNIcRrT3iGuAB7sVjc6YZeMpTYMR0OB8JagbF2XddbM/xWC3Q+n59xUhtQJG40GtTpdASGIvr9PtXrdXGNPTyKDy1tZwcZ5RSAYDBIiUSCut2ugNLpNPE2qlQqUgzerVarrI4DlWPX4rbVapFpmgJKpVIeNBQKUa1Wk+IA5mJfjwbPZrMCwBASN5tNisViAoRQCKBwq/axilrBcI1fy7I8cDwel7ajKK3gyWSSRzKcWgBUe8PhMBmGIetkMkntdlsOGPZysce3ejqdPrDEbbVa/TFTzDwajcq7crnstXs8Hj8fDe71ehEG26qNAKAA9TnhpJdKJUJx324/h8OhoeVb5kTXSAypC0Q9o71qvnjm0dxrvb1Go9ENJy0q4C96Z1knua9xI3ErnxjwgiIgHCR2m+W5Xvh/o3787/gC1AnEP1lhBDEAAAAASUVORK5CYII=); float: right; width: 30px; height: 27px; background-repeat: no-repeat; }");
-injectCss(".ytp-button.backToVideoButton.snpButtonOld { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAbCAYAAABr/T8RAAAA30lEQVR42mNgGAWjYBTQA9TX1/MBcURdXV07kF4PxNeB+D0QR9HaYruGhob/2DBQroZuFgP5n4G4DIh9gFiJrj4Gim0FYh66BTWQvR+JfRaIJWhpsRmSZVpAXAHEf6H8+0AsQ0vLs4D4N8hiKD8IiL9CUzko1eshqZUDYg9qWu4BMhSJrwe1dD3UEUFQcS2oI7NoGRIyoOCGBvtfaDRoIUWNGS0tlwAlNBwJ0I7WKZ8HlMWwZDs7WlqqBC1MQIXKZ3paXIOnSKV5UEdBKw5QBbIeWqFEgFL9aDU7CkYWAAC9I/K7az2Q5QAAAABJRU5ErkJggg==); float: right; width: 30px; height: 27px; background-repeat: no-repeat; }");
+injectCss(".ytp-button.closeButton.snpButtonOld { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAtUlEQVR42u2ZUQqAMAxDPfpuPhH0RxCda9q90oC/yQs43bptK5VKJYx67+14kP6n+aWG8r+Zm4dI/R/MzUKk/i/m0yFS/4/mv0PU/qMBQyFKb3mQG7wi0B3eMjgM3gIgHH4GZBn4iRLrwItL+MCLSvjCG5eIgTcqEQs/WWINeHwB9CuEXsTozyj6R4beSqA3c+jtNPpAgz5Sog/1+LEKfrCFHy2mGO6mGK+nuOBIccVUKpVKEu0fhMn/KTmm8QAAAABJRU5ErkJggg==); float: right; width: 26px; height: 36px; background-repeat: no-repeat; background-size: 18px; margin: 10px 0 0 0; }");
+injectCss(".ytp-button.backToVideoButton.snpButtonOld { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAq0lEQVR42u2WMQ6AMAwDefr9vCwMDBRaUSQ7+KROzRC3iZNtCyEESdoacBaA8w/gXEI49wDOTYy7C1HBRnEXYN/EJWy0xCCTXSU4jqUATne4lRAX97g0MTcxqNsoA3GoDjJmYuVWia8fZ/aB1JJvsyWqmPyUSagmP2zTyskPDUr15B9XFRcBXRxKSFfAChHKNuoj4I0IxVUiAlJCv2piaxu1HmQlVokQQuiyA8w7ot5QnoO3AAAAAElFTkSuQmCC); float: right; width: 26px; height: 36px; background-repeat: no-repeat; background-size: 18px; margin: 10px 0 0 6px; }");
+injectCss(".chrmbtn-search { width: 480px !important; left: 0px !important; }");
