@@ -5,6 +5,19 @@
 // YTSNP Object
 function ytsnp() {
 
+	var videoSize = {
+		width: null,
+		height: null,
+		left: "0px",
+		top: "0px",
+		smallWidth: "480px",
+		smallHeight: "270px"
+	}
+	
+	// Reference the player object using a 'wait' call.
+	var el;
+	circularify.utils.wait(function() { return (el = document.getElementsByClassName("ytp-chrome-controls")[0]);}, addButtons);	
+	
 	// Get a reference job
 	function _getPlayer() {
 		return circularify.ytapi.getPlayer();
@@ -37,8 +50,8 @@ function ytsnp() {
 				element.firstChild.style.display = "block";
 
 				// Player sizing and positioning
-				element.style.width = "480px";
-				element.style.height = "300px";
+				element.style.width = videoSize.smallWidth
+				element.style.height = videoSize.smallHeight;
 				element.style.right = "10px";
 				element.style.position = "fixed";
 				element.style.zIndex = "999";
@@ -50,8 +63,8 @@ function ytsnp() {
 
 				var videoAdvertisements = document.getElementsByClassName("ad-container ad-container-single-media-element-annotations");
 				if (videoAdvertisements.length > 0) {
-					videoAdvertisements[0].style.width = "480px";
-					videoAdvertisements[0].style.height = "270px";
+					videoAdvertisements[0].style.width = videoSize.smallWidth;
+					videoAdvertisements[0].style.height = videoSize.smallHeight;
 				}
 				
 				// Put the "Continue To Video" button a little higher
@@ -74,11 +87,25 @@ function ytsnp() {
 				
 				// Making sure the video scales when cornerizing
 				var video = document.getElementsByClassName("html5-main-video");
-				video[0].style.width = "480px";
-				video[0].style.height = "270px";
+				
+				var saveWidth = video[0].style.width;
+				var saveHeight = video[0].style.height;
+				
+				if(saveWidth != videoSize.smallWidth 
+					&& saveHeight != videoSize.smallHeight) {
+					
+					videoSize.width = saveWidth;
+					videoSize.height = saveHeight;
+				}
+				
+				video[0].style.width = videoSize.smallWidth;
+				video[0].style.height = videoSize.smallHeight;
 				video[0].style.top = "0px";
 				video[0].style.left = "0px";
 
+				var container = document.getElementsByClassName("ytp-chrome-bottom")[0];
+				container.className = "ytp-chrome-bottom chrmbtn-search";
+				
 				// We're searching, so add the buttons (close & back)
 				_displayButtons();
 			}
@@ -90,8 +117,15 @@ function ytsnp() {
 		// The player is no longer cornerized
 		window.YTSNPIsCorner = false;
 		element.removeAttribute("style");
-		element.firstChild.firstChild.lastChild.removeAttribute("style");
-		document.getElementsByClassName("html5-main-video")[0].removeAttribute("style");
+		
+		if (videoSize.width != null && videoSize.height != null)
+		{
+			var videoElement = document.getElementsByClassName("html5-main-video")[0];
+			videoElement.style.width = videoSize.width;
+			videoElement.style.height = videoSize.height;
+			videoElement.style.top = videoSize.top;
+			videoElement.style.left = videoSize.left;
+		}
 		
 		var skipAdContainer = document.getElementsByClassName("videoAdUiPreSkipContainer");
 		if (skipAdContainer.length > 0)
@@ -99,18 +133,18 @@ function ytsnp() {
 		var skipAdButton = document.getElementsByClassName("videoAdUiSkipContainer html5-stop-propagation");
 		if (skipAdButton.length > 0)
 			skipAdButton[0].removeAttribute("style");
+			
+		var container = document.getElementsByClassName("ytp-chrome-bottom")[0];
+			container.className = "ytp-chrome-bottom";	
 		
 		_hideButtons();
 	}
 	
 	/* Player Options */
 	
-	// Reference the player object using a 'wait' call.
-	var el;
-	circularify.utils.wait(function() { return (el = document.getElementsByClassName("html5-player-chrome")[0]);}, addButtons);	
-	
 	// Function to add the close & back buttons to the player
 	function addButtons() {
+	
 		// Inject close button code in YouTube player
 		var button = document.createElement('div');
 		button.className = 'ytp-button closeButton';
@@ -156,6 +190,7 @@ function ytsnp() {
 		var backButton;
 		
 		circularify.utils.wait(function () { return (closeButton = document.getElementsByClassName("closeButton")[0]) && (backButton = document.getElementsByClassName("backToVideoButton")[0]); }, function () {
+			
 			closeButton.style.display = 'block';
 			backButton.style.display = 'block';
 		});
