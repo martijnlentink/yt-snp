@@ -22,7 +22,7 @@ inject(function () {
 	
 		// Get a reference job
 		var player = circularify.ytapi.getPlayer();
-		
+				
 		// Check if the player exists
 		if(player) {
 			// And if it exists, make sure we don't show an empty video.
@@ -31,37 +31,16 @@ inject(function () {
 				// While navigation we put the video in the bottom right corner
 				if (circularify.ytsnp.shouldCornerize(url)) {
 									
-					//console.log(chrome.extension);
-					//chrome.extension.sendMessage({action: "ytspNavigating"});
-				
 					circularify.ytsnp.cornerize(element);
 				}
 				// And if we go (back) to a video, put it back to normal position and size
 				else {
-					decircularify.ytsnp.decornerize(element);
+				
+					circularify.ytsnp.decornerize(element);
 				}
 			}
 		}
 	};
-	
-	// Function that handles a navigation going back in history
-	function navigateBackward(url) {
-
-		var element = document.getElementById("player-api");
-		if (circularify.ytsnp.shouldCornerize(url)) {
-			circularify.ytsnp.cornerize(element);
-		}
-		else {
-			circularify.ytapi.restoreTime();
-			decircularify.ytsnp.decornerize(element);
-		}
-	}
-	
-	// Perform an spf navigation and inform the player
-	function performNavigation(url) {
-		spf.navigate(url);
-		navigateBackward(url);
-	}
 	
 	// Get the locally saved settings
 	function getSettings() {
@@ -94,20 +73,6 @@ inject(function () {
 		}
 	}, 1000);
 	
-	window.getSettings = getSettings;
-});
-
-// Get settings and save them locally
-chrome.storage.onChanged.addListener(function(changes, namespace) {
-	
-	// Get the new saved position
-	var position = changes["settings"].newValue.position
-	
-	// Create a new settings object
-	var str = { "settings": { "position": position } };
-	
-	// Save the new settings object in localStorage
-	window.localStorage["SP-settings"] = JSON.stringify(str);
 });
 
 // Inject linked file

@@ -30,14 +30,14 @@ var ytapi = function() {
 		var player = _getPlayer();
 		var time = player.getCurrentTime();
 		// Wait for the page to load, and then set the old time so we can continue.
-		wait(function () { return document.getElementById("eow-title"); }, function () {
+		circularify.utils.wait(function () { return document.getElementById("eow-title"); }, function () {
 			player.seekTo(time);
 		});
 	}
 	
 	function _callWait() {
 		var el;
-		wait(function() { return (el = document.getElementsByClassName("html5-player-chrome")[0]);}, addButtons);	
+		circularify.utils.wait(function() { return (el = document.getElementsByClassName("html5-player-chrome")[0]);}, addButtons);	
 	}
 
 	// Exposable Object

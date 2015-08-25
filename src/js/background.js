@@ -22,10 +22,10 @@ chrome.webRequest.onBeforeRequest.addListener(
 			resp = resp.replace(/(this\.[a-zA-Z]{1,2}&&this\.[a-zA-Z]{1,2}&&this\.[a-zA-Z]{1,3}\.)(pauseVideo\(\))/, "$1YTSNP$2");
 			// Matches: function H(a,b){this.width=a;this.height=b}
 			// Solves the ad container so that the skip button is visible in the corner
-			resp = resp.replace(/(function [a-zA-Z]{1,2}\(a\,b\)\{)(this.width=a;this.height=b\})/, "$1if(window.YTSNPIsCorner){a='480';b='300';}$2");
+			resp = resp.replace(/(function [a-zA-Z]{1,2}\(a\,b\)\{)(this.width=a;this.height=b\})/, "$1if(window.YTSNPIsCorner){a='480';b='270';}$2");
 			// Matches: function oh(a,b,c){if(b instanceof H)c=b.height,b=b.width;else if(void 0==c)throw Error("missing height argument");
 			// Makes sure that the video is always of the size of the player
-			resp = resp.replace(/(function [a-zA-Z]{1,2}\(a\,b\,c\)\{if\(b instanceof [a-zA-Z]{1,2}\)c=b.height,b=b.width\;else if\(void 0==c\)throw Error\(\"[\w\s]+"\)\;)/, "$1if(window.YTSNPIsCorner){c=300;b=480;}");
+			resp = resp.replace(/(function [a-zA-Z]{1,2}\(a\,b\,c\)\{if\(b instanceof [a-zA-Z]{1,2}\)c=b.height,b=b.width\;else if\(void 0==c\)throw Error\(\"[\w\s]+"\)\;)/, "$1if(window.YTSNPIsCorner){c=270;b=480;}");
 			
 			// Remove the pauseVideo command from the API, so we can keep on playin'
 			resp = resp.replace(/([A-Za-z]{1,3}\(this\,\")(pauseVideo\"\,this\.[A-Za-z]{1,}\)\;)/, '$1YTSNP$2');
@@ -64,9 +64,28 @@ chrome.webRequest.onBeforeRequest.addListener(
 
 // Install listener
 chrome.runtime.onInstalled.addListener(function(details){
-	chrome.storage.sync.get('settings', function (container) {
-		if (( !container || !container.settings ) || ( container.settings && !container.settings["hide-welcome"] ))
-			// Open welcome file
-			chrome.tabs.create({'url': chrome.extension.getURL('html/welcome/index.html')});
-	});
+
+	// SHOW INSTALL POPUP
+	chrome.notifications.create("9310", {
+		type: 'basic',
+		iconUrl: chrome.extension.getURL('img/icon.128.png'),
+		title: 'New Update Installed',
+		message: 'A new update has just been installed. Click this notification to check out the changelog.'
+	}, null);
+});
+
+// Add Event Listener for Notifications
+chrome.notifications.onClicked.addListener(function(notificationId) {
+
+	// #SNP Update Notifications
+	if(notificationId == "9310") {
+	
+		// Get version number and replace '.' with '-'
+		var vnr = chrome.app.getDetails().version.replace('.', '-');
+	
+		// Navigate to our website
+		chrome.tabs.create({'url': 'http://circularify.com/release/' + vnr });
+	
+	}
+
 });

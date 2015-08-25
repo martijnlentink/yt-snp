@@ -76,14 +76,9 @@ function ytsnp() {
 				if(continueToVideoButton.length == 1) {
 					continueToVideoButton[0].style.bottom = "25px";
 				}
-			
-				// Get the saved settings object and position the player according to the setting
-				var settings = window.getSettings();
-				if(settings && settings.position == "top") { // Positioned on top
-					element.style.top = "70px";
-				} else {						// Positioned on bottoms
-					element.style.bottom = "10px";
-				}
+
+				// Positioned on bottoms
+				element.style.bottom = "10px";
 				
 				// Making sure the video scales when cornerizing
 				var video = document.getElementsByClassName("html5-main-video");
@@ -140,13 +135,33 @@ function ytsnp() {
 		_hideButtons();
 	}
 	
+	// Function that handles a navigation going back in history
+	function _navigateBackward(url) {
+
+		var element = document.getElementById("player-api");
+		if (_shouldCornerize(url)) {
+			_cornerize(element);
+		}
+		else {
+			circularify.ytapi.restoreTime();
+			_decornerize(element);
+		}
+	}
+	
+	// Perform an spf navigation and inform the player
+	function _performNavigation(url) {
+		spf.navigate(url);
+		_navigateBackward(url);
+	}
+	
+	
 	/* Player Options */
 	
 	// Function to add the close & back buttons to the player
 	function addButtons() {
 	
 		// Inject close button code in YouTube player
-		var button = document.createElement('div');
+		var button = document.createElement('button');
 		button.className = 'ytp-button closeButton';
 		button.setAttribute('role', 'button');
 		button.setAttribute('aria-label', 'Close player');
@@ -158,16 +173,16 @@ function ytsnp() {
 		button.addEventListener('click', function (event) {
 			var playel = document.getElementById('player-api');
 			playel.removeAttribute("style");
-			playel.childNodes[0].childNodes[0].childNodes[0].removeAttribute("style");
-			document.getElementsByClassName("html5-progress-bar ytp-force-transform")[0].removeAttribute("style");
-			console.log(playel);
+			//playel.childNodes[0].childNodes[0].removeAttribute("style");
+			playel.childNodes[0].childNodes[1].removeAttribute("style");
+			console.info(playel);
 			var player = _getPlayer();
 			player.cueVideoById();
 			_hideButtons();
 		});
 		
 		// Inject back to video button code in YouTube player
-		button = document.createElement('div');
+		button = document.createElement('button');
 		button.className = 'ytp-button backToVideoButton';
 		button.setAttribute('role', 'button');
 		button.setAttribute('aria-label', 'Back to video');
@@ -178,7 +193,7 @@ function ytsnp() {
 		// Add an eventlistener on event 'click', so we can handle the closing
 		button.addEventListener('click', function (event) {
 			var url = _getPlayer().getVideoUrl();
-			performNavigation(url);
+			_performNavigation(url);
 			_hideButtons();
 		});
 	}

@@ -63,70 +63,7 @@ circularify.mailoffice = circularify.mailoffice || function() {
 
 // Main method
 (function (circularify, chrome) {
-	
-	circularify.settings = circularify.settings || {};
-	// --- Private fields ---
-	// Callback registrations for when the settings are loaded
-	_registeredCallbacks = [];
-
-	// Default settings are implemented by the project
-	circularify.settings.defaultSettings = circularify.defaultSettings || {};
-	circularify.settings.currentSettings = circularify.settings.currentSettings || {};
-	
-	chrome.storage.sync.get("settings", function (set) {
-		// Merge saved settings with defaults
-		circularify.settings.defaultSettings = circularify.utils.mergeObjects(circularify.defaultSettings, circularify.settings.currentSettings);
-		for (var i = _registeredCallbacks.length - 1; i >= 0; i--) {
-			var callback = _registeredCallbacks[i];
-			callback();
-		};
-	});
-
-	circularify.settings.registerSettingsLoaded = function (callback) {
-		if (typeof (callback) !== "function")
-			throw new Exception("Callback must be of type 'function'");
-		_registeredCallbacks.push(callback);
-	};
-	
-	
-	// Retrieve a setting
-	circularify.settings.get = function (setting) {
-		return circularify.currentSettings.settings[setting];
-	}
-	
-	// Set a setting
-	circularify.settings.set = function (setting, value) {
-		settings[setting] = value;
-		chrome.storage.sync.set( { settings: settings } );
-	}
-	
-	// Creates a simple two-way binding
-	circularify.settings.bind = function () {
-		var elements = document.querySelectorAll("[data-setting]");
-		for (var i = 0; i < elements.length; i++) {
-			var element = elements[i];
-			var value = element.value;
-			var settingString = element.getAttribute("data-setting");
-			var settingValue = circularify.settings.get(settingString);
-			var type = element.getAttribute("type");
-			
-			// We know the following two way bindings -- TODO is add more as we go
-			switch(type) {
-				// Multiple radio buttons
-				case 'radio':
-					element.checked = value === settingValue;
-					element.addEventListener('click', function (event) { if (event.target.checked) circularify.settings.set(event.target.getAttribute("data-setting"), event.target.value); });
-					break;
-				// Single checkboxes
-				case 'checkbox':
-					var bool = value == 'true';
-					element.checked = bool == settingValue;
-					element.addEventListener('change', function () { var val = event.target.value == 'true'; circularify.settings.set(event.target.getAttribute("data-setting"), event.target.checked ? val : !val ); });
-					break;
-			}
-		}
-	};
-	
+		
 	circularify.i18n = circularify.i18n || {};
 	
 	/* Internationalization */
