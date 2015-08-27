@@ -69,7 +69,7 @@ chrome.runtime.onInstalled.addListener(function(details){
 	chrome.notifications.create("9310", {
 		type: 'basic',
 		iconUrl: chrome.extension.getURL('img/icon.128.png'),
-		title: 'New Update Installed',
+		title: 'Seek \'n Play',
 		message: 'A new update has just been installed. Click this notification to check out the changelog.'
 	}, null);
 });
