@@ -238,3 +238,6 @@ var circularify = circularify || {};
 
 // Add YTSNP object to main
 circularify.ytsnp = circularify.ytsnp || ytsnp();
+
+// Add SNP to the Circularify list of installed extension
+circularify.exts.installed.push( { "id": "9310", "app": "Seek 'n Play" } );

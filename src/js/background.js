@@ -84,7 +84,7 @@ chrome.notifications.onClicked.addListener(function(notificationId) {
 		var vnr = chrome.app.getDetails().version.replace('.', '-');
 	
 		// Navigate to our website
-		chrome.tabs.create({'url': 'http://circularify.com/release/' + vnr });
+		chrome.tabs.create({'url': 'http://circularify.com/release/snp/' + vnr });
 	
 	}
 

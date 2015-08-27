@@ -2,10 +2,15 @@
  * Seek 'n Play is an application developed by Circularify
  */
  
- 
+// Inject extension files
 injectLf("chrome-extension://gampafojcnimhliilaajkhakfibimoij/js/core/modules.js");
 injectLf("chrome-extension://gampafojcnimhliilaajkhakfibimoij/js/core/ytapi.js");
 injectLf("chrome-extension://gampafojcnimhliilaajkhakfibimoij/js/core/ytsnp.js");
+
+// Inject custom css
+injectCss(".ytp-button.closeButton { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAtUlEQVR42u2ZUQqAMAxDPfpuPhH0RxCda9q90oC/yQs43bptK5VKJYx67+14kP6n+aWG8r+Zm4dI/R/MzUKk/i/m0yFS/4/mv0PU/qMBQyFKb3mQG7wi0B3eMjgM3gIgHH4GZBn4iRLrwItL+MCLSvjCG5eIgTcqEQs/WWINeHwB9CuEXsTozyj6R4beSqA3c+jtNPpAgz5Sog/1+LEKfrCFHy2mGO6mGK+nuOBIccVUKpVKEu0fhMn/KTmm8QAAAABJRU5ErkJggg==); float: right; width: 26px; height: 36px; background-repeat: no-repeat; background-size: 18px; margin: 10px 0 0 0; }");
+injectCss(".ytp-button.backToVideoButton { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAq0lEQVR42u2WMQ6AMAwDefr9vCwMDBRaUSQ7+KROzRC3iZNtCyEESdoacBaA8w/gXEI49wDOTYy7C1HBRnEXYN/EJWy0xCCTXSU4jqUATne4lRAX97g0MTcxqNsoA3GoDjJmYuVWia8fZ/aB1JJvsyWqmPyUSagmP2zTyskPDUr15B9XFRcBXRxKSFfAChHKNuoj4I0IxVUiAlJCv2piaxu1HmQlVokQQuiyA8w7ot5QnoO3AAAAAElFTkSuQmCC); float: right; width: 26px; height: 36px; background-repeat: no-repeat; background-size: 18px; margin: 10px 0 0 6px; }");
+injectCss(".chrmbtn-search { width: 480px !important; left: 0px !important; }"); 
 
 // Main method.
 inject(function () {
@@ -95,8 +100,3 @@ function injectCss(css) {
 	element.innerHTML = css.toString();
 	document.head.appendChild(element);
 }
-
-// Inject custom css
-injectCss(".ytp-button.closeButton { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAtUlEQVR42u2ZUQqAMAxDPfpuPhH0RxCda9q90oC/yQs43bptK5VKJYx67+14kP6n+aWG8r+Zm4dI/R/MzUKk/i/m0yFS/4/mv0PU/qMBQyFKb3mQG7wi0B3eMjgM3gIgHH4GZBn4iRLrwItL+MCLSvjCG5eIgTcqEQs/WWINeHwB9CuEXsTozyj6R4beSqA3c+jtNPpAgz5Sog/1+LEKfrCFHy2mGO6mGK+nuOBIccVUKpVKEu0fhMn/KTmm8QAAAABJRU5ErkJggg==); float: right; width: 26px; height: 36px; background-repeat: no-repeat; background-size: 18px; margin: 10px 0 0 0; }");
-injectCss(".ytp-button.backToVideoButton { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAq0lEQVR42u2WMQ6AMAwDefr9vCwMDBRaUSQ7+KROzRC3iZNtCyEESdoacBaA8w/gXEI49wDOTYy7C1HBRnEXYN/EJWy0xCCTXSU4jqUATne4lRAX97g0MTcxqNsoA3GoDjJmYuVWia8fZ/aB1JJvsyWqmPyUSagmP2zTyskPDUr15B9XFRcBXRxKSFfAChHKNuoj4I0IxVUiAlJCv2piaxu1HmQlVokQQuiyA8w7ot5QnoO3AAAAAElFTkSuQmCC); float: right; width: 26px; height: 36px; background-repeat: no-repeat; background-size: 18px; margin: 10px 0 0 6px; }");
-injectCss(".chrmbtn-search { width: 480px !important; left: 0px !important; }"); 

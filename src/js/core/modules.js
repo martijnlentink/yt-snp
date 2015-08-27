@@ -33,12 +33,12 @@ circularify.mailoffice = circularify.mailoffice || function() {
 	var _receipients = [];
 	
 	function _subscribe(receipient) {
-		console.log('>Receipient added: ' + receipient);
+		//console.info('>Receipient added');
 		circularify.mailoffice.receipients.push(receipient);
 	};
 
 	function _unubscribe(receipient) {
-		console.log('>Receipient removed: ' + receipient);
+		//console.info('>Receipient removed');
 		var index = circularify.mailoffice.receipients.indexOf(receipient);
 		
 		if(~index) {
@@ -47,7 +47,6 @@ circularify.mailoffice = circularify.mailoffice || function() {
 	};
 	
 	function _sendMailman() {		
-		//console.info("Sending the mailman");
 		for(var i = 0; i < circularify.mailoffice.receipients.length; i++) {
 			circularify.mailoffice.receipients[i]();
 		}
@@ -59,6 +58,16 @@ circularify.mailoffice = circularify.mailoffice || function() {
 		unsubscribe: _unubscribe,
 		sendMailman: _sendMailman
 	}
+}();
+
+circularify.exts = circularify.exts || function() {
+
+	var _installed = [];
+
+	return {
+		installed: _installed
+	}
+
 }();
 
 // Main method
