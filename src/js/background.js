@@ -65,12 +65,15 @@ chrome.webRequest.onBeforeRequest.addListener(
 // Install listener
 chrome.runtime.onInstalled.addListener(function(details){
 
+	// i18n install message
+	var installMsg = chrome.i18n.getMessage("installNotification");
+
 	// SHOW INSTALL POPUP
 	chrome.notifications.create("9310", {
 		type: 'basic',
 		iconUrl: chrome.extension.getURL('img/icon.128.png'),
 		title: 'Seek \'n Play',
-		message: 'A new update has just been installed. Click this notification to check out the changelog.'
+		message: installMsg
 	}, null);
 });
 

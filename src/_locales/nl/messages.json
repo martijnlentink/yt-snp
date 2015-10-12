@@ -1,5 +1,8 @@
 {
 	"appDescription": {
 		"message": "Met deze extensie kun je zoeken op YouTube terwijl je video afspeelt."
+	},
+	"installNotification": {
+		"message": "Er is een update geinstalleerd. Klik hier om de wijzigingen te bekijken."
 	}
 }

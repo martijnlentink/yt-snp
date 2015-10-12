@@ -2,15 +2,17 @@
  * Seek 'n Play is an application developed by Circularify
  */
  
+// Reference the required files 
+var modulesJs = chrome.extension.getURL('js/core/modules.js');
+var ytapiJs = chrome.extension.getURL('js/core/ytapi.js');
+var ytsnpJs = chrome.extension.getURL('js/core/ytsnp.js');
+var ytsnpCss = chrome.extension.getURL('css/ytsnp.css');
+ 
 // Inject extension files
-injectLf("chrome-extension://gampafojcnimhliilaajkhakfibimoij/js/core/modules.js");
-injectLf("chrome-extension://gampafojcnimhliilaajkhakfibimoij/js/core/ytapi.js");
-injectLf("chrome-extension://gampafojcnimhliilaajkhakfibimoij/js/core/ytsnp.js");
-
-// Inject custom css
-injectCss(".ytp-button.closeButton { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAtUlEQVR42u2ZUQqAMAxDPfpuPhH0RxCda9q90oC/yQs43bptK5VKJYx67+14kP6n+aWG8r+Zm4dI/R/MzUKk/i/m0yFS/4/mv0PU/qMBQyFKb3mQG7wi0B3eMjgM3gIgHH4GZBn4iRLrwItL+MCLSvjCG5eIgTcqEQs/WWINeHwB9CuEXsTozyj6R4beSqA3c+jtNPpAgz5Sog/1+LEKfrCFHy2mGO6mGK+nuOBIccVUKpVKEu0fhMn/KTmm8QAAAABJRU5ErkJggg==); float: right; width: 26px; height: 36px; background-repeat: no-repeat; background-size: 18px; margin: 10px 0 0 0; }");
-injectCss(".ytp-button.backToVideoButton { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAq0lEQVR42u2WMQ6AMAwDefr9vCwMDBRaUSQ7+KROzRC3iZNtCyEESdoacBaA8w/gXEI49wDOTYy7C1HBRnEXYN/EJWy0xCCTXSU4jqUATne4lRAX97g0MTcxqNsoA3GoDjJmYuVWia8fZ/aB1JJvsyWqmPyUSagmP2zTyskPDUr15B9XFRcBXRxKSFfAChHKNuoj4I0IxVUiAlJCv2piaxu1HmQlVokQQuiyA8w7ot5QnoO3AAAAAElFTkSuQmCC); float: right; width: 26px; height: 36px; background-repeat: no-repeat; background-size: 18px; margin: 10px 0 0 6px; }");
-injectCss(".chrmbtn-search { width: 480px !important; left: 0px !important; }"); 
+injectLf(modulesJs);
+injectLf(ytapiJs);
+injectLf(ytsnpJs);
+injectLf(ytsnpCss);
 
 // Main method.
 inject(function () {
@@ -77,8 +79,23 @@ inject(function () {
 			clearTimeout(this);
 		}
 	}, 1000);
-	
+		
+		
+	window.yttrcooldown = 0;
 });
+
+// Inject GA
+inject(function(){
+	
+	setTimeout(function() {
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','https://www.google-analytics.com/analytics.js','yttr');
+
+		yttr('create', 'UA-50232941-1', 'auto');
+	}, 1000);
+})
 
 // Inject linked file
 function injectLf(fn) {
@@ -92,11 +109,4 @@ function inject(fn) {
 	var script = document.createElement('script');
 	script.innerHTML = '(' + fn.toString() + ')();';
 	document.body.appendChild(script);
-}
-
-// Inject some CSS
-function injectCss(css) {
-	var element = document.createElement('style');
-	element.innerHTML = css.toString();
-	document.head.appendChild(element);
 }

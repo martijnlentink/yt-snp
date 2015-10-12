@@ -38,7 +38,9 @@
 	"web_accessible_resources": [
 		"js/core/modules.js",		
 		"js/core/ytapi.js",		
-		"js/core/ytsnp.js"
+		"js/core/ytsnp.js",
+		"css/core/ytsnp.css",
+		"https://www.google-analytics.com/analytics.js"
 	],
 	
 	"content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
