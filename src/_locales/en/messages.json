@@ -4,5 +4,8 @@
 	},
 	"installNotification": {
 		"message": "A new update has been installed. Click here to check out the changelog."
+	},
+	"popupMessage": {
+		"message": "Found a bug? Report it at the <a href='http://bugs.circularify.com' target='_blank'>Circularify Bug Tracker</a>."
 	}
 }
