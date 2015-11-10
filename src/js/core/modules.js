@@ -274,6 +274,35 @@ circularify.omni = circularify.omni || function () {
 
 // Observer pattern, uses publisher - subscriber model
 circularify.mailoffice = circularify.mailoffice || function() {
+	
+	var _receipients = [];
+	
+	function _subscribe(receipient) {
+		console.log('>Receipient added: ' + receipient);
+		circularify.mailoffice.receipients.push(receipient);
+	};
+
+	function _unubscribe(receipient) {
+		console.log('>Receipient removed: ' + receipient);
+		var index = circularify.mailoffice.receipients.indexOf(receipient);
+		
+		if(~index) {
+			this.receipients.splice(index, 1);
+		}
+	};
+	
+	function _sendMailman() {		
+		for(var i = 0; i < circularify.mailoffice.receipients.length; i++) {
+			circularify.mailoffice.receipients[i]();
+		}
+	}
+	
+	return {
+		receipients: _receipients,
+		subscribe: _subscribe,
+		unsubscribe: _unubscribe,
+		sendMailman: _sendMailman
+	}
 }();
 
 circularify.exts = circularify.exts || function() {

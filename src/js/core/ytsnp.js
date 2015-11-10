@@ -45,6 +45,15 @@ function ytsnp() {
 			// And if it exists, make sure we don't show an empty video.
 			if(player.getPlaybackQuality() !== "unknown" && player.getPlaybackQuality() !== "undefined") {
 
+				// GA
+				if(window.yttrcooldown == 0) {
+					yttr('send', 'event', 'Seek \'n Play', 'cornerize', 'Seek \'n Play Cornerize');
+					window.yttrcooldown = 1;
+					setTimeout(function() {
+						window.yttrcooldown = 0;
+					}, 1500);
+				}
+			
 				// Make sure the player is visible and not somewhere far to the left
 				//element.className = element.className.replace(/\off-screen-target\b/,'');
 				element.firstChild.style.display = "block";
@@ -112,6 +121,15 @@ function ytsnp() {
 		// The player is no longer cornerized
 		window.YTSNPIsCorner = false;
 		element.removeAttribute("style");
+		
+		// GA
+		if(window.yttrcooldown == 0) {
+			yttr('send', 'event', 'Seek \'n Play', 'decornerize', 'Seek \'n Play Decornerize');
+			window.yttrcooldown = 1;
+			setTimeout(function() {
+				window.yttrcooldown = 0;
+			}, 1500);
+		}
 		
 		if (videoSize.width != null && videoSize.height != null)
 		{

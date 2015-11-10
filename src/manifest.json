@@ -6,6 +6,15 @@
 	"version": "2.0",  
 	"homepage_url": "https://chrome.google.com/webstore/detail/aiaeaehoebdkelhnbomepbijjjeakkld/",
 
+	"browser_action": {
+		"default_icon": {
+			"19": "img/icon.16.png",
+			"38": "img/icon.48.png" 
+		},
+		"default_title": "Seek 'n Play info",
+		"default_popup": "html/popup.html"
+	},
+	
 	"icons": { 
 		"16": "img/icon.16.png",
         "48": "img/icon.48.png",
@@ -46,7 +55,9 @@
 	"web_accessible_resources": [
 		"js/core/modules.js",		
 		"js/core/ytapi.js",		
-		"js/core/ytsnp.js"
+		"js/core/ytsnp.js",
+		"css/ytsnp.css",
+		"https://www.google-analytics.com/analytics.js"
 	],
 	
 	"content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
