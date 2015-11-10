@@ -20,10 +20,15 @@
 		"webRequestBlocking"
 	],
 
+	"externally_connectable": {
+	  "matches": ["*://*.youtube.com/*"]
+	},
+
 	"content_scripts": [
 		{
 			"matches": ["*://*.youtube.com/*"],
 			"js": [
+				"js/core/modules.js",	
 				"js/contentscript.js"
 			],
 			"run_at": "document_end"
@@ -32,7 +37,10 @@
 	
 	"background": 
 	{ 
-		"scripts": ["js/background.js"] 
+		"scripts": [
+			"js/background.js",
+			"js/core/modules.js"
+		] 
 	},
 	
 	"web_accessible_resources": [

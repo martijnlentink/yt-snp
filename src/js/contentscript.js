@@ -3,9 +3,9 @@
  */
  
 // Inject extension files
-injectLf("chrome-extension://gampafojcnimhliilaajkhakfibimoij/js/core/modules.js");
-injectLf("chrome-extension://gampafojcnimhliilaajkhakfibimoij/js/core/ytapi.js");
-injectLf("chrome-extension://gampafojcnimhliilaajkhakfibimoij/js/core/ytsnp.js");
+injectLf(chrome.runtime.getURL("js/core/modules.js"));
+injectLf(chrome.runtime.getURL("js/core/ytapi.js"));
+injectLf(chrome.runtime.getURL("js/core/ytsnp.js"));
 
 // Inject custom css
 injectCss(".ytp-button.closeButton { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAtUlEQVR42u2ZUQqAMAxDPfpuPhH0RxCda9q90oC/yQs43bptK5VKJYx67+14kP6n+aWG8r+Zm4dI/R/MzUKk/i/m0yFS/4/mv0PU/qMBQyFKb3mQG7wi0B3eMjgM3gIgHH4GZBn4iRLrwItL+MCLSvjCG5eIgTcqEQs/WWINeHwB9CuEXsTozyj6R4beSqA3c+jtNPpAgz5Sog/1+LEKfrCFHy2mGO6mGK+nuOBIccVUKpVKEu0fhMn/KTmm8QAAAABJRU5ErkJggg==); float: right; width: 26px; height: 36px; background-repeat: no-repeat; background-size: 18px; margin: 10px 0 0 0; }");
@@ -71,7 +71,7 @@ inject(function () {
 	
 	// Set Navigation Subscribtion
 	setTimeout(function() {
-		if(circularify !== undefined) {
+		if(circularify) {
 			window.YTSPNavigating = circularify.mailoffice.sendMailman;
 			circularify.mailoffice.subscribe(navigateForward);
 			clearTimeout(this);
