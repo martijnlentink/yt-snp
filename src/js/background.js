@@ -7,7 +7,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 	function(details) {
 
 		// Whilst using the HTML5 player, do:
-		if (details.url.indexOf('html5player') > -1) {
+		if (details.url.match(/player.*\/base\.js/)) {
 		
 			// Let, just, me, get that YT API JavaScript file
 			var xhr = new XMLHttpRequest();

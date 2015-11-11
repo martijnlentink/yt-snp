@@ -21,7 +21,6 @@ inject(function () {
 	window.addEventListener("popstate", function () { navigateBackward(); });
 	
 	function navigateForward(url) {		
-	
 		// Get the URL
 		url = url || window.location.href;
 		// Reference to the player object
