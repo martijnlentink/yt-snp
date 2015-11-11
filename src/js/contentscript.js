@@ -19,12 +19,21 @@ inject(function () {
 	
 	// Subscribe to the popstate event to handle going back in history
 	window.addEventListener("popstate", function () { navigateBackward(); });
+
+	// Function that handles a navigation going back in history
+	function navigateBackward(url) {
+		if (circularify.ytsnp.shouldCornerize(url)) {
+			circularify.ytsnp.cornerize();
+		}
+		else {
+			circularify.ytapi.restoreTime();
+			circularify.ytsnp.decornerize();
+		}
+	}
 	
 	function navigateForward(url) {		
 		// Get the URL
 		url = url || window.location.href;
-		// Reference to the player object
-		var element = document.getElementById("player-api");
 	
 		// Get a reference job
 		var player = circularify.ytapi.getPlayer();
@@ -37,12 +46,11 @@ inject(function () {
 				// While navigation we put the video in the bottom right corner
 				if (circularify.ytsnp.shouldCornerize(url)) {
 									
-					circularify.ytsnp.cornerize(element);
+					circularify.ytsnp.cornerize();
 				}
 				// And if we go (back) to a video, put it back to normal position and size
 				else {
-				
-					circularify.ytsnp.decornerize(element);
+					circularify.ytsnp.decornerize();
 				}
 			}
 		}

@@ -10,8 +10,13 @@ var ytapi = function() {
 	{
 		return window.yt.player 
 			&& window.yt.player.getPlayerByElement
-			&& window.yt.player.getPlayerByElement(document.getElementById('player-api'));
+			&& window.yt.player.getPlayerByElement(_getVideoElement());
 	};
+
+	function _getVideoElement()
+	{
+		return document.getElementById('player-api');
+	}
 	
 	// Get the video ID from the current URL.
 	function _retrieveIdFromUrl(url)
@@ -43,6 +48,7 @@ var ytapi = function() {
 	// Exposable Object
 	return {
 		getPlayer	: _getPlayer,
+		getVideoElement : _getVideoElement,
 		getVideoId	: _retrieveIdFromUrl,
 		restoreTime	: _restoreTime,
 		callWait 	: _callWait

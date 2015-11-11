@@ -33,8 +33,9 @@ function ytsnp() {
 	}
 	
 	// Put the element in the corner
-	function _cornerize(element) {		
+	function _cornerize() {		
 		
+		var element = circularify.ytapi.getVideoElement();
 		// The player is cornerized
 		window.YTSNPIsCorner = true;
 		
@@ -117,7 +118,9 @@ function ytsnp() {
 	}
 	
 	// Removes the player from the corner and resets player size
-	function _decornerize(element) {
+	function _decornerize() {
+
+		var element = circularify.ytapi.getVideoElement();
 		// The player is no longer cornerized
 		window.YTSNPIsCorner = false;
 		element.removeAttribute("style");
@@ -153,23 +156,9 @@ function ytsnp() {
 		_hideButtons();
 	}
 	
-	// Function that handles a navigation going back in history
-	function _navigateBackward(url) {
-
-		var element = document.getElementById("player-api");
-		if (_shouldCornerize(url)) {
-			_cornerize(element);
-		}
-		else {
-			circularify.ytapi.restoreTime();
-			_decornerize(element);
-		}
-	}
-	
 	// Perform an spf navigation and inform the player
 	function _performNavigation(url) {
 		spf.navigate(url);
-		_navigateBackward(url);
 	}
 	
 	
