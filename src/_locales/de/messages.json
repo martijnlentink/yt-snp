@@ -1,5 +1,8 @@
 {
 	"appDescription": {
 		"message": "Diese Erweiterung ermöglicht Ihnen die Suche auf YouTube, während ein Video abgespielt wird."
-	}	
+	},
+	"installNotification": {
+		"message": "Ein neues Update ist installiert. Klicken Sie hier, um die Changelog zu sehen."
+	}
 }
