@@ -1,16 +1,17 @@
-'Get command-line arguments.
 Set objArgs = WScript.Arguments
-InputFolder = objArgs(0)
-ZipFile = objArgs(1)
+ZipFile = objArgs(0)
+AddCreate = objArgs(1)
 
-'Create empty ZIP file.
-CreateObject("Scripting.FileSystemObject").CreateTextFile(ZipFile, True).Write "PK" & Chr(5) & Chr(6) & String(18, vbNullChar)
+' Create empty ZIP file and open for adding
+If AddCreate = "new" Then
+	CreateObject("Scripting.FileSystemObject").CreateTextFile(ZipFile, True).Write "PK" & Chr(5) & Chr(6) & String(18, vbNullChar)
+	WScript.Sleep 100 'REQUIRED!! (Depending on file/dir size)
+Else
+	Set zip = CreateObject("Shell.Application").NameSpace(ZipFile)
+	' Add all files/directories to the .zip file
+	For i = 2 To objArgs.count-1
+	  zip.CopyHere(objArgs(i))
+	  WScript.Sleep 100 'REQUIRED!! (Depending on file/dir size)
+	Next
+End If
 
-Set objShell = CreateObject("Shell.Application")
-
-Set source = objShell.NameSpace(InputFolder).Items
-
-objShell.NameSpace(ZipFile).CopyHere(source)
-
-'Required!
-wScript.Sleep 2000
