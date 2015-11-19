@@ -278,12 +278,10 @@ circularify.mailoffice = circularify.mailoffice || function() {
 	var _receipients = [];
 	
 	function _subscribe(receipient) {
-		console.log('>Receipient added: ' + receipient);
 		circularify.mailoffice.receipients.push(receipient);
 	};
 
 	function _unubscribe(receipient) {
-		console.log('>Receipient removed: ' + receipient);
 		var index = circularify.mailoffice.receipients.indexOf(receipient);
 		
 		if(~index) {
