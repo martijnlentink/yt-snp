@@ -1,4 +1,4 @@
-/*
+/**
  * Seek 'n Play is an application developed by Circularify
  */
 var circularify = circularify || {};
@@ -32,6 +32,8 @@ circularify.omni = circularify.omni || function () {
 	_callbacks = {};
 
 	function executeFunctionByName(functionName, context, args) {
+		console.log("Executing " + functionName);
+		debugger;
 	  var namespaces = functionName.split(".");
 	  var func = namespaces.pop();
 	  for(var i = 0; i < namespaces.length; i++) {
@@ -88,7 +90,7 @@ circularify.omni = circularify.omni || function () {
 			};
 			args.push(callback);
 		}
-		var result = executeFunctionByName(message.func, window, args);
+		var result = executeFunctionByName(message.func, message.func.startsWith("chrome") ? window : _getCurrentEnvironment(), args);
 		if (!message.isAsync)
 			port.postMessage({ id: message.id, source: _getCurrentEnvironment().Name, target: message.source, result: result });
 	}
@@ -100,6 +102,14 @@ circularify.omni = circularify.omni || function () {
 			func(message.result);
 		delete _callbacks[message.id];
 	}
+	
+	function _callFunc (target, namespaces, args, callback, isAsync) {
+		isAsync = !!isAsync;
+		var funcName = typeof namespaces == "object" ? "chrome." + namespaces.join(".") : namespaces;
+		var callbackId = _generateGuid();
+		_assignCallback(callbackId,callback);
+		_port.postMessage({ id: callbackId, source: _getCurrentEnvironment().Name, target: target, func: funcName, args: args, isAsync: isAsync });
+	}
 
 	var _page = _page || function () {
 
@@ -109,19 +119,20 @@ circularify.omni = circularify.omni || function () {
 			_port.onMessage.addListener(_handleMessage);
 		};
 
+		// Register yttr event
+		function _registerEvent(event, value)
+		{
+			// TODO: Adjust the category according to the current environment!
+			var category = 'Seek \'n Play';
+			yttr('send', 'event', category, event, value);
+		}
+
 		return {
 			Name: "page",
-			EstablishConnection: _establishConnection
+			EstablishConnection: _establishConnection,
+			RegisterEvent: _registerEvent
 		};
 	}();
-
-	function _callFunc (target, namespaces, args, callback, isAsync) {
-		isAsync = !!isAsync;
-		var funcName = "chrome." + namespaces.join(".");
-		var callbackId = _generateGuid();
-		_assignCallback(callbackId,callback);
-		_port.postMessage({ id: callbackId, source: _getCurrentEnvironment().Name, target: target, func: funcName, args: args, isAsync: isAsync });
-	}
 
 	/* Implementation for content script */
 	var _content = _content || function () {
@@ -259,6 +270,9 @@ circularify.omni = circularify.omni || function () {
 	_injectPrerequisites();
 
 	return {
+		analytics: {
+			registerEvent: function (event, value) { _callFunc("page", "RegisterEvent", [event, value])}
+		},
 		runtime: _runtime,
 		i18n: {
 			getMessage: function (messageName, substitutions, ns) {_callFunc("content", ["i18n", "getMessage"], [messageName, substitutions], ns);},

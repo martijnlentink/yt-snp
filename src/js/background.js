@@ -1,11 +1,20 @@
 /*
  * Seek 'n Play is an application developed by Circularify
  */
+ 
+var lastNotificationCheck = Date.now();
+var interval = 60 * 60 * 1000;
+var lastHandledNotification = -1;
 
  // WebRequest Listener
 chrome.webRequest.onBeforeRequest.addListener(
 	function(details) {
-
+		if (Date.now() - lastNotificationCheck >= interval)
+		{
+			lastnotificationcheck = date.now();
+			checkNotifications();
+		}
+	
 		// Whilst using the HTML5 player, do:
 		if (details.url.match(/player.*\/base\.js/)) {
 		
@@ -75,6 +84,8 @@ chrome.runtime.onInstalled.addListener(function(details){
 		title: 'Seek \'n Play',
 		message: installMsg
 	}, null);
+	
+	circularify.omni.analytics.registerEvent("install", details.reason, details.previousVersion);
 });
 
 // Add Event Listener for Notifications
@@ -90,5 +101,48 @@ chrome.notifications.onClicked.addListener(function(notificationId) {
 		chrome.tabs.create({'url': 'http://circularify.com/release/snp/' + vnr });
 	
 	}
-
 });
+
+function showNotification(id, message, title, iconUrl, type)
+{
+	title = title || 'Seek \'n Play';
+	iconUrl = iconUrl || 'img/icon.128.png';
+	if (!iconUrl.indexOf("://"))
+		iconUrl = chrome.extension.getURL(iconUrl);
+	type = type || 'basic';
+	
+	chrome.notifications.create(id, {
+		type: type,
+		iconUrl: iconUrl,
+		title: title,
+		message: message
+	}, null);
+}
+
+function checkNotifications()
+{
+	// We're doing a HttpRequest looking for new notifications
+	// We'll pass the last notification that we showed in order
+	// to get the remaining notifications
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "http://circularify.com/notifyAPI/" + lastHandledNotification);
+	xhr.addEventListener("load", handleNotification);
+	xhr.send();
+}
+
+function handleNotification()
+{
+	var array = JSON.parse(this.responseText);
+	
+	if (array.length > 0)
+	{
+		// We'll now be showing notification(s)
+		// TODO: Determine what to do when we got multiple notifications to show
+		for (var i in array)
+		{
+			var notification = array[i];
+			showNotification(notification.id, notification.message, notification.title);
+			circularify.omni.analytics.registerEvent("displayed_notification", notification.id);
+		}
+	}
+}
