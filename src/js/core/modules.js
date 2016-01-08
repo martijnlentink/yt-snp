@@ -55,7 +55,11 @@ circularify.omni = circularify.omni || function () {
 	    s4() + '-' + s4() + s4() + s4();
 	}
 
+	// The port we talk to
 	var _port = null;
+	// Sometimes we want to talk to a port that isn't inintialized yet
+	// So we create a queue that can be emptied when we're ready
+	var _initQueue = [];
 
 	function _handleMessage(message, port)
 	{
@@ -91,8 +95,19 @@ circularify.omni = circularify.omni || function () {
 			args.push(callback);
 		}
 		var result = executeFunctionByName(message.func, message.func.startsWith("chrome") ? window : _getCurrentEnvironment(), args);
+		var message = {
+			id: message.id,
+			source: _getCurrentEnvironment().Name,
+			target: message.source,
+			result: result
+		};
 		if (!message.isAsync)
-			port.postMessage({ id: message.id, source: _getCurrentEnvironment().Name, target: message.source, result: result });
+		{
+			if (port != null)
+				port.postMessage(message);
+			else
+				_initQueue.push(message);
+		}
 	}
 
 	function _returnResult(message, port)
@@ -103,15 +118,38 @@ circularify.omni = circularify.omni || function () {
 		delete _callbacks[message.id];
 	}
 	
+	// Call a function independently of our environment
 	function _callFunc (target, namespaces, args, callback, isAsync) {
 		isAsync = !!isAsync;
 		var funcName = typeof namespaces == "object" ? "chrome." + namespaces.join(".") : namespaces;
 		var callbackId = _generateGuid();
 		_assignCallback(callbackId,callback);
-		_port.postMessage({ id: callbackId, source: _getCurrentEnvironment().Name, target: target, func: funcName, args: args, isAsync: isAsync });
+
+		// We are to marshall our function call to another environment
+		var message = {
+			id: callbackId,  // The id we return to, this is for a callback
+			source: _getCurrentEnvironment().Name, // THe environment where the call is initialized
+			target: target, // The target, where the function should be executed
+			func: funcName, // The name of the function we are to call
+			args: args, // The arguments we want to pass to the function
+			isAsync: isAsync // Flag that indicates wether the call is Async | This is currently unused
+		};
+
+		// Check if we have a port to the other environments, this may be null just after page load
+		if (_port != null)
+			_port.postMessage(message);
+		else
+			_initQueue.push(message);
 	}
 
 	var _page = _page || function () {
+
+		function _initialize() {
+			// We can connect only when the chrome extension id is available
+			circularify.utils.wait(function () {
+				return chrome.runtime.id;
+			}, _establishConnection);
+		}
 
 		function _establishConnection() {
 			var id = chrome.runtime.id;
@@ -129,7 +167,7 @@ circularify.omni = circularify.omni || function () {
 
 		return {
 			Name: "page",
-			EstablishConnection: _establishConnection,
+			Initialize: _initialize,
 			RegisterEvent: _registerEvent
 		};
 	}();
@@ -137,7 +175,10 @@ circularify.omni = circularify.omni || function () {
 	/* Implementation for content script */
 	var _content = _content || function () {
 
-		function _establishConnection() {
+		// The initialization on the content
+		function _initialize() {
+			// We need to pass our extension ID in order to contact the page to the background
+			_passObject("chrome.runtime.id", chrome.runtime.id);
 			_port = chrome.runtime.connect();
 			_port.onMessage.addListener(_handleMessage);
 		};
@@ -177,15 +218,16 @@ circularify.omni = circularify.omni || function () {
 			InjectScript: _injectScript,
 			PassObject: _passObject,
 			InjectCss: _injectCss,
-			EstablishConnection: _establishConnection
+			Initialize: _initialize
 		};
 	}();
 
+	/* The background environment */
 	var _background = _background || function () {
 		var _portContent = null;
 		var _name = "background";
 
-		function _establishConnection() {
+		function _initialize() {
 			chrome.runtime.onConnectExternal.addListener(_onConnectedExternal);
 			chrome.runtime.onConnect.addListener(_onConnected);
 		};
@@ -210,41 +252,20 @@ circularify.omni = circularify.omni || function () {
 
 		return {
 			Name: _name,
-			EstablishConnection: _establishConnection
+			Initialize: _initialize
 		};
 	}();
 
-	var _environments = {
-		page: _page,
-		content: _content,
-		background: _background
-	};
-
+	// Determine the current environemnt
 	function _getCurrentEnvironment() {
 		if (chrome) {
 			if (chrome.tabs)
-				return _environments.background;
+				return _background;
 			if (chrome.i18n)
-				return _environments.content;
+				return _content;
 		}
-		return _environments.page;
+		return _page;
 	}
-
-	function _injectPrerequisites() {
-		// In order to set up a connection from the page to our content script we need to know the chrome extension ID
-		if (_getCurrentEnvironment() == _environments.content) {
-			_content.PassObject("chrome.runtime.id", chrome.runtime.id);
-			_content.EstablishConnection();
-		}
-		else if (_getCurrentEnvironment() == _environments.page) {
-			circularify.utils.wait(function () {
-				return chrome.runtime.id;
-			}, _page.EstablishConnection);
-		} else
-		{
-			_background.EstablishConnection();
-		}
-	};
 
 	function _assignCallback(name, func)
 	{
@@ -266,8 +287,20 @@ circularify.omni = circularify.omni || function () {
 		};
 	}();
 
+	function _processInitialQueue()
+	{
+		for (var i in _initQueue)
+		{
+			var currentMessage = _initQueue[i];
+			_port.postMessage(currentMessage);
+		}
+		_initQueue = [];
+	}
+
 	// Initialize
-	_injectPrerequisites();
+	_getCurrentEnvironment().Initialize();
+	// Wait for a reference to the port and then handle everything in the queue
+	circularify.utils.wait(function () { return _port; }, _processInitialQueue);
 
 	return {
 		analytics: {
