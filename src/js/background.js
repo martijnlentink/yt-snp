@@ -85,7 +85,7 @@ chrome.runtime.onInstalled.addListener(function(details){
 		message: installMsg
 	}, null);
 	
-	circularify.omni.analytics.registerEvent("install", details.reason, details.previousVersion);
+	circularify.omni.analytics.registerEvent("install", details.reason, chrome.runtime.getManifest().version);
 });
 
 // Add Event Listener for Notifications
