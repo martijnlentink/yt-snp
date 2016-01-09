@@ -1,5 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
+echo === Copy build files ===
+echo D | xcopy /s/e/y "..\src" "in"
 echo === Minifying sources ===
 for /R ./in %%f in (*.*) do (
   set B=%%f
