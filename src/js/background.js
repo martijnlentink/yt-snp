@@ -41,7 +41,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 			// We need a reference to this class to update the size of the window | h.Qw=function(){this.pg()};
 			//resp = resp.replace(/([a-z]\.[a-zA-Z]{1,3}=function\(\)\{this.[a-z]{1,3}\(\))\}/, '$1; window.test = this;}');
 			//h.Ta=function(){var a=this.app.W(),b=!!ih();if(b&&pt())return new te(window.outerWidth,window.outerHeight);
-			resp = resp.replace(/([a-z]\.[a-zA-Z]{2,3}=function\(\)\{var a=this\.app\.[a-zA-Z]{1,2}\(\),b=\!\![a-z]{2}\(\);if\(b\&\&[a-z]{2,3}\(\)\)return new ([a-z]{2,3})\(window\.outerWidth,window\.outerHeight\);)/, "$1 if (!!window.YTSNPIsCorner) { return new $2(480,270);}");
+			resp = resp.replace(/([a-z]\.[a-zA-Z]{2,3}=function\(\)\{var a=this\.app\.[a-zA-Z]{1,2}\(\),b=\!\![a-z]{2}\(\);if\(b\&\&[a-z]{2,3}\(\))(\)return new ([a-z]{2,3})\(window\.outerWidth,window\.outerHeight\);)/, "$1 || (!!window.YTSNPIsCorner && b)$2if (!!window.YTSNPIsCorner) { return new $3(480,270);}");
 
 			// Remove the stopVideo command from the API, so we can keep on playin'
 			var result = resp.replace(/[A-Za-z]{1,3}\(this\,\"stopVideo\"\,this\.[A-Za-z]{1,3}\)\;/, '');
@@ -128,7 +128,7 @@ function checkNotifications()
 	// We'll pass the last notification that we showed in order
 	// to get the remaining notifications
 	var xhr = new XMLHttpRequest();
-	xhr.open("GET", "http://circularify.com/notifyAPI/" + lastHandledNotification);
+	xhr.open("GET", "http://circularify.com/notify/" + lastHandledNotification);
 	xhr.addEventListener("load", handleNotification);
 	xhr.send();
 }

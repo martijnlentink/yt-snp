@@ -31,6 +31,10 @@ function ytsnp() {
 		location = location || window.location.href;
 		return !location.match(/\/watch\?.*v=.{8,}/);
 	}
+
+	function _forceResize() {
+		window.dispatchEvent(new Event("resize"));
+	}
 	
 	// Put the element in the corner
 	function _cornerize() {		
@@ -55,8 +59,8 @@ function ytsnp() {
 					}, 1500);
 				}
 			
-				// Make sure the player is visible and not somewhere far to the left
-				//element.className = element.className.replace(/\off-screen-target\b/,'');
+				// // Make sure the player is visible and not somewhere far to the left
+				// //element.className = element.className.replace(/\off-screen-target\b/,'');
 				element.firstChild.style.display = "block";
 
 				// Player sizing and positioning
@@ -65,54 +69,20 @@ function ytsnp() {
 				element.style.right = "10px";
 				element.style.position = "fixed";
 				element.style.zIndex = "999";
-				
-				var advertisements = document.getElementsByClassName("container autoalign");
-				if (advertisements.length > 0) {
-					advertisements[0].style.width = "auto";
-				}
-
-				var videoAdvertisements = document.getElementsByClassName("ad-container ad-container-single-media-element-annotations");
-				if (videoAdvertisements.length > 0) {
-					videoAdvertisements[0].style.width = videoSize.smallWidth;
-					videoAdvertisements[0].style.height = videoSize.smallHeight;
-				}
-				
-				// Put the "Continue To Video" button a little higher
-				var continueToVideoContainer = document.getElementsByClassName("videoAdUiPreSkipContainer");
-				var continueToVideoButton = document.getElementsByClassName("videoAdUiSkipContainer html5-stop-propagation");
-				if(continueToVideoContainer.length == 1) {
-					continueToVideoContainer[0].style.bottom = "25px";
-				}
-				if(continueToVideoButton.length == 1) {
-					continueToVideoButton[0].style.bottom = "25px";
-				}
-
 				// Positioned on bottoms
 				element.style.bottom = "10px";
 				
-				// Making sure the video scales when cornerizing
-				var video = document.getElementsByClassName("html5-main-video");
-				
-				var saveWidth = video[0].style.width;
-				var saveHeight = video[0].style.height;
-				
-				if(saveWidth != videoSize.smallWidth 
-					&& saveHeight != videoSize.smallHeight) {
-					
-					videoSize.width = saveWidth;
-					videoSize.height = saveHeight;
+				var advertisements = document.getElementsByClassName("ima-container autoalign");
+				if (advertisements.length > 0) {
+					advertisements[0].style.width = "auto !important";
 				}
-				
-				video[0].style.width = videoSize.smallWidth;
-				video[0].style.height = videoSize.smallHeight;
-				video[0].style.top = "0px";
-				video[0].style.left = "0px";
-
-				var container = document.getElementsByClassName("ytp-chrome-bottom")[0];
-				container.className = "ytp-chrome-bottom chrmbtn-search";
+				var ad = document.getElementsByClassName("ad-overlay");
+				if (ad.length > 0)
+					ad[0].style.transform = "scale(.8)";
 				
 				// We're searching, so add the buttons (close & back)
 				_displayButtons();
+				_forceResize();
 			}
 		}
 	}
@@ -134,26 +104,8 @@ function ytsnp() {
 			}, 1500);
 		}
 		
-		if (videoSize.width != null && videoSize.height != null)
-		{
-			var videoElement = document.getElementsByClassName("html5-main-video")[0];
-			videoElement.style.width = videoSize.width;
-			videoElement.style.height = videoSize.height;
-			videoElement.style.top = videoSize.top;
-			videoElement.style.left = videoSize.left;
-		}
-		
-		var skipAdContainer = document.getElementsByClassName("videoAdUiPreSkipContainer");
-		if (skipAdContainer.length > 0)
-			skipAdContainer[0].removeAttribute("style");
-		var skipAdButton = document.getElementsByClassName("videoAdUiSkipContainer html5-stop-propagation");
-		if (skipAdButton.length > 0)
-			skipAdButton[0].removeAttribute("style");
-			
-		var container = document.getElementsByClassName("ytp-chrome-bottom")[0];
-			container.className = "ytp-chrome-bottom";	
-		
 		_hideButtons();
+		_forceResize();
 	}
 	
 	// Perform an spf navigation and inform the player
