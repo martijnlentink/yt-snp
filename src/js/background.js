@@ -31,14 +31,18 @@ chrome.webRequest.onBeforeRequest.addListener(
 			resp = resp.replace(/(this\.[a-zA-Z]{1,2}&&this\.[a-zA-Z]{1,2}&&this\.[a-zA-Z]{1,3}\.)(pauseVideo\(\))/, "$1YTSNP$2");
 			// Matches: function H(a,b){this.width=a;this.height=b}
 			// Solves the ad container so that the skip button is visible in the corner
-			resp = resp.replace(/(function [a-zA-Z]{1,2}\(a\,b\)\{)(this.width=a;this.height=b\})/, "$1if(window.YTSNPIsCorner){a='480';b='270';}$2");
+			// resp = resp.replace(/(function [a-zA-Z]{1,2}\(a\,b\)\{)(this.width=a;this.height=b\})/, "$1if(window.YTSNPIsCorner){a='480';b='270';}$2");
 			// Matches: function oh(a,b,c){if(b instanceof H)c=b.height,b=b.width;else if(void 0==c)throw Error("missing height argument");
 			// Makes sure that the video is always of the size of the player
 			resp = resp.replace(/(function [a-zA-Z]{1,2}\(a\,b\,c\)\{if\(b instanceof [a-zA-Z]{1,2}\)c=b.height,b=b.width\;else if\(void 0==c\)throw Error\(\"[\w\s]+"\)\;)/, "$1if(window.YTSNPIsCorner){c=270;b=480;}");
 			
 			// Remove the pauseVideo command from the API, so we can keep on playin'
 			resp = resp.replace(/([A-Za-z]{1,3}\(this\,\")(pauseVideo\"\,this\.[A-Za-z]{1,}\)\;)/, '$1YTSNP$2');
-			
+			// We need a reference to this class to update the size of the window | h.Qw=function(){this.pg()};
+			//resp = resp.replace(/([a-z]\.[a-zA-Z]{1,3}=function\(\)\{this.[a-z]{1,3}\(\))\}/, '$1; window.test = this;}');
+			//h.Ta=function(){var a=this.app.W(),b=!!ih();if(b&&pt())return new te(window.outerWidth,window.outerHeight);
+			resp = resp.replace(/([a-z]\.[a-zA-Z]{2,3}=function\(\)\{var a=this\.app\.[a-zA-Z]{1,2}\(\),b=\!\![a-z]{2}\(\);if\(b\&\&[a-z]{2,3}\(\)\)return new ([a-z]{2,3})\(window\.outerWidth,window\.outerHeight\);)/, "$1 if (!!window.YTSNPIsCorner) { return new $2(480,270);}");
+
 			// Remove the stopVideo command from the API, so we can keep on playin'
 			var result = resp.replace(/[A-Za-z]{1,3}\(this\,\"stopVideo\"\,this\.[A-Za-z]{1,3}\)\;/, '');
 			
@@ -48,7 +52,6 @@ chrome.webRequest.onBeforeRequest.addListener(
 		
 		// Fix for navigation
 		if (details.url.indexOf("spf") > -1) {
-		
 			var xhr = new XMLHttpRequest();
 			xhr.open("GET", details.url, false);
 			xhr.send();
