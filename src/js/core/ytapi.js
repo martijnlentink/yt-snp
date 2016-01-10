@@ -28,15 +28,17 @@ var ytapi = function() {
 	        return match[1];
 	    return null;
 	};
-	
 			
 	// Saves the time of the player and restores it when it's reloaded
-	function _restoreTime() {
+	function _restoreTime(url) {
+		var startVideo = _retrieveIdFromUrl(url);
 		var player = _getPlayer();
 		var time = player.getCurrentTime();
 		// Wait for the page to load, and then set the old time so we can continue.
 		circularify.utils.wait(function () { return document.getElementById("eow-title"); }, function () {
-			player.seekTo(time);
+			var newVideo = _retrieveIdFromUrl(window.location.href);
+			if (newVideo == startVideo)
+				player.seekTo(time);
 		});
 	}
 	
