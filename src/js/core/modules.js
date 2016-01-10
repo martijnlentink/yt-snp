@@ -158,10 +158,10 @@ circularify.omni = circularify.omni || function () {
 		};
 
 		// Register yttr event
-		function _registerEvent(event, value)
+		function _registerEvent(event, value, category)
 		{
-			// TODO: Adjust the category according to the current environment!
-			var category = 'Seek \'n Play';
+			// TODO: We need a clever approach to this
+			category = category || 'Seek \'n Play';
 			yttr('send', 'event', category, event, value);
 		}
 
@@ -304,7 +304,7 @@ circularify.omni = circularify.omni || function () {
 
 	return {
 		analytics: {
-			registerEvent: function (event, value) { _callFunc("page", "RegisterEvent", [event, value])}
+			registerEvent: function (event, value, category) { _callFunc("page", "RegisterEvent", [event, value, category])}
 		},
 		runtime: _runtime,
 		i18n: {
@@ -350,6 +350,7 @@ circularify.mailoffice = circularify.mailoffice || function() {
 	}
 }();
 
+// Not still happy how we approached this, need some refactoring in the future
 circularify.exts = circularify.exts || function() {
 
 	var _installed = [];
