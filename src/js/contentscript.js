@@ -16,17 +16,20 @@ injectCss(ytsnpCss);
 
 // Main method.
 inject(function () {
+
+	var _history = [];
 	
 	// Subscribe to the popstate event to handle going back in history
-	window.addEventListener("popstate", function () { navigateBackward(); });
+	window.addEventListener("popstate", navigateBackward);
 
 	// Function that handles a navigation going back in history
-	function navigateBackward(url) {
+	function navigateBackward(event) {
+		var url = _history.pop();
 		if (circularify.ytsnp.shouldCornerize(url)) {
 			circularify.ytsnp.cornerize();
 		}
 		else {
-			circularify.ytapi.restoreTime();
+			circularify.ytapi.restoreTime(url);
 			circularify.ytsnp.decornerize();
 		}
 	}
@@ -34,6 +37,8 @@ inject(function () {
 	function navigateForward(url) {		
 		// Get the URL
 		url = url || window.location.href;
+		// Add location history
+		_history.push(url);
 	
 		// Get a reference job
 		var player = circularify.ytapi.getPlayer();
