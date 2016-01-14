@@ -5,7 +5,7 @@
 // Reference the required files 
 var modulesJs = chrome.extension.getURL('js/core/modules.js');
 var ytapiJs = chrome.extension.getURL('js/core/ytapi.js');
-var ytsnpJs = chrome.extension.getURL('js/core/ytsnp.js');
+var ytsnpJs = chrome.extension.getURL('js/ytsnp.js');
 var ytsnpCss = chrome.extension.getURL('css/ytsnp.css');
  
 // Inject extension files
