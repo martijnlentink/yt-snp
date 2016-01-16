@@ -1,6 +1,27 @@
 /*
  * Seek 'n Play is an application developed by Circularify
  */
+
+var sourceReplacement = function (name, regex, replacement) {
+	var _name = name;
+	var _regex = regex;
+	var _replacement = replacement;
+
+	var _performReplace = function(source) {
+		if (source.search(_regex) == -1)
+			circularify.omni.analytics.registerEvent("regex-error-" + _name);
+		else
+			return source.replace(_regex, _replacement);
+		return source;
+	}
+
+	return {
+		name: _name,
+		regex: _regex,
+		replacement: _replacement,
+		performReplace: _performReplace
+	};
+}
  
 var lastNotificationCheck = Date.now();
 var interval = 60 * 60 * 1000;
@@ -23,31 +44,44 @@ chrome.webRequest.onBeforeRequest.addListener(
 			xhr.open("GET", details.url, false);
 			xhr.send();
 			var resp = xhr.responseText;
-			
-			// Makes sure that YT doens't restart buffering when we navigate to the video we're watching
-			resp = resp.replace(/([A-Za-z]{1,3}\(this\,\"loadVideoByPlayerVars\"\,)(this\.[A-Za-z]{1,3})(\)\;)/, "$1 function (obj) { if (typeof (YTSPPreventRequeue) != \"function\" || YTSPPreventRequeue(obj.video_id)) { $2.apply(this, arguments); } } $3");
-			// Matches: this.j&&this.A&&this.ha.pauseVideo()
-			// Disable the pauseVideo function that the advertisers call so that the original video can get loaded
-			resp = resp.replace(/(this\.[a-zA-Z]{1,2}&&this\.[a-zA-Z]{1,2}&&this\.[a-zA-Z]{1,3}\.)(pauseVideo\(\))/, "$1YTSNP$2");
-			// Matches: function H(a,b){this.width=a;this.height=b}
-			// Solves the ad container so that the skip button is visible in the corner
-			// resp = resp.replace(/(function [a-zA-Z]{1,2}\(a\,b\)\{)(this.width=a;this.height=b\})/, "$1if(window.YTSNPIsCorner){a='480';b='270';}$2");
-			// Matches: function oh(a,b,c){if(b instanceof H)c=b.height,b=b.width;else if(void 0==c)throw Error("missing height argument");
-			// Makes sure that the video is always of the size of the player
-			resp = resp.replace(/(function [a-zA-Z]{1,2}\(a\,b\,c\)\{if\(b instanceof [a-zA-Z]{1,2}\)c=b.height,b=b.width\;else if\(void 0==c\)throw Error\(\"[\w\s]+"\)\;)/, "$1if(window.YTSNPIsCorner){c=270;b=480;}");
-			
-			// Remove the pauseVideo command from the API, so we can keep on playin'
-			resp = resp.replace(/([A-Za-z]{1,3}\(this\,\")(pauseVideo\"\,this\.[A-Za-z]{1,}\)\;)/, '$1YTSNP$2');
-			// We need a reference to this class to update the size of the window | h.Qw=function(){this.pg()};
-			//resp = resp.replace(/([a-z]\.[a-zA-Z]{1,3}=function\(\)\{this.[a-z]{1,3}\(\))\}/, '$1; window.test = this;}');
-			//h.Ta=function(){var a=this.app.W(),b=!!ih();if(b&&pt())return new te(window.outerWidth,window.outerHeight);
-			resp = resp.replace(/([a-z]\.[a-zA-Z]{2,3}=function\(\)\{var a=this\.app\.[a-zA-Z]{1,2}\(\),b=\!\![a-z]{2}\(\);if\(b\&\&[a-z]{2,3}\(\))(\)return new ([a-z]{2,3})\(window\.outerWidth,window\.outerHeight\);)/, "$1 || (!!window.YTSNPIsCorner && b)$2if (!!window.YTSNPIsCorner) { return new $3(480,270);}");
 
-			// Remove the stopVideo command from the API, so we can keep on playin'
-			var result = resp.replace(/[A-Za-z]{1,3}\(this\,\"stopVideo\"\,this\.[A-Za-z]{1,3}\)\;/, '');
+			var regexs = [
+				// Makes sure that YT doens't restart buffering when we navigate to the video we're watching
+				new sourceReplacement("requeue-prevention",
+					/([A-Za-z]{1,3}\(this\,\"loadVideoByPlayerVars\"\,)(this\.[A-Za-z]{1,3})(\)\;)/,
+					"$1 function (obj) { if (typeof (YTSPPreventRequeue) != \"function\" || YTSPPreventRequeue(obj.video_id)) { $2.apply(this, arguments); } } $3"
+				),
+				// Disable the pauseVideo function that the advertisers call so that the original video can get loaded
+				// Matches: this.j&&this.A&&this.ha.pauseVideo()
+				new sourceReplacement("enable-advertisements-pause",
+					/(this\.[a-zA-Z]{1,2}&&this\.[a-zA-Z]{1,2}&&this\.[a-zA-Z]{1,3}\.)(pauseVideo\(\))/,
+					"$1YTSNP$2"
+				),
+				// Remove the pauseVideo command from the API, so we can keep on playin'
+				new sourceReplacement("disable-pause",
+					/([A-Za-z]{1,3}\(this\,\")(pauseVideo\"\,this\.[A-Za-z]{1,}\)\;)/,
+					'$1YTSNP$2'
+				),
+				// We need a reference to this class to update the size of the window
+				// Matches: f.Ja=function(){var a=this.app.W(),b=!!th();if(b&&Dt())return new we(window.outerWidth,window.outerHeight);
+				new sourceReplacement("update-window-size",
+					/([a-z]\.[a-zA-Z]{2,3}=function\(\)\{var a=this\.app\.[a-zA-Z]{1,2}\(\),b=\!\![a-zA-Z]{2}\(\);if\(b\&\&[a-zA-Z]{2,3}\(\))(\)return new ([a-z]{2,3})\(window\.outerWidth,window\.outerHeight\);)/,
+					"$1 || (!!window.YTSNPIsCorner && b)$2if (!!window.YTSNPIsCorner) { return new $3(480,270);}"
+				),
+				// Remove the stopVideo command from the API, so we can keep on playin'
+				new sourceReplacement("disable-stop",
+					/[A-Za-z]{1,3}\(this\,\"stopVideo\"\,this\.[A-Za-z]{1,3}\)\;/,
+					''
+				)
+			];
+
+			for (var idx in regexs) {
+				var currentRegex = regexs[idx];
+				resp = currentRegex.performReplace(resp);
+			}
 			
 			// Let's nicely return the JavaScript so that YouTube can access it
-			return {redirectUrl: "data:application/javascript," + encodeURIComponent(result) };
+			return {redirectUrl: "data:application/javascript," + encodeURIComponent(resp) };
 		}
 		
 		// Fix for navigation
