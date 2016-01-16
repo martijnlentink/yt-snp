@@ -1,3 +1,6 @@
 [submodule "src/js/core"]
 	path = src/js/core
 	url = https://github.com/martijnlentink/chrome-extensions-core.git
+[submodule "bld"]
+	path = bld
+	url = https://github.com/martijnlentink/chrome-extensions-build.git
