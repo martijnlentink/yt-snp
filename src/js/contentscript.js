@@ -1,21 +1,14 @@
-/*
+/**
  * Seek 'n Play is an application developed by Circularify
  */
  
-// Reference the required files 
-var modulesJs = chrome.extension.getURL('js/core/modules.js');
-var ytapiJs = chrome.extension.getURL('js/core/ytapi.js');
-var ytsnpJs = chrome.extension.getURL('js/ytsnp.js');
-var ytsnpCss = chrome.extension.getURL('css/ytsnp.css');
+circularify.omni.analytics.initialize('UA-50232941-1');
+circularify.omni.page.injectScript(circularify.core.files.ytapi);
+circularify.omni.page.injectScript('js/ytsnp.js');
+circularify.omni.page.injectCss('css/ytsnp.css');
  
-// Inject extension files
-injectLf(modulesJs);
-injectLf(ytapiJs);
-injectLf(ytsnpJs);
-injectCss(ytsnpCss);
-
 // Main method.
-inject(function () {
+circularify.omni.page.injectScript(function () {
 
 	var _history = [];
 	
@@ -34,9 +27,12 @@ inject(function () {
 		}
 	}
 	
-	function navigateForward(url) {		
+	function navigateForward(url) {
 		// Get the URL
 		url = url || window.location.href;
+		if (_history.slice(-1)[0] == url)
+			return;
+		debugger;
 		// Add location history
 		_history.push(url);
 	
@@ -96,33 +92,3 @@ inject(function () {
 	window.yttrcooldown = 0;
 });
 
-// Inject GA
-inject(function(){
-	
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','yttr');
-	yttr('create', 'UA-50232941-1', 'auto');
-})
-
-// Inject linked file
-function injectLf(fn) {
-	var script = document.createElement('script');
-	script.src = fn;
-	document.head.appendChild(script);
-}
-
-function injectCss(fn) {
-	var script = document.createElement('link');
-	script.href = fn;
-	script.rel = "stylesheet";
-	document.head.appendChild(script);
-}
-
-// Inject function
-function inject(fn) {
-	var script = document.createElement('script');
-	script.innerHTML = '(' + fn.toString() + ')();';
-	document.body.appendChild(script);
-}
