@@ -1,9 +1,9 @@
 {
 	"manifest_version": 2,
 	
-	"name": "Seek 'n Play",
+	"name": "Seek 'n Play for YouTube™",
 	"description": "__MSG_appDescription__",
-	"version": "2.0.1",  
+	"version": "2.2.0",  
 	"homepage_url": "https://chrome.google.com/webstore/detail/aiaeaehoebdkelhnbomepbijjjeakkld/",
 	"short_name": "Seek 'n Play",
 	
