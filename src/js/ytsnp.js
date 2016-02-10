@@ -1,4 +1,4 @@
-/*
+/**
  * Seek 'n Play is an application developed by Circularify
  */
 
@@ -52,11 +52,11 @@ function ytsnp() {
 
 				// GA
 				if(window.yttrcooldown == 0) {
-					yttr('send', 'event', 'Seek \'n Play', 'cornerize', 'Seek \'n Play Cornerize');
-					window.yttrcooldown = 1;
-					setTimeout(function() {
-						window.yttrcooldown = 0;
-					}, 1500);
+					// yttr('send', 'event', 'Seek \'n Play', 'cornerize', 'Seek \'n Play Cornerize');
+					// window.yttrcooldown = 1;
+					// setTimeout(function() {
+					// 	window.yttrcooldown = 0;
+					// }, 1500);
 				}
 			
 				// // Make sure the player is visible and not somewhere far to the left
@@ -97,11 +97,11 @@ function ytsnp() {
 		
 		// GA
 		if(window.yttrcooldown == 0) {
-			yttr('send', 'event', 'Seek \'n Play', 'decornerize', 'Seek \'n Play Decornerize');
-			window.yttrcooldown = 1;
-			setTimeout(function() {
-				window.yttrcooldown = 0;
-			}, 1500);
+			// yttr('send', 'event', 'Seek \'n Play', 'decornerize', 'Seek \'n Play Decornerize');
+			// window.yttrcooldown = 1;
+			// setTimeout(function() {
+			// 	window.yttrcooldown = 0;
+			// }, 1500);
 		}
 		
 		_hideButtons();
@@ -199,4 +199,4 @@ var circularify = circularify || {};
 circularify.ytsnp = circularify.ytsnp || ytsnp();
 
 // Add SNP to the Circularify list of installed extension
-circularify.exts.installed.push( { "id": "9310", "app": "Seek 'n Play" } );
+circularify.omni.extensions.register("snp");

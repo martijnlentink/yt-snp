@@ -1,30 +1,31 @@
-/*
+/**
  * Seek 'n Play is an application developed by Circularify
  */
  
-// Reference the required files 
-var modulesJs = chrome.extension.getURL('js/core/modules.js');
-var ytapiJs = chrome.extension.getURL('js/core/ytapi.js');
-var ytsnpJs = chrome.extension.getURL('js/ytsnp.js');
-var ytsnpCss = chrome.extension.getURL('css/ytsnp.css');
+circularify.omni.analytics.initialize('UA-50232941-1');
+circularify.omni.page.injectScript(circularify.core.files.ytapi);
+circularify.omni.page.injectScript('js/ytsnp.js');
+circularify.omni.page.injectCss('css/ytsnp.css');
  
-// Inject extension files
-injectLf(modulesJs);
-injectLf(ytapiJs);
-injectLf(ytsnpJs);
-injectCss(ytsnpCss);
-
 // Main method.
-inject(function () {
-
-	var _history = [];
+circularify.omni.page.injectScript(function () {
+	// Next URL
+	var _url = null;
 	
 	// Subscribe to the popstate event to handle going back in history
-	window.addEventListener("popstate", navigateBackward);
+	window.addEventListener("popstate", _navigateBackward);
+	// Every navigation we get notified by SPF what the new URL is
+	window.addEventListener("spfrequest", _spfrequest);
+	// Singles if snp is ready on the page
+	window.addEventListener("circReady", _circReady);
+
+	function _spfrequest(event) {
+		_url = event.detail.url;
+	}
 
 	// Function that handles a navigation going back in history
-	function navigateBackward(event) {
-		var url = _history.pop();
+	function _navigateBackward(event) {
+		var url = _url;
 		if (circularify.ytsnp.shouldCornerize(url)) {
 			circularify.ytsnp.cornerize();
 		}
@@ -34,11 +35,9 @@ inject(function () {
 		}
 	}
 	
-	function navigateForward(url) {		
+	function _navigateForward(url) {
 		// Get the URL
-		url = url || window.location.href;
-		// Add location history
-		_history.push(url);
+		url = _url || window.location.href;
 	
 		// Get a reference job
 		var player = circularify.ytapi.getPlayer();
@@ -69,60 +68,27 @@ inject(function () {
 			return JSON.parse(window.localStorage["SP-settings"]).settings;
 		}
 		
-		// If there are no settings, take defaulf
+		// If there are no settings, take default
 		return {
 			position: "bottom",
 		};
 	}
 	
 
-	function doesVideoIdMatchCurrent (video_id) {
+	function _doesVideoIdMatchCurrent (video_id) {
 		return video_id == circularify.ytapi.getVideoId();
 	};
 
-	// Navigating function
-	window.YTSPPreventRequeue = doesVideoIdMatchCurrent;
+	function _circReady() {
+		window.removeEventListener(circularify.core.events.circReady, this);
+		// Navigating function
+		window.YTSPPreventRequeue = _doesVideoIdMatchCurrent;
+		
+		// Set Navigation Subscribtion
+		window.YTSPNavigating = circularify.mailoffice.sendMailman;
+		circularify.mailoffice.subscribe(_navigateForward);
+	}
 	
-	// Set Navigation Subscribtion
-	setTimeout(function() {
-		if(circularify) {
-			window.YTSPNavigating = circularify.mailoffice.sendMailman;
-			circularify.mailoffice.subscribe(navigateForward);
-			clearTimeout(this);
-		}
-	}, 1000);
-		
-		
 	window.yttrcooldown = 0;
 });
 
-// Inject GA
-inject(function(){
-	
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','yttr');
-	yttr('create', 'UA-50232941-1', 'auto');
-})
-
-// Inject linked file
-function injectLf(fn) {
-	var script = document.createElement('script');
-	script.src = fn;
-	document.head.appendChild(script);
-}
-
-function injectCss(fn) {
-	var script = document.createElement('link');
-	script.href = fn;
-	script.rel = "stylesheet";
-	document.head.appendChild(script);
-}
-
-// Inject function
-function inject(fn) {
-	var script = document.createElement('script');
-	script.innerHTML = '(' + fn.toString() + ')();';
-	document.body.appendChild(script);
-}
