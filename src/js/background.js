@@ -32,7 +32,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 	function(details) {
 		if (Date.now() - lastNotificationCheck >= interval)
 		{
-			lastnotificationcheck = date.now();
+			lastnotificationcheck = Date.now();
 			checkNotifications();
 		}
 	
@@ -61,11 +61,11 @@ chrome.webRequest.onBeforeRequest.addListener(
 				new sourceReplacement("disable-pause",
 					/([A-Za-z]{1,3}\(this\,\")(pauseVideo\"\,this\.[A-Za-z]{1,}\)\;)/,
 					'$1YTSNP$2'
-				),
+				),//var a=this.app.W(),b=xh()==this.element;if(b&&Ht())return new ve(window.outerWidth,window.outerHeight);
 				// We need a reference to this class to update the size of the window
 				// Matches: f.Ja=function(){var a=this.app.W(),b=!!th();if(b&&Dt())return new we(window.outerWidth,window.outerHeight);
 				new sourceReplacement("update-window-size",
-					/([a-z]\.[a-zA-Z]{2,3}=function\(\)\{var a=this\.app\.[a-zA-Z]{1,2}\(\),b=\!\![a-zA-Z]{2}\(\);if\(b\&\&[a-zA-Z]{2,3}\(\))(\)return new ([a-z]{2,3})\(window\.outerWidth,window\.outerHeight\);)/,
+					/([a-z]\.[a-zA-Z]{2,3}=function\(\)\{var a=this\.app\.[a-zA-Z]{1,2}\(\),b=.{1,20};if\(b\&\&[a-zA-Z]{2,3}\(\))(\)return new ([a-z]{2,3})\(window\.outerWidth,window\.outerHeight\);)/,
 					"$1 || (!!window.YTSNPIsCorner && b)$2if (!!window.YTSNPIsCorner) { return new $3(480,270);}"
 				),
 				// Remove the stopVideo command from the API, so we can keep on playin'
