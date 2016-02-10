@@ -30,7 +30,8 @@ var lastHandledNotification = -1;
  // WebRequest Listener
 chrome.webRequest.onBeforeRequest.addListener(
 	function(details) {
-		if (Date.now() - lastNotificationCheck >= interval)
+	// Remove false when we're using this again!
+		if (false && Date.now() - lastNotificationCheck >= interval)
 		{
 			lastnotificationcheck = Date.now();
 			checkNotifications();
