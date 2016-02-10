@@ -9,15 +9,23 @@ circularify.omni.page.injectCss('css/ytsnp.css');
  
 // Main method.
 circularify.omni.page.injectScript(function () {
-
-	var _history = [];
+	// Next URL
+	var _url = null;
 	
 	// Subscribe to the popstate event to handle going back in history
-	window.addEventListener("popstate", navigateBackward);
+	window.addEventListener("popstate", _navigateBackward);
+	// Every navigation we get notified by SPF what the new URL is
+	window.addEventListener("spfrequest", _spfrequest);
+	// Singles if snp is ready on the page
+	window.addEventListener("circReady", _circReady);
+
+	function _spfrequest(event) {
+		_url = event.detail.url;
+	}
 
 	// Function that handles a navigation going back in history
-	function navigateBackward(event) {
-		var url = _history.pop();
+	function _navigateBackward(event) {
+		var url = _url;
 		if (circularify.ytsnp.shouldCornerize(url)) {
 			circularify.ytsnp.cornerize();
 		}
@@ -27,14 +35,9 @@ circularify.omni.page.injectScript(function () {
 		}
 	}
 	
-	function navigateForward(url) {
+	function _navigateForward(url) {
 		// Get the URL
-		url = url || window.location.href;
-		if (_history.slice(-1)[0] == url)
-			return;
-		debugger;
-		// Add location history
-		_history.push(url);
+		url = _url || window.location.href;
 	
 		// Get a reference job
 		var player = circularify.ytapi.getPlayer();
@@ -65,30 +68,27 @@ circularify.omni.page.injectScript(function () {
 			return JSON.parse(window.localStorage["SP-settings"]).settings;
 		}
 		
-		// If there are no settings, take defaulf
+		// If there are no settings, take default
 		return {
 			position: "bottom",
 		};
 	}
 	
 
-	function doesVideoIdMatchCurrent (video_id) {
+	function _doesVideoIdMatchCurrent (video_id) {
 		return video_id == circularify.ytapi.getVideoId();
 	};
 
-	// Navigating function
-	window.YTSPPreventRequeue = doesVideoIdMatchCurrent;
+	function _circReady() {
+		window.removeEventListener(circularify.core.events.circReady, this);
+		// Navigating function
+		window.YTSPPreventRequeue = _doesVideoIdMatchCurrent;
+		
+		// Set Navigation Subscribtion
+		window.YTSPNavigating = circularify.mailoffice.sendMailman;
+		circularify.mailoffice.subscribe(_navigateForward);
+	}
 	
-	// Set Navigation Subscribtion
-	setTimeout(function() {
-		if(circularify) {
-			window.YTSPNavigating = circularify.mailoffice.sendMailman;
-			circularify.mailoffice.subscribe(navigateForward);
-			clearTimeout(this);
-		}
-	}, 1000);
-		
-		
 	window.yttrcooldown = 0;
 });
 
