@@ -6,6 +6,9 @@ circularify.omni.analytics.initialize('UA-50232941-1');
 circularify.omni.page.injectScript(circularify.core.files.ytapi);
 circularify.omni.page.injectScript('js/ytsnp.js');
 circularify.omni.page.injectCss('css/ytsnp.css');
+
+// Add SNP to the Circularify list of installed extension
+circularify.omni.register("snp");
  
 // Main method.
 circularify.omni.page.injectScript(function () {

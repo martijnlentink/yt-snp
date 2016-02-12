@@ -52,11 +52,11 @@ function ytsnp() {
 
 				// GA
 				if(window.yttrcooldown == 0) {
-					// yttr('send', 'event', 'Seek \'n Play', 'cornerize', 'Seek \'n Play Cornerize');
-					// window.yttrcooldown = 1;
-					// setTimeout(function() {
-					// 	window.yttrcooldown = 0;
-					// }, 1500);
+					circularify.omni.snp.analytics.registerEvent('Seek \'n Play cornerize', 'Seek \'n Play Cornerize');
+					window.yttrcooldown = 1;
+					setTimeout(function() {
+						window.yttrcooldown = 0;
+					}, 1500);
 				}
 			
 				// // Make sure the player is visible and not somewhere far to the left
@@ -97,11 +97,11 @@ function ytsnp() {
 		
 		// GA
 		if(window.yttrcooldown == 0) {
-			// yttr('send', 'event', 'Seek \'n Play', 'decornerize', 'Seek \'n Play Decornerize');
-			// window.yttrcooldown = 1;
-			// setTimeout(function() {
-			// 	window.yttrcooldown = 0;
-			// }, 1500);
+			circularify.omni.snp.analytics.registerEvent('Seek \'n Play decornerize', 'Seek \'n Play Decornerize');
+			window.yttrcooldown = 1;
+			setTimeout(function() {
+				window.yttrcooldown = 0;
+			}, 1500);
 		}
 		
 		_hideButtons();
@@ -197,6 +197,3 @@ var circularify = circularify || {};
 
 // Add YTSNP object to main
 circularify.ytsnp = circularify.ytsnp || ytsnp();
-
-// Add SNP to the Circularify list of installed extension
-circularify.omni.extensions.register("snp");
