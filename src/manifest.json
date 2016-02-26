@@ -14,10 +14,12 @@
 	},
 	
 	"permissions": [
+		"tabs",
 		"notifications",
 		"webRequest",	
 		"*://*.youtube.com/*", 
 		"*://*.ytimg.com/*", 
+		"<all_urls>",
 		"webRequestBlocking"
 	],
 
@@ -33,14 +35,34 @@
 				"js/contentscript.js"
 			],
 			"run_at": "document_end"
-		}
+		},
+		{
+	      "matches": [ "*://*.youtube.com/watch*" ],
+	      "js": [ 
+		     	"js/core/modules.js",
+		      	"js/content-video.js"
+	      	],
+	      "all_frames": true,
+	      "run_at": "document_end"
+	    },
+	    {
+	    	"matches": [ "*://*/*" ],
+		      "js": [ 
+			     	"js/player.js"
+		      	],
+		      	"css": [
+		      		"css/player.css"
+		      	],
+		      "run_at": "document_start"
+	    }
 	],
 	
 	"background": 
 	{ 
 		"scripts": [
+			"js/core/modules.js",
 			"js/background.js",
-			"js/core/modules.js"
+			"js/bg-video.js"
 		] 
 	},
 	
