@@ -71,7 +71,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 				),
 				// Remove the stopVideo command from the API, so we can keep on playin'
 				new sourceReplacement("disable-stop",
-					/[A-Za-z]{1,3}\(this\,\"stopVideo\"\,this\.[A-Za-z]{1,3}\)\;/,
+					/[A-Za-z]{1,3}\(this\,\"stopVideo\"\,this\.[A-Za-z@$%&*]{1,3}\)\;/,
 					''
 				)
 			];
