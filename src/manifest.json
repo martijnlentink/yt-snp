@@ -1,0 +1,58 @@
+{
+	"manifest_version": 2,
+	
+	"name": "Seek 'n Play for YouTube™",
+	"description": "__MSG_appDescription__",
+	"version": "2.2.0",  
+	"homepage_url": "https://chrome.google.com/webstore/detail/aiaeaehoebdkelhnbomepbijjjeakkld/",
+	"short_name": "Seek 'n Play",
+	
+	"icons": { 
+		"16": "img/icon.16.png",
+        "48": "img/icon.48.png",
+        "128": "img/icon.128.png" 
+	},
+	
+	"permissions": [
+		"notifications",
+		"webRequest",	
+		"*://*.youtube.com/*", 
+		"*://*.ytimg.com/*", 
+		"webRequestBlocking"
+	],
+
+	"externally_connectable": {
+	  "matches": ["*://*.youtube.com/*"]
+	},
+
+	"content_scripts": [
+		{
+			"matches": ["*://*.youtube.com/*"],
+			"js": [
+				"js/core/modules.js",	
+				"js/contentscript.js"
+			],
+			"run_at": "document_end"
+		}
+	],
+	
+	"background": 
+	{ 
+		"scripts": [
+			"js/background.js",
+			"js/core/modules.js"
+		] 
+	},
+	
+	"web_accessible_resources": [
+		"js/core/modules.js",		
+		"js/core/ytapi.js",		
+		"js/ytsnp.js",
+		"css/ytsnp.css",
+		"https://www.google-analytics.com/analytics.js"
+	],
+	
+	"content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
+	
+	"default_locale": "en"
+}
