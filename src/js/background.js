@@ -64,9 +64,9 @@ chrome.webRequest.onBeforeRequest.addListener(
 					'$1YTSNP$2'
 				),//var a=this.app.W(),b=xh()==this.element;if(b&&Ht())return new ve(window.outerWidth,window.outerHeight);
 				// We need a reference to this class to update the size of the window
-				// Matches: f.Ja=function(){var a=this.app.W(),b=!!th();if(b&&Dt())return new we(window.outerWidth,window.outerHeight);
+				// Matches: h.Ja=function(){var a=this.app.V,b=Jh()==this.element;if(b&&rq())return new Xe(window.outerWidth,window.outerHeight);
 				new sourceReplacement("update-window-size",
-					/([a-z]\.[a-zA-Z]{2,3}=function\(\)\{var a=this\.app\.[a-zA-Z]{1,2}\(\),b=.{1,20};if\(b\&\&[a-zA-Z]{2,3}\(\))(\)return new ([a-z]{2,3})\(window\.outerWidth,window\.outerHeight\);)/,
+					/([a-z]\.[a-zA-Z]{2,3}=function\(\)\{var a=this\.app\.[a-zA-Z]{1,2}.+;if\(.+)(\)return new ([A-Za-z]{2,3})\(window\.outerWidth,window\.outerHeight\);)/,
 					"$1 || (!!window.YTSNPIsCorner && b)$2if (!!window.YTSNPIsCorner) { return new $3(480,270);}"
 				),
 				// Remove the stopVideo command from the API, so we can keep on playin'
