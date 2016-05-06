@@ -134,7 +134,7 @@ function ytsnp() {
 			playel.removeAttribute("style");
 			//playel.childNodes[0].childNodes[0].removeAttribute("style");
 			playel.childNodes[0].childNodes[1].removeAttribute("style");
-			console.info(playel);
+			circularify.debug.log(playel);
 			var player = _getPlayer();
 			player.cueVideoById();
 			_hideButtons();
