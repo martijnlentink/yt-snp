@@ -162,22 +162,26 @@ function ytsnp() {
 	function _displayButtons() {
 		var closeButton;
 		var backButton;
+		var sizeButton;
 		
-		circularify.utils.wait(function () { return (closeButton = document.getElementsByClassName("closeButton")[0]) && (backButton = document.getElementsByClassName("backToVideoButton")[0]); }, function () {
+		circularify.utils.wait(function () { return (closeButton = document.getElementsByClassName("closeButton")[0]) && (backButton = document.getElementsByClassName("backToVideoButton")[0]) && (sizeButton = document.getElementsByClassName('ytp-size-button ytp-button')[0]); }, function () {
 			
 			closeButton.style.display = 'block';
 			backButton.style.display = 'block';
-		});
+			sizeButton.style.display = 'none';
+		});		
 	}
 	
 	// Function to remove buttons from the page
 	function _hideButtons() {
 		var closeButton;
 		var backButton;
+		var sizeButton;
 		
-		circularify.utils.wait(function () { return (closeButton = document.getElementsByClassName("closeButton")[0]) && (backButton = document.getElementsByClassName("backToVideoButton")[0]); }, function () {
+		circularify.utils.wait(function () { return (closeButton = document.getElementsByClassName("closeButton")[0]) && (backButton = document.getElementsByClassName("backToVideoButton")[0]) && (sizeButton = document.getElementsByClassName('ytp-size-button ytp-button')[0]); }, function () {
 			closeButton.style.display = 'none';
 			backButton.style.display = 'none';
+			sizeButton.style.display = '';
 		});
 	}
 	
