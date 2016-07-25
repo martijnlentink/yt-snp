@@ -66,8 +66,8 @@ chrome.webRequest.onBeforeRequest.addListener(
 				// We need a reference to this class to update the size of the window
 				// Matches: h.Ja=function(){var a=this.app.V,b=Jh()==this.element;if(b&&rq())return new Xe(window.outerWidth,window.outerHeight);
 				new sourceReplacement("update-window-size",
-					/([a-z]\.[a-zA-Z]{2,3}=function\(\)\{var a=this\.app\.[a-zA-Z]{1,2}.+;if\(.+)(\)return new ([A-Za-z]{2,3})\(window\.outerWidth,window\.outerHeight\);)/,
-					"$1 || (!!window.YTSNPIsCorner && b)$2if (!!window.YTSNPIsCorner) { return new $3(480,270);}"
+					/([a-z]\.[a-zA-Z]{2,3}=function\(\)\{var a=this\.app\.[a-zA-Z]{1,2}.+?;if\(.+?)(\)return new ([^(]+)[^;]+)/,
+					"$1 || (!!window.YTSNPIsCorner && b)$2;if (!!window.YTSNPIsCorner) { return new $3(480,270);}"
 				),
 				// Remove the stopVideo command from the API, so we can keep on playin'
 				new sourceReplacement("disable-stop",
