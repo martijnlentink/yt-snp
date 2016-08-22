@@ -616,6 +616,12 @@ circularify.utils = circularify.utils || (function() {
 		 * @param      {any}  fn      Filename or function to pass to the page
 		 */
 		function _injectScript(fn) {
+			var script = _injectScriptInternal.apply(this, arguments);
+
+			document.body.appendChild(script);
+		}
+
+		function _injectScriptInternal(fn) {
 			var isFile = typeof fn !== 'function' && fn.endsWith(".js");
 			var script = document.createElement('script');
 
@@ -624,8 +630,25 @@ circularify.utils = circularify.utils || (function() {
 			else
 			{
 				var params = Array.prototype.slice.call(arguments, 1);
-				script.innerHTML = '(' + fn.toString() + ')("' + params.join('","') +'");';
+				var args = params.map(JSON.stringify);
+				var argStr = args.join(",");
+				script.innerHTML = '(' + fn.toString() + ')(' + argStr +');';
 			}
+
+			return script;
+		}
+
+		/**
+		 * Inject a javascript file or function into the page for a result
+		 *
+		 * @method     _injectScriptForResult
+		 * @param      {any}  fn      Filename or function to pass to the page
+		 */
+		function _injectScriptForResult(eventName, fn, extras) {
+			var params = Array.prototype.slice.call(arguments, 0);
+			params.splice(0, 3, fn);
+			var script = _injectScriptInternal.apply(this, params);
+			script.innerHTML = "var omniRes = " + script.innerHTML + 'if (typeof omniRes !== "undefined") { var ev = new CustomEvent("'+ eventName + '", { detail: { result: omniRes, extras: ' + JSON.stringify(extras || {}) + ' }}); document.dispatchEvent(ev); };';
 
 			document.body.appendChild(script);
 		}
@@ -692,6 +715,7 @@ circularify.utils = circularify.utils || (function() {
 		return {
 			name: "content",
 			injectScript: _injectScript,
+			injectScriptForResult: _injectScriptForResult,
 			passObject: _passObject,
 			injectCss: _injectCss,
 			initialize: _initialize,
@@ -783,6 +807,7 @@ circularify.utils = circularify.utils || (function() {
 		return {
 			register: function (name) { _callOmni("content", "_registerExtension", [name], null, false, inst) },
 			page: {
+				injectScriptForResult: function (eventName, filepath, extras) { _callOmni("content", "injectScriptForResult", Array.prototype.slice.call(arguments, 0), null, false, inst) },
 				injectScript: function (filepath) { _callOmni("content", "injectScript", Array.prototype.slice.call(arguments, 0), null, false, inst) },
 				injectCss: function (filepath) { _callOmni("content", "injectCss", [filepath.toString()], null, false, inst) },
 			},

@@ -3,9 +3,16 @@
 <head>
 
 <title>Frameless Window</title>
-
+<style>
+	#view {
+		height: calc(100% - 10px);
+		width: 100%;
+	}
+</style>
+<script src="video.js"></script>
+<script src="js/webview.js"></script>
 <link rel="stylesheet" type="text/css" href="style.css" />
-<script src="titlebar.js"></script>
+<!-- <script src="titlebar.js"></script> -->
 <!--<script src="frameless_window.js"></script>-->
 
 </head>
@@ -13,6 +20,8 @@
 <body>
 
 <div id="content">
+	<!-- <div id="play<!-- er"></div> -->
+	<webview id="view" src="https://www.youtube.com/embed/waxat-_tRH8" partition="static"></webview>
 <!--
 <div id="inner-content">
 
@@ -30,7 +39,7 @@ Select the titlebar to enable:<br/>
 
 </div>
 -->
-<webview src="http://youtube.com" type="text/html" id="player"></webview>
+<!-- <webview src="http://youtube.com" type="text/html" id="player"></webview> -->
 <div id="controls" class="draggable">
 Draggable
 </div>

@@ -18,8 +18,12 @@
 		"webRequest",	
 		"*://*.youtube.com/*", 
 		"*://*.ytimg.com/*", 
-		"webRequestBlocking"
+		"webRequestBlocking",
+		"tabs",
+		"<all_urls>"
 	],
+
+	"optional_permissions": [ "tabs", "management" ],
 
 	"externally_connectable": {
 	  "matches": ["*://*.youtube.com/*"]
@@ -40,7 +44,8 @@
 	{ 
 		"scripts": [
 			"js/background.js",
-			"js/core/modules.js"
+			"js/core/modules.js",
+			"js/webview.js"
 		] 
 	},
 	

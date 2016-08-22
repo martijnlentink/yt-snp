@@ -8,12 +8,23 @@
       "scripts": ["background.js"]
     }
   },
+  "webview": {
+    "partitions": [
+      {
+        "name": "static",
+        "accessible_resources": [
+          "js/core/modules.js",   
+          "js/core/ytapi.js",
+          "js/webview.js"
+        ]
+      }
+    ]
+  },
   "permissions": [
-		"storage",
-		"webRequest",
-		"webview",
+		"fullscreen",
+    "overrideEscFullscreen",
+    "webview",
 		"*://*.youtube.com/*",
-		"alwaysOnTopWindows",
-		"tabs"
+		"alwaysOnTopWindows"
 	]
 }

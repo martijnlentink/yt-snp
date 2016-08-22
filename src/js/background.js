@@ -66,8 +66,8 @@ chrome.webRequest.onBeforeRequest.addListener(
 				// We need a reference to this class to update the size of the window
 				// Matches: h.Ja=function(){var a=this.app.V,b=Jh()==this.element;if(b&&rq())return new Xe(window.outerWidth,window.outerHeight);
 				new sourceReplacement("update-window-size",
-					/([a-z]\.[a-zA-Z]{2,3}=function\(\)\{var a=this\.app\.[a-zA-Z]{1,2}.+;if\(.+)(\)return new ([A-Za-z]{2,3})\(window\.outerWidth,window\.outerHeight\);)/,
-					"$1 || (!!window.YTSNPIsCorner && b)$2if (!!window.YTSNPIsCorner) { return new $3(480,270);}"
+					/([a-z]\.[a-zA-Z]{2,3}=function\(\)\{var a=this\.app\.[a-zA-Z]{1,2}.+?;if\(.+?)(\)return new ([^(]+)[^;]+)/,
+					"$1 || (!!window.YTSNPIsCorner && b)$2;if (!!window.YTSNPIsCorner) { return new $3(480,270);}"
 				),
 				// Remove the stopVideo command from the API, so we can keep on playin'
 				new sourceReplacement("disable-stop",
@@ -184,3 +184,115 @@ function handleNotification()
 		}
 	}
 }
+
+/* SNP-APP */
+var prevTab = 0;
+var currentTab = 0;
+var prevUrl = '';
+var currentUrl = '';
+chrome.tabs.onActivated.addListener(function (info) {
+	chrome.tabs.get(info.tabId, function (tab) {
+			_updateApp(tab.url, info.tabId);
+	});
+});
+
+// chrome.permissions.request({
+// 	  permissions: ['management'],
+// 	  origins: ['*://*.youtube.com/*']
+// 	}, function(granted) {
+//     	if (granted)
+//     	{
+// 			chrome.management.launchApp("mgflnabaldboiahifonjgnoodgnccefm");
+//     	}
+//     }
+// );
+// var currentTime = 0;
+// var tabList = [];
+// var currentTab = 0;
+// var previousTab = 0;
+
+// /* Create a list of all the tabs that are open */
+// chrome.tabs.query({ windowType: "normal" }, function (tabs) {
+// 	tabList = tabs;
+	
+// 	for (i = 0; i < tabList.length; i++)
+// 	{
+// 		if (tabList[i].active)
+// 		{
+// 			currentTab = tabList[i].id;
+// 			break;
+// 		}
+// 	}
+// });
+
+function _updateApp(newUrl, newTabId) {
+	prevUrl = currentUrl;
+	currentUrl = newUrl;
+
+	prevTab = currentTab;
+	currentTab = newTabId;
+
+	if (prevUrl.indexOf('watch?v=') > -1 && currentUrl.indexOf('watch?v=') == -1)
+	{
+		circularify.app.cueVideoByUrl(prevUrl);
+		chrome.tabs.executeScript(prevTab, {code: 'circularify.omni.page.injectScript(function () {circularify.ytapi.getPlayer().mute()});'});
+		chrome.tabs.executeScript(prevTab, {code: 'document.querySelector(".ytp-progress-bar[aria-valuenow]").getAttribute("aria-valuenow");'}, function (result) {
+			circularify.app.seekTo(result);
+		});
+		circularify.app.playVideo();
+		circularify.app.unMute();
+	}
+	if (currentUrl.indexOf('watch?v=') > -1)
+	{
+		circularify.app.getVideoId(function (id) {
+			if (currentUrl.indexOf(id) > -1)
+				circularify.app.getCurrentTime(function (time) {
+					chrome.tabs.executeScript(currentTab, {code: 'circularify.omni.page.injectScript(function () {circularify.ytapi.getPlayer().seekTo('+time+');circularify.ytapi.getPlayer().unMute();});'});
+				});
+		});
+		circularify.app.mute();
+	}
+}
+
+// /* Because chrome.tabs.OnBeforeUpdated does not exist we mimic it by watching the requests */
+// chrome.webRequest.onBeforeRequest.addListener(
+// 	function(details) {
+// 		_updateApp(details.url);
+// 	},
+// 	{ urls: ["<all_urls>"], types: ["main_frame"] }
+// );
+
+// chrome.tabs.query({'active': true}, function (activeTabs) {
+        // chrome.tabs.connect(activeTabs[0].tabId,{name: "time-listener"});
+// });
+
+// chrome.runtime.onMessage.addListener(
+  // function(request, sender, sendResponse) {
+    // currentTime = request.time;
+  // });
+  
+// chrome.runtime.onConnect.addListener(function (port) {
+// 	port.onMessage.addListener(function (request) {
+// 		currentTime = request.time;
+// 	});
+// });
+
+// chrome.tabs.onActivated.addListener(function(activeInfo) {
+// 	chrome.permissions.request({
+//           permissions: ['tabs']
+//         });
+//     chrome.tabs.get(activeInfo.tabId, function (tab) {
+//         mySuperCallback(activeInfo.tabId, tab.url);
+//     });
+// });
+
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, updatedTab) {
+    chrome.tabs.query({'active': true}, function (activeTabs) {
+        var activeTab = activeTabs[0];
+
+        if (activeTab.id == updatedTab.id) {
+			_updateApp(activeTab.url, tabId);
+        }
+   });
+});
+

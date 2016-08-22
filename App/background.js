@@ -10,14 +10,18 @@ chrome.app.runtime.onLaunched.addListener(function() {
 			 minWidth: 220,
 			 minHeight: 50
 		  },
-		  hidden: true
-		}, function (createdWindow) {appWindow = createdWindow;});
+		  hidden: false
+		}, function (createdWindow) {appWindow = createdWindow; debugger;});
 });
 var isVisible = false;
 var previousUrl;
 var url;
   chrome.runtime.onMessageExternal.addListener(
     function(request, sender, sendResponse) {
+    	if (request.ytCmd)
+    	{
+    		// appWindow.contentWindow.getElementById("view").
+    	}
 	previousUrl = url;
 	url = request.url;
 	if (previousUrl == url)
@@ -26,7 +30,7 @@ var url;
 	appWindow = chrome.app.window.get("framelessWinID");
 	if (previousUrl && previousUrl.indexOf("youtube") > -1)
 	{
-	  appWindow.contentWindow.navigate("http://www.youtube.com/embed/" + getParameterByName(previousUrl, "v") + "?autoplay=1&start="+request.time);
+	  appWindow.playVideo("https://www.youtube.com/embed/" + getParameterByName(previousUrl, "v") + "?autoplay=1&start="+request.time);
 	  isVisible = true;
 	  appWindow.show();
 	}

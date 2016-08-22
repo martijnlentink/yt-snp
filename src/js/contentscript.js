@@ -83,6 +83,11 @@ circularify.omni.page.injectScript(function () {
 	};
 
 	function _circReady() {
+		// We may be listening to the circReady event of the content script
+		// In that case ignore it and wait for the page!
+		if (typeof circularify === 'undefined')
+			return;
+		
 		window.removeEventListener(circularify.core.events.circReady, this);
 		// Navigating function
 		window.YTSPPreventRequeue = _doesVideoIdMatchCurrent;
@@ -95,3 +100,21 @@ circularify.omni.page.injectScript(function () {
 	window.yttrcooldown = 0;
 });
 
+/* Communication with the APP */
+
+// var port = chrome.runtime.connect({name: "time-listener"});
+// setInterval(function () {
+// 	port.postMessage({time: document.querySelector(".html5-progress-bar.ytp-force-transform").getAttribute("aria-valuenow")});
+// }, 500);
+
+// chrome.runtime.onMessage.addListener(function (message) {
+// 	if (message.action == "pause")
+// 	{
+// 		inject(function () { var player = getPlayer(); player.YTSNPpauseVideo(); });
+// 	}
+// 	else
+// 	{
+// 		localStorage["starttime"] = message.time;
+// 		inject(function () { var player = getPlayer(); player.seekTo(localStorage["starttime"]); player.playVideo(); });
+// 	}
+// });
