@@ -20,7 +20,7 @@ circularify.app = circularify.app || (function () {
 			_origin = ev.origin;
 		});
 		document.addEventListener("ytResponse", function (ev) {
-			_target.postMessage({ id: ev.detail.extras.id, result: ev.detail.result }, _origin);
+			_target.postMessage({ id: ev.detail.extras.id, result: ev.detail.result }, '*');
 		});
 		circularify.omni.page.injectScript("js/core/ytapi.js");
 	}
@@ -34,9 +34,10 @@ circularify.app = circularify.app || (function () {
 				window.addEventListener("message", function (ev) {
 					_callbacks[ev.data.id](ev.data.result);
 					delete _callbacks[ev.data.id];
+					// webview.contentWindow.postMessage({ yo: 1 }, '*');
 				});
 
-				webview.contentWindow.postMessage({ yo: 1 }, '*');
+				window.setInterval(function () { webview.contentWindow.postMessage({ yo: 1 }, '*'); }, 100);
 			}, 3000);
 		});
 		chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) {
@@ -56,18 +57,26 @@ circularify.app = circularify.app || (function () {
 	}
 
 	// Request ID is a callback in the background and in other environments a identifier string
-	function _wrapInjection(func, args, requestId) {
+	function _wrapInjection(func, args, requestId) { console.log(func.toString());
 		args = args || [];
 		if (!args.splice)
 			args = Object.keys(args).map(key => args[key]);
 
 		if (currentEnv == "window")
 		{
+			console.log("Window: " + func);
 			var result = /^function \_(\w+)\(.*\)/.exec(func);
 
 			if (result && result[1])
 			{
 				var funcName = result[1];
+				if (funcName.toLowerCase().indexOf('mute') > -1) {
+					var win = chrome.app.window.getAll()[0];
+					if (funcName.indexOf("unMute") > -1)
+						win.show();
+					else
+						win.hide();
+				}
 				if (requestId)
 					args.push(requestId);
 				document.getElementById("view").executeScript({code: 'circularify.app.' + funcName + '("' + args.join('","') +'");'});
@@ -91,7 +100,7 @@ circularify.app = circularify.app || (function () {
 					id: requestId ? circularify.utils.randomString(10) : -1,
 					ytFunc: func.toString(),
 					ytArgs: args
-				}, null, requestId || function () {}
+				}, null, requestId || function () {console.log("Empty result")}
 			);
 		}
 	}
@@ -128,6 +137,19 @@ circularify.app = circularify.app || (function () {
 		circularify.ytapi.getPlayer().cueVideoById(id, startTime, suggestedQuality);
 	}
 
+	function _loadVideoById(id, startTime, suggestedQuality) {
+		circularify.ytapi.getPlayer().loadVideoById(id, startTime, suggestedQuality);
+	}
+
+	function _loadVideoByUrl(url, startSeconds, suggestedQuality) {
+		var player = circularify.ytapi.getPlayer();
+		var id = circularify.ytapi.getVideoId(url);
+		if (player.getVideoData()["video_id"] != id)
+			player.loadVideoById(id, startSeconds, suggestedQuality);
+		else
+			player.seekTo(startSeconds);
+	}
+
 	function _cueVideoByUrl(url) {
 		var player = circularify.ytapi.getPlayer();
 		var id = circularify.ytapi.getVideoId(url);
@@ -146,6 +168,8 @@ circularify.app = circularify.app || (function () {
 	return {
 		cueVideoByUrl: function (url) { _wrapInjection(_cueVideoByUrl, arguments); },
 		cueVideoById: function (id, startTime, suggestedQuality) { _wrapInjection(_cueVideoById, arguments); },
+		loadVideoById: function (id, startTime, suggestedQuality) { _wrapInjection(_loadVideoById, arguments); },
+		loadVideoByUrl: function (id, startTime, suggestedQuality) { _wrapInjection(_loadVideoByUrl, arguments); },
 		seekTo: function (time) { _wrapInjection(_seekTo, arguments); },
 		setVolume: function (volume) { _wrapInjection(_setVolume, arguments); },
 		setPlaybackRate: function (rate) { _wrapInjection(_setPlaybackRate, arguments); },
