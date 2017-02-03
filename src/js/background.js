@@ -85,10 +85,10 @@ chrome.webRequest.onBeforeRequest.addListener(
 			return {redirectUrl: "data:application/javascript," + encodeURIComponent(resp) };
 		}
 		
-		// fix for navigation
-		if (details.url.indexof("spf") > -1) {
-			var xhr = new xmlhttprequest();
-			xhr.open("get", details.url, false);
+		// Fix for navigation
+		if (details.url.indexOf("spf.js") > -1) {
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", details.url, false);
 			xhr.send();
 			var resp = xhr.responsetext;
 	
@@ -125,7 +125,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 		// }
 	}
 	, 
-	{ urls: ["*://*.ytimg.com/*"]},
+	{ urls: ["*://*.youtube.com/*"]},
 	["blocking"]
 );
 
