@@ -71,8 +71,8 @@ chrome.webRequest.onBeforeRequest.addListener(
 				),
 				// Remove the stopVideo command from the API, so we can keep on playin'
 				new sourceReplacement("disable-stop",
-					/[A-Za-z]{1,3}\(this\,\"stopVideo\"\,this\.[A-Za-z@$%&*]{1,3}\)\;/,
-					''
+					/([A-Za-z]{1,3}\(this\,\"stopVideo\"\,)this\.[A-Za-z@$%&*]{1,3}\)\;/,
+					'$1function(){});'
 				)
 			];
 
@@ -90,19 +90,39 @@ chrome.webRequest.onBeforeRequest.addListener(
 			var xhr = new XMLHttpRequest();
 			xhr.open("GET", details.url, false);
 			xhr.send();
-			var resp = xhr.responseText;
+			var resp = xhr.responsetext;
 	
-			// Look for pattern -- Dynamically called
-			var regex2 = new RegExp(/(function [a-zA-Z]\([a-zA-Z]\)\{var [a-zA-Z]\=new [a-zA-Z]{2};)/);
+			// look for pattern -- dynamically called
+			var regex2 = new regexp(/(function [a-za-z]\([a-za-z]\)\{var [a-za-z]\=new [a-za-z]{2};)/);
 	
-			// Our own function
-			var replaceString = '$1 if (typeof (window.YTSPNavigating) == "function") {try{window.YTSPNavigating();}catch(error){}}';
+			// our own function
+			var replacestring = '$1 if (typeof (window.ytspnavigating) == "function") {try{window.ytspnavigating();}catch(error){}}';
 						
-			// Add our own code and return
-			var result = resp.replace(regex2, replaceString); 
+			// add our own code and return
+			var result = resp.replace(regex2, replacestring); 
 
-			return {redirectUrl: "data:application/javascript," + encodeURIComponent(result) };
+			return {redirecturl: "data:application/javascript," + encodeuricomponent(result) };
 		}
+		
+		// if (details.url.indexOf("desktop_polymer.js" > -1)) {
+			// var xhr = new XMLHttpRequest();
+			// xhr.open("GET", details.url, false);
+			// xhr.send();
+			// var resp = xhr.responseText;
+			
+			// var regexs = [ new sourceReplacement("fix-player-functions",
+					// /for\(var ([a-z]) in ([a-z]).api\)\2.api\[\1\]=null;/,
+					// ""
+			// )];
+			
+			// for (var idx in regexs) {
+				// var currentRegex = regexs[idx];
+				// resp = currentRegex.performReplace(resp);
+			// }
+			
+			// // Let's nicely return the JavaScript so that YouTube can access it
+			// return {redirectUrl: "data:application/javascript," + encodeURIComponent(resp) };
+		// }
 	}
 	, 
 	{ urls: ["*://*.youtube.com/*"]},

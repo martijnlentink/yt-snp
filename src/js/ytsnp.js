@@ -38,7 +38,6 @@ function ytsnp() {
 	
 	// Put the element in the corner
 	function _cornerize() {		
-		
 		var element = circularify.ytapi.getVideoElement();
 		// The player is cornerized
 		window.YTSNPIsCorner = true;
@@ -58,10 +57,18 @@ function ytsnp() {
 						window.yttrcooldown = 0;
 					}, 1500);
 				}
-			
-				// // Make sure the player is visible and not somewhere far to the left
-				// //element.className = element.className.replace(/\off-screen-target\b/,'');
-				element.firstChild.style.display = "block";
+
+				var polymer = document.getElementsByTagName("ytd-watch");
+				if (polymer.length > 0) {
+					polymer = polymer[0];
+					polymer.removeAttribute("hidden");
+					polymer.style.visibility = 'collapse';
+					polymer.style.position = 'absolute';
+					element = document.getElementById("movie_player");
+					element.style.visibility = 'visible';
+				}
+				else
+					element.firstChild.style.display = "block";
 
 				// Player sizing and positioning
 				element.style.width = videoSize.smallWidth
@@ -93,6 +100,13 @@ function ytsnp() {
 		var element = circularify.ytapi.getVideoElement();
 		// The player is no longer cornerized
 		window.YTSNPIsCorner = false;
+		var polymer = document.getElementsByTagName("ytd-watch");
+		if (polymer.length > 0) {
+			polymer = polymer[0];
+			polymer.style.visibility = '';
+			polymer.style.position = '';
+			element = document.getElementById("movie_player");
+		}
 		element.removeAttribute("style");
 		
 		// GA
