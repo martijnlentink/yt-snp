@@ -16,14 +16,17 @@ circularify.omni.page.injectScript(function () {
 	var _url = null;
 	
 	// Subscribe to the popstate event to handle going back in history
-	window.addEventListener("popstate", _navigateBackward);
+	//window.addEventListener("popstate", _navigateBackward);
 	// Every navigation we get notified by SPF what the new URL is
 	window.addEventListener("spfrequest", _spfrequest);
+	document.addEventListener("yt-navigate-finish", _spfrequest);
 	// Singles if snp is ready on the page
 	window.addEventListener("circReady", _circReady);
 
 	function _spfrequest(event) {
-		_url = event.detail.url;
+		if (event.detail)
+			_url = event.detail.url || event.detail.response.url;
+		_navigateForward();
 	}
 
 	// Function that handles a navigation going back in history
@@ -86,10 +89,6 @@ circularify.omni.page.injectScript(function () {
 		window.removeEventListener(circularify.core.events.circReady, this);
 		// Navigating function
 		window.YTSPPreventRequeue = _doesVideoIdMatchCurrent;
-		
-		// Set Navigation Subscribtion
-		window.YTSPNavigating = circularify.mailoffice.sendMailman;
-		circularify.mailoffice.subscribe(_navigateForward);
 	}
 	
 	window.yttrcooldown = 0;
