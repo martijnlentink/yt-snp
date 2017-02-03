@@ -86,7 +86,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 		}
 		
 		// Fix for navigation
-		if (details.url.indexOf("spf") > -1) {
+		if (details.url.indexOf("spf.js") > -1) {
 			var xhr = new XMLHttpRequest();
 			xhr.open("GET", details.url, false);
 			xhr.send();
@@ -105,7 +105,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 		}
 	}
 	, 
-	{ urls: ["*://*.ytimg.com/*"]},
+	{ urls: ["*://*.youtube.com/*"]},
 	["blocking"]
 );
 
