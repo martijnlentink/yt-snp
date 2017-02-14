@@ -13,7 +13,7 @@ circularify.omni.register("snp");
 // Main method.
 circularify.omni.page.injectScript(function () {
 	// Next URL
-	var _url = null;
+	var _url = window.location.href;
 	
 	// Subscribe to the popstate event to handle going back in history
 	//window.addEventListener("popstate", _navigateBackward);
@@ -71,7 +71,7 @@ circularify.omni.page.injectScript(function () {
 	function _outOfView() {
 		var target = document.getElementById("theater-background");
 
-		if (target) {
+		if (target && _url.indexOf("watch?") > -1) {
 			var elementRect = target.getBoundingClientRect();
 			if (_isCornerizedOov == elementRect.bottom < 0)
 				return;
