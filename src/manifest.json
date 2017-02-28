@@ -3,7 +3,7 @@
 	
 	"name": "Seek 'n Play for YouTube™",
 	"description": "__MSG_appDescription__",
-	"version": "2.2.2",  
+	"version": "2.4",  
 	"homepage_url": "https://chrome.google.com/webstore/detail/aiaeaehoebdkelhnbomepbijjjeakkld/",
 	"short_name": "Seek 'n Play",
 	
@@ -13,6 +13,11 @@
         "128": "img/icon.128.png" 
 	},
 	
+	"options_ui": {
+		"page": "html/options.html",
+		"chrome_style": true
+	},
+	
 	"permissions": [
 		"notifications",
 		"webRequest",	
@@ -20,7 +25,7 @@
 		"*://*.ytimg.com/*", 
 		"webRequestBlocking"
 	],
-
+	
 	"externally_connectable": {
 	  "matches": ["*://*.youtube.com/*"]
 	},
