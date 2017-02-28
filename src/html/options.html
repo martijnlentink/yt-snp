@@ -7,24 +7,27 @@
 	</head>
 	<body>		
 		<div class="row">
-			<div class="container">
-				<p>On this page we're allowing you to customize your Seek 'n Play for YouTube &trade; experience.</p>
-				<br/>
-				<p><strong>Available options:</strong></p>
-				<table>
-					<tbody>
-						<tr>
-							<td width="20"><input type="checkbox" name="PlayAnywhere" id="PlayAnywhere" /></td>
-							<td><label for="PlayAnywhere">Enable Play Anywhere &trade;</label></td>
-						</tr>
-					</tbody>
-					<tfoot>
-						<tr style="margin-top: 10px;">
-							<td></td>
-							<td><button class="btn btn-default">Save</button></td>
-						</tr>
-					</tfoot>					
-				</table>
+		
+			<div id="message" class="message hidden">
+				<p>Settings saved</p>
+			</div>
+			
+			<div class="container">				
+				<p data-i18n="settingsHeader">Customize your Seek 'n Play for YouTube &trade; experience.</p>
+				<p><strong><span data-i18n="settingsAvailable">Available options</span>:</strong></p>
+				<div class="options">
+					<div class="option">
+						<div class="col-xs">
+							<input type="checkbox" name="playAnywhere" id="playAnywhere" />
+						</div>
+						<div class="col">
+							<label for="playAnywhere" data-i18n="settingsPlayAnywhere">Enable PlayAnywhere&trade;</label>
+						</div>
+					</div>
+				</div>
+				<div class="option-save">
+					<button id="btnSave" class="btn btn-default" data-i18n="settingsBtnSave">Save</button>
+				</div>
 			</div>		
 		</div>
 		

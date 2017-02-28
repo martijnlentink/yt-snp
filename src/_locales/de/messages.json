@@ -4,5 +4,23 @@
 	},
 	"installNotification": {
 		"message": "Ein neues Update ist installiert. Klicken Sie hier, um die Changelog zu sehen."
+	},
+	"settingsHeader": {
+		"message": "Passt Ihre Seek 'n Play for YouTube&trad; Erfahrung an."
+	},
+	"settingsAvailable": {
+		"message": "Einstellungen"
+	},
+	"settingsBtnSave": {
+		"message": "Speichern"
+	},
+	"settingsSaveSuccess": {
+		"message": "Einstellungen gespeichert!"
+	},
+	"settingsSaveError": {
+		"message": "Beim Speichern ist ein Fehler aufgetreten."
+	},
+	"settingsPlayAnywhere": {
+		"message": "PlayAnywhere&trade; einschalten (beta)"
 	}
 }
