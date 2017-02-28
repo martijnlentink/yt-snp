@@ -21,8 +21,11 @@ function handleSave(event)
 	// Retrieve value from options page
 	var enablePlayAnywhere = document.getElementById("playAnywhere").checked;
 	
-	// if save success
-	var success = true;
+	// Create settings object
+	var objToSave = { 'enablePlayAnywhere': enablePlayAnywhere };
+	
+	// Call save function
+	let success = saveSettings(objToSave);
 	
 	// When succesfull saving data, communicate this to the user
 	if(success)
@@ -46,6 +49,35 @@ function handleSave(event)
 		// Show message
 		message.setAttribute("class", "message error");
 	}
+}
+
+///////////////////////////////////////
+//////////////// Async Save Function //
+/////// Saves setting to Chrome Sync //
+///////////////////////////////////////
+async function saveSettings(setting)
+{
+	// Stringify the object
+	var stringified = JSON.stringify(setting);
+	
+	// Save to Chrome
+	chrome.storage.sync.set({ 'seeknplayApp': stringified }, function() {
+		
+		// Check if the lastError is set, if so an error occurred
+		if(chrome.runtime.lastError !== undefined)
+		{
+			// Cout the error
+			console.error(chrome.runtime.lastError);
+			
+			// Return save error
+			return false;
+		}
+		else
+		{
+			// All is well, return so
+			return true;
+		}
+	});
 }
 
 ////////////////////////////////////////
