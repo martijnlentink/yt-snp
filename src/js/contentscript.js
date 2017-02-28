@@ -13,17 +13,21 @@ circularify.omni.register("snp");
 // Main method.
 circularify.omni.page.injectScript(function () {
 	// Next URL
-	var _url = null;
+	var _url = window.location.href;
 	
 	// Subscribe to the popstate event to handle going back in history
-	window.addEventListener("popstate", _navigateBackward);
+	//window.addEventListener("popstate", _navigateBackward);
 	// Every navigation we get notified by SPF what the new URL is
 	window.addEventListener("spfrequest", _spfrequest);
+	document.addEventListener("yt-navigate-finish", _spfrequest);
 	// Singles if snp is ready on the page
 	window.addEventListener("circReady", _circReady);
+	window.addEventListener("scroll", _outOfView);
 
 	function _spfrequest(event) {
-		_url = event.detail.url;
+		if (event.detail)
+			_url = event.detail.url || event.detail.response.url;
+		_navigateForward();
 	}
 
 	// Function that handles a navigation going back in history
@@ -62,6 +66,28 @@ circularify.omni.page.injectScript(function () {
 			}
 		}
 	};
+
+	var _isCornerizedOov = null;
+	function _outOfView() {
+		var target = document.getElementById("theater-background");
+
+		if (target && _url.indexOf("watch?") > -1) {
+			var elementRect = target.getBoundingClientRect();
+			if (_isCornerizedOov == elementRect.bottom < 0)
+				return;
+
+			if (circularify && circularify.ytsnp) {
+				if (elementRect.bottom < 0) {
+					circularify.ytsnp.cornerize();
+				}
+				else {
+					circularify.ytsnp.decornerize();
+				}	
+			}
+
+			_isCornerizedOov = elementRect.bottom < 0;
+		}
+	}
 	
 	// Get the locally saved settings
 	function getSettings() {
@@ -86,10 +112,6 @@ circularify.omni.page.injectScript(function () {
 		window.removeEventListener(circularify.core.events.circReady, this);
 		// Navigating function
 		window.YTSPPreventRequeue = _doesVideoIdMatchCurrent;
-		
-		// Set Navigation Subscribtion
-		window.YTSPNavigating = circularify.mailoffice.sendMailman;
-		circularify.mailoffice.subscribe(_navigateForward);
 	}
 	
 	window.yttrcooldown = 0;

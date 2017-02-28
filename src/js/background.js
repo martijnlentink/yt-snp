@@ -64,15 +64,15 @@ chrome.webRequest.onBeforeRequest.addListener(
 					'$1YTSNP$2'
 				),//var a=this.app.W(),b=xh()==this.element;if(b&&Ht())return new ve(window.outerWidth,window.outerHeight);
 				// We need a reference to this class to update the size of the window
-				// Matches: f.Ja=function(){var a=this.app.W(),b=!!th();if(b&&Dt())return new we(window.outerWidth,window.outerHeight);
+				// Matches: h.Ja=function(){var a=this.app.V,b=Jh()==this.element;if(b&&rq())return new Xe(window.outerWidth,window.outerHeight);
 				new sourceReplacement("update-window-size",
-					/([a-z]\.[a-zA-Z]{2,3}=function\(\)\{var a=this\.app\.[a-zA-Z]{1,2}\(\),b=.{1,20};if\(b\&\&[a-zA-Z]{2,3}\(\))(\)return new ([a-z]{2,3})\(window\.outerWidth,window\.outerHeight\);)/,
-					"$1 || (!!window.YTSNPIsCorner && b)$2if (!!window.YTSNPIsCorner) { return new $3(480,270);}"
+					/([a-z]\.[a-zA-Z]{2,3}=function\(\)\{var a=this\.app\.[a-zA-Z]{1,2}.+?;if\(.+?)(\)return new ([^(]+)[^;]+)/,
+					"$1 || (!!window.YTSNPIsCorner && b)$2;if (!!window.YTSNPIsCorner) { return new $3(480,270);}"
 				),
 				// Remove the stopVideo command from the API, so we can keep on playin'
 				new sourceReplacement("disable-stop",
-					/[A-Za-z]{1,3}\(this\,\"stopVideo\"\,this\.[A-Za-z]{1,3}\)\;/,
-					''
+					/([A-Za-z]{1,3}\(this\,\"stopVideo\"\,)this\.[A-Za-z@$%&*]{1,3}\)\;/,
+					'$1function(){});'
 				)
 			];
 
@@ -86,26 +86,46 @@ chrome.webRequest.onBeforeRequest.addListener(
 		}
 		
 		// Fix for navigation
-		if (details.url.indexOf("spf") > -1) {
+		if (details.url.indexOf("spf.js") > -1) {
 			var xhr = new XMLHttpRequest();
 			xhr.open("GET", details.url, false);
 			xhr.send();
-			var resp = xhr.responseText;
+			var resp = xhr.responsetext;
 	
-			// Look for pattern -- Dynamically called
-			var regex2 = new RegExp(/(function [a-zA-Z]\([a-zA-Z]\)\{var [a-zA-Z]\=new [a-zA-Z]{2};)/);
+			// look for pattern -- dynamically called
+			var regex2 = new regexp(/(function [a-za-z]\([a-za-z]\)\{var [a-za-z]\=new [a-za-z]{2};)/);
 	
-			// Our own function
-			var replaceString = '$1 if (typeof (window.YTSPNavigating) == "function") {try{window.YTSPNavigating();}catch(error){}}';
+			// our own function
+			var replacestring = '$1 if (typeof (window.ytspnavigating) == "function") {try{window.ytspnavigating();}catch(error){}}';
 						
-			// Add our own code and return
-			var result = resp.replace(regex2, replaceString); 
+			// add our own code and return
+			var result = resp.replace(regex2, replacestring); 
 
-			return {redirectUrl: "data:application/javascript," + encodeURIComponent(result) };
+			return {redirecturl: "data:application/javascript," + encodeuricomponent(result) };
 		}
+		
+		// if (details.url.indexOf("desktop_polymer.js" > -1)) {
+			// var xhr = new XMLHttpRequest();
+			// xhr.open("GET", details.url, false);
+			// xhr.send();
+			// var resp = xhr.responseText;
+			
+			// var regexs = [ new sourceReplacement("fix-player-functions",
+					// /for\(var ([a-z]) in ([a-z]).api\)\2.api\[\1\]=null;/,
+					// ""
+			// )];
+			
+			// for (var idx in regexs) {
+				// var currentRegex = regexs[idx];
+				// resp = currentRegex.performReplace(resp);
+			// }
+			
+			// // Let's nicely return the JavaScript so that YouTube can access it
+			// return {redirectUrl: "data:application/javascript," + encodeURIComponent(resp) };
+		// }
 	}
 	, 
-	{ urls: ["*://*.ytimg.com/*"]},
+	{ urls: ["*://*.youtube.com/*"]},
 	["blocking"]
 );
 

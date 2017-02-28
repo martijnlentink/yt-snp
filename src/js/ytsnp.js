@@ -38,7 +38,6 @@ function ytsnp() {
 	
 	// Put the element in the corner
 	function _cornerize() {		
-		
 		var element = circularify.ytapi.getVideoElement();
 		// The player is cornerized
 		window.YTSNPIsCorner = true;
@@ -58,10 +57,18 @@ function ytsnp() {
 						window.yttrcooldown = 0;
 					}, 1500);
 				}
-			
-				// // Make sure the player is visible and not somewhere far to the left
-				// //element.className = element.className.replace(/\off-screen-target\b/,'');
-				element.firstChild.style.display = "block";
+
+				var polymer = document.getElementsByTagName("ytd-watch");
+				if (polymer.length > 0) {
+					polymer = polymer[0];
+					polymer.removeAttribute("hidden");
+					polymer.style.visibility = 'collapse';
+					polymer.style.position = 'absolute';
+					element = document.getElementById("movie_player");
+					element.style.visibility = 'visible';
+				}
+				else
+					element.firstChild.style.display = "block";
 
 				// Player sizing and positioning
 				element.style.width = videoSize.smallWidth
@@ -69,6 +76,7 @@ function ytsnp() {
 				element.style.right = "10px";
 				element.style.position = "fixed";
 				element.style.zIndex = "999";
+				element.style.left = 'inherit';
 				// Positioned on bottoms
 				element.style.bottom = "10px";
 				
@@ -93,6 +101,13 @@ function ytsnp() {
 		var element = circularify.ytapi.getVideoElement();
 		// The player is no longer cornerized
 		window.YTSNPIsCorner = false;
+		var polymer = document.getElementsByTagName("ytd-watch");
+		if (polymer.length > 0) {
+			polymer = polymer[0];
+			polymer.style.visibility = '';
+			polymer.style.position = '';
+			element = document.getElementById("movie_player");
+		}
 		element.removeAttribute("style");
 		
 		// GA
@@ -134,7 +149,7 @@ function ytsnp() {
 			playel.removeAttribute("style");
 			//playel.childNodes[0].childNodes[0].removeAttribute("style");
 			playel.childNodes[0].childNodes[1].removeAttribute("style");
-			console.info(playel);
+			circularify.debug.log(playel);
 			var player = _getPlayer();
 			player.cueVideoById();
 			_hideButtons();
@@ -162,22 +177,26 @@ function ytsnp() {
 	function _displayButtons() {
 		var closeButton;
 		var backButton;
+		var sizeButton;
 		
-		circularify.utils.wait(function () { return (closeButton = document.getElementsByClassName("closeButton")[0]) && (backButton = document.getElementsByClassName("backToVideoButton")[0]); }, function () {
+		circularify.utils.wait(function () { return (closeButton = document.getElementsByClassName("closeButton")[0]) && (backButton = document.getElementsByClassName("backToVideoButton")[0]) && (sizeButton = document.getElementsByClassName('ytp-size-button ytp-button')[0]); }, function () {
 			
 			closeButton.style.display = 'block';
 			backButton.style.display = 'block';
-		});
+			sizeButton.style.display = 'none';
+		});		
 	}
 	
 	// Function to remove buttons from the page
 	function _hideButtons() {
 		var closeButton;
 		var backButton;
+		var sizeButton;
 		
-		circularify.utils.wait(function () { return (closeButton = document.getElementsByClassName("closeButton")[0]) && (backButton = document.getElementsByClassName("backToVideoButton")[0]); }, function () {
+		circularify.utils.wait(function () { return (closeButton = document.getElementsByClassName("closeButton")[0]) && (backButton = document.getElementsByClassName("backToVideoButton")[0]) && (sizeButton = document.getElementsByClassName('ytp-size-button ytp-button')[0]); }, function () {
 			closeButton.style.display = 'none';
 			backButton.style.display = 'none';
+			sizeButton.style.display = '';
 		});
 	}
 	
