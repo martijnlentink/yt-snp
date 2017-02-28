@@ -76,6 +76,7 @@ function ytsnp() {
 				element.style.right = "10px";
 				element.style.position = "fixed";
 				element.style.zIndex = "999";
+				element.style.left = 'inherit';
 				// Positioned on bottoms
 				element.style.bottom = "10px";
 				
