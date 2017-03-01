@@ -1,18 +1,44 @@
+/*
+	Seek 'n Play is an application developed by Circularify
+*/
 
-// IIFE
+// Main
 (function() 
 {
-	// Data-bind function call to button
-	document.getElementById("btnSave").addEventListener("click", handleSave);
-
-	// Internationalize
+	// Init
+	init();
+	
+	// Internationalize the UI
 	internationalize();
 })();
 
 ///////////////////////////////////////
+//////////////// Initialize function //
+///////////////////////////////////////
+async function init()
+{
+	// Step 1: Data bind buttons
+	document.getElementById("btnSave").addEventListener("click", handleSave);
+
+	// Step 2: Pre-load the saved settings
+	
+	// Retrieve the setting box
+	var enablePlayAnywhere = document.getElementById("playAnywhere");
+	
+	// Retrieve stored data
+	let data = await loadSettings();	
+	
+	// Set the saved value when true
+	if(data.enablePlayAnywhere)
+	{
+		enablePlayAnywhere.setAttribute("checked", "checked");
+	}
+}
+
+///////////////////////////////////////
 ///////// Handle Save event function //
 ///////////////////////////////////////
-function handleSave(event)
+async function handleSave(event)
 {
 	// Reference message placeholder and hide it, default state
 	var message = document.getElementById("message");
@@ -30,6 +56,7 @@ function handleSave(event)
 	// When succesfull saving data, communicate this to the user
 	if(success)
 	{
+		// Retrieve i18n message
 		var msg = chrome.i18n.getMessage("settingsSaveSuccess");
 		
 		// Add success message
@@ -52,6 +79,28 @@ function handleSave(event)
 }
 
 ///////////////////////////////////////
+//////////////// Async Load Function //
+///// Loads setting from Chrome Sync //
+///////////////////////////////////////
+async function loadSettings()
+{
+	// Retrieve data from Chrome Sync
+	let data = await chrome.storage.promise.sync.get("seeknplayApp");
+	
+	// Parse JSON string to object
+	var obj = JSON.parse(data.seeknplayApp);
+	
+	// If nothing was stored, default values
+	if(obj === undefined)
+	{
+		var obj = { 'enablePlayAnywhere': false };
+	}
+	
+	// Return
+	return obj;
+}
+
+///////////////////////////////////////
 //////////////// Async Save Function //
 /////// Saves setting to Chrome Sync //
 ///////////////////////////////////////
@@ -60,24 +109,11 @@ async function saveSettings(setting)
 	// Stringify the object
 	var stringified = JSON.stringify(setting);
 	
-	// Save to Chrome
-	chrome.storage.sync.set({ 'seeknplayApp': stringified }, function() {
-		
-		// Check if the lastError is set, if so an error occurred
-		if(chrome.runtime.lastError !== undefined)
-		{
-			// Cout the error
-			console.error(chrome.runtime.lastError);
-			
-			// Return save error
-			return false;
-		}
-		else
-		{
-			// All is well, return so
-			return true;
-		}
-	});
+	// Save to Chrome	
+	let success = await chrome.storage.promise.sync.set({ 'seeknplayApp': stringified });
+	
+	// Return wether it was succesfull
+	return success;
 }
 
 ////////////////////////////////////////
@@ -97,6 +133,7 @@ function internationalize()
 		// Retrieve the val
 		var val = chrome.i18n.getMessage(key);
 		
+		// Set the body of the element with the retrieved value
 		ele.innerHTML = val;
 	});
 }
