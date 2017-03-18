@@ -48,12 +48,13 @@
 	    {
 	    	"matches": [ "*://*/*" ],
 		      "js": [ 
+		      		"js/core/modules.js",
 			     	"js/player.js"
 		      	],
 		      	"css": [
 		      		"css/player.css"
 		      	],
-		      "run_at": "document_start"
+		      "run_at": "document_end"
 	    }
 	],
 	

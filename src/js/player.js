@@ -1,10 +1,22 @@
-var el = document.createElement("script");
-el.innerHTML = "document.body.innerHTML += \"<img id='seek-n-play-er' src=''/>\"";
+//circularify.omni.analytics.initialize('UA-50232941-1');
+console.log("JFM");
+var snpId = 'seek-n-play-er';
 
-var wait = function(target, action) {
-		setTimeout(target() ? action : function () { wait(target, action)}, 5);
-	}
+circularify.omni.page.injectScript(function (snpId) {
+	console.log('test');
+	var snp = document.createElement("img");
+	snp.id = snpId;
 
-wait(function () {return !!document.body}, function () {
-	document.body.appendChild(el);
-});
+	document.body.appendChild(snp);
+}, snpId);
+
+// var el = document.createElement("script");
+// el.innerHTML = "document.body.innerHTML += \"<img id='seek-n-play-er' src=''/>\"";
+
+// var wait = function(target, action) {
+// 		setTimeout(target() ? action : function () { wait(target, action)}, 5);
+// 	}
+
+// wait(function () {return !!document.body}, function () {
+// 	document.body.appendChild(el);
+// });
