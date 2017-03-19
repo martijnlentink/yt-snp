@@ -7,5 +7,23 @@
 	},
 	"popupMessage": {
 		"message": "Found a bug? Report it at the <a href='http://bugs.circularify.com' target='_blank'>Circularify Bug Tracker</a>."
+	},
+	"settingsHeader": {
+		"message": "Customize your Seek 'n Play for YouTube&trad; experience."
+	},
+	"settingsAvailable": {
+		"message": "Available options"
+	},
+	"settingsBtnSave": {
+		"message": "Save"
+	},
+	"settingsSaveSuccess": {
+		"message": "Settings saved!"
+	},
+	"settingsSaveError": {
+		"message": "An error occurred while saving."
+	},
+	"settingsPlayAnywhere": {
+		"message": "Enable PlayAnywhere&trade; (beta)"
 	}
 }
