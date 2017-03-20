@@ -144,6 +144,9 @@ chrome.runtime.onInstalled.addListener(function(details){
 	}, null);
 	
 	circularify.omni.analytics.registerEvent(details.reason, chrome.runtime.getManifest().version);
+	
+	// SHOW INSTALL PAGE (v3.0.x only)
+	chrome.tabs.create({ "url": "html/startup.html"});
 });
 
 // Add Event Listener for Notifications
