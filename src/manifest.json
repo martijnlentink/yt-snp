@@ -13,14 +13,13 @@
         "48": "img/icon.48.png",
         "128": "img/icon.128.png" 
 	},
-	
+		
 	"options_ui": {
 		"page": "html/options.html",
 		"chrome_style": true
 	},
 	
 	"permissions": [
-		"tabs",
 		"notifications",
 		"webRequest",	
 		"*://*.youtube.com/*", 
@@ -29,7 +28,7 @@
 		"webRequestBlocking",
 		"storage"
 	],
-	
+
 	"externally_connectable": {
 	  "matches": ["*://*.youtube.com/*"]
 	},
