@@ -3,14 +3,20 @@
 	
 	"name": "Seek 'n Play for YouTube™",
 	"description": "__MSG_appDescription__",
-	"version": "2.2.2",  
+	"version": "3.0.0",  
 	"homepage_url": "https://chrome.google.com/webstore/detail/aiaeaehoebdkelhnbomepbijjjeakkld/",
 	"short_name": "Seek 'n Play",
+	"key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlyc9z4hKBm8bGk+tzwNpJi/dPdtujnnyDYO6kHVthyKTPtxSK0HhZjUVzptaEDgVT9HVAQk3QRwbm0BT793Ge6Jayzm//JbU+KJaNFPQxQJt22rvZpeWVNgLhHBERs5CMgK+9nq9SOnZnFBOqTBZgG1BnTZ0reEabb0CLJlne2rpwQmp7+N8gWotOI8VOeHLefDF1L3ZFLnCTZvAAk8bq93326c/o850YMt+6IGi6Rl2DUmtY6UyxsCCI0TYRVu2eAKZ66SkigwqHcGcINc7ctA6kBddL6Sxwp+jpldlq+3KKL7o+GktJYZdmwb/NK3P+4MHYWf8n34H02NYfRqS2wIDAQAB",
 	
 	"icons": { 
 		"16": "img/icon.16.png",
         "48": "img/icon.48.png",
         "128": "img/icon.128.png" 
+	},
+	
+	"options_ui": {
+		"page": "html/options.html",
+		"chrome_style": true
 	},
 	
 	"permissions": [
@@ -20,9 +26,10 @@
 		"*://*.youtube.com/*", 
 		"*://*.ytimg.com/*", 
 		"<all_urls>",
-		"webRequestBlocking"
+		"webRequestBlocking",
+		"storage"
 	],
-
+	
 	"externally_connectable": {
 	  "matches": ["*://*.youtube.com/*"]
 	},
@@ -40,6 +47,7 @@
 	      "matches": [ "*://*.youtube.com/watch*" ],
 	      "js": [ 
 		     	"js/core/modules.js",
+		      	"js/core/ytapi.js",
 		      	"js/content-video.js"
 	      	],
 	      "all_frames": true,
@@ -47,10 +55,6 @@
 	    },
 	    {
 	    	"matches": [ "*://*/*" ],
-		      "js": [ 
-		      		"js/core/modules.js",
-			     	"js/player.js"
-		      	],
 		      	"css": [
 		      		"css/player.css"
 		      	],

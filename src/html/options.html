@@ -1,0 +1,38 @@
+<!-- 
+	Seek 'n Play is an application developed by Circularify 
+-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Options</title>
+		<link rel="stylesheet" type="text/css" href="../css/options.css" />
+	</head>
+	<body>		
+		<div>		
+			<div id="message" class="message hidden">
+				<p>Settings saved</p>
+			</div>
+			
+			<div>				
+				<p data-i18n="settingsHeader">Customize your Seek 'n Play for YouTube &trade; experience.</p>
+				<p><strong><span data-i18n="settingsAvailable">Available options</span>:</strong></p>
+				<div class="options">
+					<div class="option">
+						<div class="col-xs">
+							<input type="checkbox" name="playAnywhere" id="playAnywhere" />
+						</div>
+						<div class="col">
+							<label for="playAnywhere" data-i18n="settingsPlayAnywhere">Enable PlayAnywhere&trade;</label>
+						</div>
+					</div>
+				</div>
+				<div class="option-save">
+					<button id="btnSave" class="btn btn-default" data-i18n="settingsBtnSave">Save</button>
+				</div>
+			</div>		
+		</div>
+		
+		<script src="../js/chrome-storage-promise.js"></script>
+		<script src="../js/options.js"></script>
+	</body>
+</html>

@@ -7,5 +7,23 @@
 	},
 	"popupMessage": {
 		"message": "Een fout gevonden? Meld deze via de <a href='http://bugs.circularify.com' target='_blank'>Circularify Bug Tracker</a>."
+	},
+	"settingsHeader": {
+		"message": "Pas je Seek 'n Play for YouTube&trade; ervaring aan."
+	},
+	"settingsAvailable": {
+		"message": "Beschikbare instellingen"
+	},
+	"settingsBtnSave": {
+		"message": "Opslaan"
+	},
+	"settingsSaveSuccess": {
+		"message": "Instellingen opgeslagen!"
+	},
+	"settingsSaveError": {
+		"message": "Er is een fout opgetreden tijdens het opslaan."
+	},
+	"settingsPlayAnywhere": {
+		"message": "Zet PlayAnywhere&trade; aan (beta)"
 	}
 }

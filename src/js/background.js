@@ -84,45 +84,6 @@ chrome.webRequest.onBeforeRequest.addListener(
 			// Let's nicely return the JavaScript so that YouTube can access it
 			return {redirectUrl: "data:application/javascript," + encodeURIComponent(resp) };
 		}
-		
-		// Fix for navigation
-		if (details.url.indexOf("spf.js") > -1) {
-			var xhr = new XMLHttpRequest();
-			xhr.open("GET", details.url, false);
-			xhr.send();
-			var resp = xhr.responsetext;
-	
-			// look for pattern -- dynamically called
-			var regex2 = new regexp(/(function [a-za-z]\([a-za-z]\)\{var [a-za-z]\=new [a-za-z]{2};)/);
-	
-			// our own function
-			var replacestring = '$1 if (typeof (window.ytspnavigating) == "function") {try{window.ytspnavigating();}catch(error){}}';
-						
-			// add our own code and return
-			var result = resp.replace(regex2, replacestring); 
-
-			return {redirecturl: "data:application/javascript," + encodeuricomponent(result) };
-		}
-		
-		// if (details.url.indexOf("desktop_polymer.js" > -1)) {
-			// var xhr = new XMLHttpRequest();
-			// xhr.open("GET", details.url, false);
-			// xhr.send();
-			// var resp = xhr.responseText;
-			
-			// var regexs = [ new sourceReplacement("fix-player-functions",
-					// /for\(var ([a-z]) in ([a-z]).api\)\2.api\[\1\]=null;/,
-					// ""
-			// )];
-			
-			// for (var idx in regexs) {
-				// var currentRegex = regexs[idx];
-				// resp = currentRegex.performReplace(resp);
-			// }
-			
-			// // Let's nicely return the JavaScript so that YouTube can access it
-			// return {redirectUrl: "data:application/javascript," + encodeURIComponent(resp) };
-		// }
 	}
 	, 
 	{ urls: ["*://*.youtube.com/*"]},
@@ -144,6 +105,9 @@ chrome.runtime.onInstalled.addListener(function(details){
 	}, null);
 	
 	circularify.omni.analytics.registerEvent(details.reason, chrome.runtime.getManifest().version);
+	
+	// SHOW INSTALL PAGE (v3.0.x only)
+	chrome.tabs.create({ "url": "html/startup.html"});
 });
 
 // Add Event Listener for Notifications

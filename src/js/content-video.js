@@ -1,8 +1,6 @@
 // This content script will run in the background on the iframe
 
 circularify.omni.page.injectScript(circularify.core.files.ytapi);
-circularify.omni.page.injectScript('js/ytsnp.js');
-circularify.omni.page.injectCss('css/ytsnp.css');
 
 chrome.runtime.onConnect.addListener(function(port) {
         console.log ("Foreground received connection");
@@ -15,6 +13,7 @@ port.onDisconnect.addListener(function () {
 
 port.onMessage.addListener(function (message, sender, response) {
 	var func = this[message.func];
+	console.log(typeof func);
 	if (typeof func === 'function')
 	{
 		var result = func.apply(this, message.args);
@@ -23,6 +22,24 @@ port.onMessage.addListener(function (message, sender, response) {
 			id: message.id,
 			response: result
 		});
+	}
+	if (typeof func === 'undefined')
+	{
+		var vid = document.querySelector("video");
+		// var el = document.createElement("script");
+		// el.innerHTML = "document.location.href='about:blank';";
+		// document.head.appendChild(el);
+		// circularify.omni.page.injectScript(function (f, args) {
+		// 	circularify.ytapi.getPlayer()[f].apply(null, args)
+		// }, message.func, message.args);
+		if (message.func === 'cueVideoById')
+			vid.paused ? vid.play() : vid.pause();
+		if (message.func === 'seek')
+		{
+			vid.currentTime = message.args[0];
+		}
+		if (message.func === 'volume')
+			vid.volume = message.args[0];
 	}
 });
 var _canvasElement = document.createElement("canvas");

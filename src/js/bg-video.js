@@ -76,6 +76,12 @@ function VideoElement(video_id) {
             }
         }
     };
+
+    chrome.runtime.onMessage.addListener(function (message) {
+        console.log("MESSAGE");
+        if (message.func)
+        _port.postMessage(new VideoIframeMessage(message.func, null, message.args));
+    });
     
     chrome.runtime.onConnect.addListener(function(port) {
         _port = port;
@@ -107,14 +113,30 @@ function VideoElement(video_id) {
         setVideoId: _setVideoId,
         setVideoDimensions: function (width, height) { _callExternal('setVideoDimensions', null, width, height)},
         getCurrentFrame: function (callback) { _callExternal('getCurrentFrame', callback)},
+        pauseVideo: function () { _callExternal('stopVideo') },
         events: {
             subscribe: _subscribeEvent
         }
     }
 };
 
-var videoElement = new VideoElement("j3CaHeakZF4");
+circularify = circularify || {};
+circularify.snp = circularify.snp || {};
 
-videoElement.events.subscribe('frame', function (e) {
-    chrome.tabs.executeScript({code: 'document.getElementById("seek-n-play-er").src="' + e + '";'});
+circularify.snp.backgroundPlayer = new VideoElement("j3CaHeakZF4");
+
+//chrome.tabs.onUpdated.addListener(checkProcess);
+chrome.tabs.onActivated.addListener(_tabChanged);
+chrome.tabs.onCreated.addListener(_tabChanged);
+
+var pushTabId = null;
+
+function _tabChanged(tab) {
+    if ((tab.url || '').indexOf("chrome-devtools://") != 0)
+        pushTabId = tab.id;
+    chrome.tabs.executeScript(tab.id,{file: 'js/player.js', runAt: 'document_start'});
+}
+
+circularify.snp.backgroundPlayer.events.subscribe('frame', function (e) {
+    chrome.tabs.executeScript(pushTabId, {code: 'document.getElementById("seek-n-play-er").src="' + e + '";'});
 });
