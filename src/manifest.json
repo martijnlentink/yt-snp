@@ -75,6 +75,7 @@
 		"js/core/ytapi.js",		
 		"js/ytsnp.js",
 		"css/ytsnp.css",
+		"html/player.html",
 		"https://www.google-analytics.com/analytics.js"
 	],
 	
