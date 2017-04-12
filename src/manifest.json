@@ -26,7 +26,8 @@
 		"*://*.ytimg.com/*", 
 		"<all_urls>",
 		"webRequestBlocking",
-		"storage"
+		"storage",
+		"tabs"
 	],
 
 	"externally_connectable": {

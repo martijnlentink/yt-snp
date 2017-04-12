@@ -3,13 +3,16 @@
 var snpId = 'seek-n-play-er';
 
 function createPlayer () {
-	if (!!document.getElementById(snpId))
+	if (!!document.getElementById('YTSNP-player-everywhere'))
 		return;
 
 	var xmlHttp = new XMLHttpRequest();
 	xmlHttp.open("GET", chrome.extension.getURL("html/player.html"));
 	xmlHttp.onreadystatechange = function (e) {
 		if (xmlHttp.readyState == 4) {
+			if (!!document.getElementById('YTSNP-player-everywhere'))
+				return;
+
 			var inject  = document.createElement("div");
 			inject.innerHTML = xmlHttp.responseText
 			document.body.appendChild (inject.firstChild);
@@ -18,15 +21,18 @@ function createPlayer () {
 	xmlHttp.send();
 
 	var handlers = function () { 
-		var range = document.querySelector('input[type="range"]');
+		var range = document.querySelector('#YTSNP-progressbar');
 
 		var updateProgress = function() {
 		  var ran = range.value / range.max;
 		  range.style.background = '-webkit-gradient(linear, left top, right top, color-stop(' + ran + ', #F12B24), color-stop(' + ran + ', rgba(255, 255, 255, 0.4)))';
-		  chrome.runtime.sendMessage({ func: 'seek', args: [range.value]});
+		  // chrome.runtime.sendMessage({ func: 'seek', args: [range.value]});
 		};
 
 		range.addEventListener('input', updateProgress);
+		range.addEventListener('change', function () {
+			chrome.runtime.sendMessage({ func: 'seek', args: [range.value]});
+		});
 
 		//setInterval(function () { range.value = parseInt(range.value) + 1; updateProgress() }, 500);
 
@@ -42,6 +48,7 @@ function createPlayer () {
 		});
 
 		player.addEventListener('dragend', function () {
+			chrome.runtime.sendMessage({ setting: 'move', val: [target.style.left, target.style.top]});
 			target = null;
 		});
 
@@ -91,6 +98,20 @@ chrome.runtime.onMessage.addListener(function (message, sender, resp) {
 	if (message.image) {
 		var el = document.getElementById("seek-n-play-er");
 		el.src = message.image;
+	}
+	if (message.settings) {
+		document.getElementById('YTSNP-player-everywhere').style.left = message.settings.move[0];
+		document.getElementById('YTSNP-player-everywhere').style.top = message.settings.move[1];
+	}
+	if (message.currentTime) {
+		var progress = document.getElementById('YTSNP-progressbar');
+
+		if (progress.value != message.currentTime)
+		{
+			progress.value = message.currentTime;
+			progress.max = message.duration;
+			progress.dispatchEvent(new Event('input'));
+		}
 	}
 });
 

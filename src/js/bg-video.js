@@ -10,6 +10,8 @@ chrome.webRequest.onHeadersReceived.addListener(
     ['blocking', 'responseHeaders']
 );
 
+var settings = {};
+
 /**
  * Strip headers provided
  *
@@ -80,7 +82,9 @@ function VideoElement(video_id) {
     chrome.runtime.onMessage.addListener(function (message) {
         console.log("MESSAGE");
         if (message.func)
-        _port.postMessage(new VideoIframeMessage(message.func, null, message.args));
+            _port.postMessage(new VideoIframeMessage(message.func, null, message.args));
+        if (message.setting)
+            settings[message.setting] = message.val;
     });
     
     chrome.runtime.onConnect.addListener(function(port) {
@@ -128,14 +132,17 @@ circularify.snp.backgroundPlayer = new VideoElement("j3CaHeakZF4");
 //chrome.tabs.onUpdated.addListener(checkProcess);
 chrome.tabs.onActivated.addListener(_tabChanged);
 chrome.tabs.onCreated.addListener(_tabChanged);
+chrome.tabs.onUpdated.addListener(_tabChanged);
 
 var pushTabId = null;
 
-function _tabChanged(tab) {
-    if ((tab.url || '').indexOf("chrome-devtools://") != 0) {
-        pushTabId = tab.id;
-        chrome.tabs.executeScript(tab.id,{file: 'js/player.js', runAt: 'document_start'});
+function _tabChanged(tab, changeNfo) {
+    changeNfo = changeNfo || {};
+    if ((tab.url || changeNfo.url || '').indexOf("chrome-devtools://") == -1) {
+        pushTabId = tab.tabId || tab;
+        chrome.tabs.sendMessage(pushTabId, { settings: settings });        
     }
+    chrome.tabs.executeScript(null, {file: 'js/player.js', runAt: 'document_start'});
 }
 
 circularify.snp.backgroundPlayer.events.subscribe('frame', function (e) {
@@ -144,5 +151,6 @@ circularify.snp.backgroundPlayer.events.subscribe('frame', function (e) {
 });
 
 circularify.snp.backgroundPlayer.events.subscribe('time', function (cur, dur) {
-    chrome.tabs.executeScript(pushTabId, {code: 'var rang = document.querySelector("input[type=\'range\']"); rang.value = ' + cur + '; rang.max = ' + dur + ';'});
+    chrome.tabs.sendMessage(pushTabId, { currentTime: cur, duration: dur});
+    // chrome.tabs.executeScript(pushTabId, {code: 'var rang = document.querySelector("input[type=\'range\']"); rang.value = ' + cur + '; rang.max = ' + dur + ';'});
 });
