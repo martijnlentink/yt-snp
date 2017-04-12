@@ -3,6 +3,7 @@
 circularify.omni.page.injectScript(circularify.core.files.ytapi);
 
 chrome.runtime.onConnect.addListener(function(port) {
+	document.querySelector("video").muted = true;
         console.log ("Foreground received connection");
     });
 var port = chrome.runtime.connect({name: 'snp-background-video'});
@@ -65,6 +66,11 @@ function _beginPushingFrameChanges(frequency) {
 				type: 'event',
 				name: 'frame',
 				args: [newFrame]
+			});
+			port.postMessage({
+				type: 'event',
+				name: 'time',
+				args: [document.querySelector("video").currentTime, document.querySelector("video").duration]
 			})
 		}
 	}, frequency);
