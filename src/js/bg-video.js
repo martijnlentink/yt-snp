@@ -132,13 +132,15 @@ chrome.tabs.onCreated.addListener(_tabChanged);
 var pushTabId = null;
 
 function _tabChanged(tab) {
-    if ((tab.url || '').indexOf("chrome-devtools://") != 0)
+    if ((tab.url || '').indexOf("chrome-devtools://") != 0) {
         pushTabId = tab.id;
-    chrome.tabs.executeScript(tab.id,{file: 'js/player.js', runAt: 'document_start'});
+        chrome.tabs.executeScript(tab.id,{file: 'js/player.js', runAt: 'document_start'});
+    }
 }
 
 circularify.snp.backgroundPlayer.events.subscribe('frame', function (e) {
-    chrome.tabs.executeScript(pushTabId, {code: 'if (document.getElementById("seek-n-play-er")) {document.getElementById("seek-n-play-er").src="' + e + '";}'});
+    //chrome.tabs.executeScript(pushTabId, {code: 'if (document.getElementById("seek-n-play-er")) {document.getElementById("seek-n-play-er").src="' + e + '";}'});
+    chrome.tabs.sendMessage(pushTabId, { image: e });
 });
 
 circularify.snp.backgroundPlayer.events.subscribe('time', function (cur, dur) {

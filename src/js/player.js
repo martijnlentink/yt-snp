@@ -87,6 +87,13 @@ function createPlayer () {
 	// });
 }
 
+chrome.runtime.onMessage.addListener(function (message, sender, resp) {
+	if (message.image) {
+		var el = document.getElementById("seek-n-play-er");
+		el.src = message.image;
+	}
+});
+
 // var el = document.createElement("script");
 // el.innerHTML = "document.body.innerHTML += \"<img id='seek-n-play-er' src=''/>\"";
 

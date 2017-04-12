@@ -91,4 +91,4 @@ function setVideoDimensions(width, height) {
 	// TODO: also change player size
 }
 
-_beginPushingFrameChanges(25);
+_beginPushingFrameChanges(5000);
