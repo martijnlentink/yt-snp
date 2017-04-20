@@ -33,7 +33,7 @@ port.onMessage.addListener(function (message, sender, response) {
 		// circularify.omni.page.injectScript(function (f, args) {
 		// 	circularify.ytapi.getPlayer()[f].apply(null, args)
 		// }, message.func, message.args);
-		if (message.func === 'cueVideoById')
+		if (message.func === 'playPause')
 			vid.paused ? vid.play() : vid.pause();
 		if (message.func === 'seek')
 		{

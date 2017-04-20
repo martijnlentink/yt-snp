@@ -127,7 +127,7 @@ function VideoElement(video_id) {
 circularify = circularify || {};
 circularify.snp = circularify.snp || {};
 
-circularify.snp.backgroundPlayer = new VideoElement("j3CaHeakZF4");
+circularify.snp.backgroundPlayer = new VideoElement("vbU2VXGjQj8");
 
 //chrome.tabs.onUpdated.addListener(checkProcess);
 chrome.tabs.onActivated.addListener(_tabChanged);

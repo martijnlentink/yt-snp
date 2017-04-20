@@ -7,6 +7,11 @@
 	height: 340px;
 }
 */
+#YTSNP-pauseplay > .hidden {
+  display:none;
+}
+
+
 #YTSNP-player-everywhere input[type=range] {
   display: block;
   background: transparent;

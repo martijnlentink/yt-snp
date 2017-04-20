@@ -1,6 +1,7 @@
 //circularify.omni.analytics.initialize('UA-50232941-1');
 //var port = chrome.runtime.connect(chrome.runtime.id, { name: 'snp-browser'});
 var snpId = 'seek-n-play-er';
+var isDeployed = false;
 
 function createPlayer () {
 	if (!!document.getElementById('YTSNP-player-everywhere'))
@@ -21,12 +22,15 @@ function createPlayer () {
 	xmlHttp.send();
 
 	var handlers = function () { 
+		if (isDeployed)
+			return;
+		isDeployed = true;
 		var range = document.querySelector('#YTSNP-progressbar');
 
 		var updateProgress = function() {
 		  var ran = range.value / range.max;
 		  range.style.background = '-webkit-gradient(linear, left top, right top, color-stop(' + ran + ', #F12B24), color-stop(' + ran + ', rgba(255, 255, 255, 0.4)))';
-		  // chrome.runtime.sendMessage({ func: 'seek', args: [range.value]});
+		   chrome.runtime.sendMessage({ func: 'seek', args: [range.value]});
 		};
 
 		range.addEventListener('input', updateProgress);
@@ -35,6 +39,20 @@ function createPlayer () {
 		});
 
 		//setInterval(function () { range.value = parseInt(range.value) + 1; updateProgress() }, 500);
+		var volume = document.querySelector("#YTSNP-volume");
+		volume.addEventListener("change", function () {
+			chrome.runtime.sendMessage({ func: 'volume', args: [volume.value]});
+		});
+
+		var pauseplay = document.querySelector("#YTSNP-pauseplay");
+		pauseplay.addEventListener("click", function () {
+			var button1 = pauseplay.querySelector("svg:not(.hidden)");
+			var button2 = pauseplay.querySelector("svg.hidden");
+			button1.classList.add("hidden");
+			button2.classList.remove("hidden");
+
+			chrome.runtime.sendMessage({ func: 'playPause' });
+		});
 
 		var player = document.querySelector("#YTSNP-player-everywhere");
 		var target = null;
