@@ -44,7 +44,7 @@
 			"run_at": "document_end"
 		},
 		{
-	      "matches": [ "*://*.youtube.com/watch*" ],
+	      "matches": [ "*://*.youtube.com/watch*&bgplay=YTSNP" ],
 	      "js": [ 
 		     	"js/core/modules.js",
 		      	"js/core/ytapi.js",
@@ -66,6 +66,7 @@
 	{ 
 		"scripts": [
 			"js/core/modules.js",
+			"js/core/ytapi.js",
 			"js/background.js",
 			"js/bg-video.js"
 		] 

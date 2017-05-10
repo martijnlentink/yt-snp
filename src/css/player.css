@@ -11,8 +11,25 @@
   display:none;
 }
 
+#YTSNP-player-everywhere > img {
+  display: block;
+}
 
-#YTSNP-player-everywhere input[type=range] {
+#YTSNP-player-everywhere .controls {
+  transition: opacity 0.2s 1s;
+  opacity: 0;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+#YTSNP-player-everywhere:hover .controls {
+  transition: opacity 0.2s;
+  opacity: 1;
+}
+
+#YTSNP-player-everywhere #YTSNP-progressbar {
   display: block;
   background: transparent;
   -webkit-appearance: none;
@@ -20,15 +37,15 @@
   width: 100%;
 }
 
-#YTSNP-player-everywhere input[type=range]:focus {
+#YTSNP-player-everywhere #YTSNP-progressbar:focus {
   outline: none;
 }
 
-#YTSNP-player-everywhere .video-range-container:hover input[type=range]::-webkit-slider-runnable-track, #YTSNP-player-everywhere .video-range-container:active input[type=range]::-webkit-slider-runnable-track {
+#YTSNP-player-everywhere .video-range-container:hover  #YTSNP-progressbar::-webkit-slider-runnable-track, #YTSNP-player-everywhere .video-range-container:active input[type=range]::-webkit-slider-runnable-track {
   height: 5px;
 }
 
-#YTSNP-player-everywhere input[type=range]::-webkit-slider-runnable-track {
+#YTSNP-player-everywhere  #YTSNP-progressbar::-webkit-slider-runnable-track {
   width: 100%;
   height: 2px;
   cursor: pointer;
@@ -43,12 +60,12 @@
     ); */
 }
 
-#YTSNP-player-everywhere .video-range-container:hover input[type=range]::-webkit-slider-thumb, #YTSNP-player-everywhere input[type=range]:active::-webkit-slider-thumb {
+#YTSNP-player-everywhere .video-range-container:hover #YTSNP-progressbar::-webkit-slider-thumb, #YTSNP-player-everywhere #YTSNP-progressbar:active::-webkit-slider-thumb {
   opacity: 1;
   transform: scale(1);
 }
 
-#YTSNP-player-everywhere input[type=range]::-webkit-slider-thumb {
+#YTSNP-player-everywhere #YTSNP-progressbar::-webkit-slider-thumb {
   opacity: 0;
   transform: scale(0);
   box-shadow: 0px 0px 0px #000031;
@@ -63,7 +80,43 @@
   transition: all 0.05s;
 }
 
-#YTSNP-player-everywhere input[type=range]:hover::-webkit-slider-runnable-track {
+#YTSNP-player-everywhere button {
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  outline: 0;
+  box-shadow: 0;
+}
+
+#YTSNP-volume {
+  width: 0px;
+  opacity: 0;
+  /*animation: volume-hide;*/
+  transition: width 0.1s, opacity 0.1s 0.1s;
+}
+#YTSNP-mute-container {
+  display: inline-block;
+}
+
+#YTSNP-mute-container:hover #YTSNP-volume {
+  width: 60px;
+  opacity: 1;
+  /*animation-name: volume-hide;*/
+  transition: opacity 0.1s, width 0.1s 0.1s;
+  animation-duration: 0.1;
+}
+
+#YTSNP-time {
+  color: white;
+}
+
+.ytp-svg-fill {
+  fill: #fff;
+}
+
+#YTSNP-player-everywhere #YTSNP-progressbar  #YTSNP-progressbar:hover::-webkit-slider-runnable-track {
  /*   background: -webkit-gradient(
         linear,
         left top,

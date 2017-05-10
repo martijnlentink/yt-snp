@@ -33,6 +33,10 @@ port.onMessage.addListener(function (message, sender, response) {
 		// circularify.omni.page.injectScript(function (f, args) {
 		// 	circularify.ytapi.getPlayer()[f].apply(null, args)
 		// }, message.func, message.args);
+		if (message.func === 'play')
+			vid.play();
+		if (message.func === 'stopVideo')
+			vid.pause();
 		if (message.func === 'playPause')
 			vid.paused ? vid.play() : vid.pause();
 		if (message.func === 'seek')
@@ -41,6 +45,8 @@ port.onMessage.addListener(function (message, sender, response) {
 		}
 		if (message.func === 'volume')
 			vid.volume = message.args[0];
+		if (message.func === 'toggleMute')
+			vid.muted = !vid.muted;
 	}
 });
 var _canvasElement = document.createElement("canvas");
@@ -59,6 +65,7 @@ var _pushIntervalId;
 function _beginPushingFrameChanges(frequency) {
 	_pushIntervalId = setInterval(function () {
 		var newFrame = getCurrentFrame();
+		var vid = document.querySelector("video");
 		if (_currentFrame != newFrame)
 		{
 			_currentFrame = newFrame;
@@ -70,18 +77,13 @@ function _beginPushingFrameChanges(frequency) {
 			port.postMessage({
 				type: 'event',
 				name: 'time',
-				args: [document.querySelector("video").currentTime, document.querySelector("video").duration]
+				args: [vid.currentTime, vid.duration]
 			})
 		}
+		if (document.querySelector(".ad-showing") && vid.currentTime != vid.duration) {
+			vid.currentTime = vid.duration;
+		}
 	}, frequency);
-}
-
-function setVideoId(id) {
-    if (!_videoId)
-        document.body.appendChild(_videoElement);
-
-    _videoId = id;
-    _videoElement.src = _getVideoUrl();
 }
 
 function setVideoDimensions(width, height) {

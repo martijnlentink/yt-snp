@@ -30,7 +30,14 @@ function createPlayer () {
 		var updateProgress = function() {
 		  var ran = range.value / range.max;
 		  range.style.background = '-webkit-gradient(linear, left top, right top, color-stop(' + ran + ', #F12B24), color-stop(' + ran + ', rgba(255, 255, 255, 0.4)))';
-		   chrome.runtime.sendMessage({ func: 'seek', args: [range.value]});
+			var playtime = document.querySelector("#YTSNP-time");
+			var date = new Date(null);
+			date.setSeconds(range.value);
+			var hourCutoff = range.max >= 3600 ? 0 : 3;
+			var curTime = date.toISOString().substr(11 + hourCutoff, 8 - hourCutoff);
+			date.setSeconds(range.max); 
+			var endTime = date.toISOString().substr(11 + hourCutoff, 8 - hourCutoff);
+			playtime.innerText = curTime + " / " + endTime;
 		};
 
 		range.addEventListener('input', updateProgress);
@@ -43,6 +50,19 @@ function createPlayer () {
 		volume.addEventListener("change", function () {
 			chrome.runtime.sendMessage({ func: 'volume', args: [volume.value]});
 		});
+
+		var mutebutton = document.querySelector("#YTSNP-mute");
+		var prevVal = 0;
+		mutebutton.addEventListener("click", function () {
+			chrome.runtime.sendMessage({ func: 'toggleMute' });
+			if (volume.value > 0) {
+				prevVal = volume.value;
+				volume.value = 0;
+			}
+			else
+				volume.value = prevVal;
+		});
+
 
 		var pauseplay = document.querySelector("#YTSNP-pauseplay");
 		pauseplay.addEventListener("click", function () {
@@ -130,6 +150,13 @@ chrome.runtime.onMessage.addListener(function (message, sender, resp) {
 			progress.max = message.duration;
 			progress.dispatchEvent(new Event('input'));
 		}
+	}
+	if (message.syncTime) {
+		var video = document.querySelector("video");
+		video.currentTime = message.syncTime;
+	}
+	if (message.get == 'currentTime') {
+		resp(document.querySelector("video").currentTime);
 	}
 });
 

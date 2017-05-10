@@ -47,12 +47,13 @@ function VideoIframeMessage(functionName, callback, args) {
 
 function VideoElement(video_id) {
     var _videoId;
+    var _startTime;
     var _videoElement = document.createElement("iframe");
     var _canvasElement = document.createElement("canvas");
     var _port;
 
     if (typeof video_id !== "undefined")
-        _setVideoId(video_id);
+        _setVideo(video_id);
 
     function _callExternal(name, callback) {
         var args = Array.prototype.slice.call(arguments, 2);
@@ -94,13 +95,19 @@ function VideoElement(video_id) {
     });
 
     function _getVideoUrl() {
-        return "https://www.youtube.com/watch?v=" + video_id + "&vq=medium&autoplay=1&play_small=true";
+        return "https://www.youtube.com/watch?v=" + _videoId + "&vq=medium&autoplay=1&play_small=true&t=" + Math.round(_startTime || 0) + "s&bgplay=YTSNP";
     }
 
-    function _setVideoId(id) {
+    function _setVideo(id, time) {
+        if (!id)
+            return;
+        if (id == _videoId)
+            return _callExternal('seek', null, time);
+
         if (!_videoId)
             document.body.appendChild(_videoElement);
 
+        _startTime = time;
         _videoId = id;
         _videoElement.src = _getVideoUrl();
     }
@@ -114,10 +121,11 @@ function VideoElement(video_id) {
     return {
         getVideoUrl: _getVideoUrl,
         getVideoId: function () { return _videoId; },
-        setVideoId: _setVideoId,
+        setVideo: _setVideo,
         setVideoDimensions: function (width, height) { _callExternal('setVideoDimensions', null, width, height)},
         getCurrentFrame: function (callback) { _callExternal('getCurrentFrame', callback)},
         pauseVideo: function () { _callExternal('stopVideo') },
+        playVideo: function () { _callExternal('play') },
         events: {
             subscribe: _subscribeEvent
         }
@@ -127,19 +135,47 @@ function VideoElement(video_id) {
 circularify = circularify || {};
 circularify.snp = circularify.snp || {};
 
-circularify.snp.backgroundPlayer = new VideoElement("vbU2VXGjQj8");
+circularify.snp.backgroundPlayer = new VideoElement("Cf_4WmACpws");
 
 //chrome.tabs.onUpdated.addListener(checkProcess);
-chrome.tabs.onActivated.addListener(_tabChanged);
-chrome.tabs.onCreated.addListener(_tabChanged);
-chrome.tabs.onUpdated.addListener(_tabChanged);
+chrome.tabs.onActivated.addListener(function (activeNfo) {
+    chrome.tabs.query({ active: true }, function (tabs) {
+        _tabChanged(tabs[0]);
+    });
+});
+// chrome.tabs.onCreated.addListener(_tabChanged);
+chrome.tabs.onUpdated.addListener(function (tabId, changeNfo, tab) {
+    console.log(changeNfo);
+    if (changeNfo.status === 'loading' && tab.active)
+        _tabChanged(tab);
+});
 
 var pushTabId = null;
+var vidTabId = null;
+var vidId = null;
+var lastTime = null;
 
-function _tabChanged(tab, changeNfo) {
-    changeNfo = changeNfo || {};
-    if ((tab.url || changeNfo.url || '').indexOf("chrome-devtools://") == -1) {
-        pushTabId = tab.tabId || tab;
+function _tabChanged(tab) {
+    // changeNfo = changeNfo || {};
+    if (vidTabId && vidTabId != tab.id) {
+        chrome.tabs.sendMessage(vidTabId, { get: "currentTime"}, function (time) {
+            circularify.snp.backgroundPlayer.playVideo();
+            circularify.snp.backgroundPlayer.setVideo(vidId, time);
+        });
+        chrome.tabs.update(vidTabId, { muted: true });
+    }
+    if (tab.url.indexOf("chrome-devtools://") == -1) {
+        pushTabId = tab.id;
+        var vid = circularify.ytapi.getVideoId(tab.url);
+        if (vid) {
+            vidId = vid;
+            if (vidTabId) {
+                chrome.tabs.update(vidTabId, { muted: false });
+                chrome.tabs.sendMessage(vidTabId, { syncTime: lastTime });
+                circularify.snp.backgroundPlayer.pauseVideo();
+            }
+            vidTabId = pushTabId || tabs[0].id;
+        }
         chrome.tabs.sendMessage(pushTabId, { settings: settings });        
     }
     chrome.tabs.executeScript(null, {file: 'js/player.js', runAt: 'document_start'});
@@ -151,6 +187,7 @@ circularify.snp.backgroundPlayer.events.subscribe('frame', function (e) {
 });
 
 circularify.snp.backgroundPlayer.events.subscribe('time', function (cur, dur) {
+    lastTime = cur;
     chrome.tabs.sendMessage(pushTabId, { currentTime: cur, duration: dur});
     // chrome.tabs.executeScript(pushTabId, {code: 'var rang = document.querySelector("input[type=\'range\']"); rang.value = ' + cur + '; rang.max = ' + dur + ';'});
 });
