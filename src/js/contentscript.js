@@ -69,7 +69,7 @@ circularify.omni.page.injectScript(function () {
 
 	var _isCornerizedOov = null;
 	function _outOfView() {
-		var target = document.getElementById("theater-background");
+		var target = document.getElementById("theater-background") || document.querySelector("h1.title");
 
 		if (target && _url.indexOf("watch?") > -1) {
 			var elementRect = target.getBoundingClientRect();
@@ -105,7 +105,7 @@ circularify.omni.page.injectScript(function () {
 	
 
 	function _doesVideoIdMatchCurrent (video_id) {
-		return video_id == circularify.ytapi.getVideoId();
+		return video_id != circularify.ytapi.getPlayer().getVideoData().video_id;
 	};
 
 	function _circReady() {
