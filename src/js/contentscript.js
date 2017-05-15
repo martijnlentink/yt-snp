@@ -105,7 +105,7 @@ circularify.omni.page.injectScript(function () {
 	
 
 	function _doesVideoIdMatchCurrent (video_id) {
-		return video_id == circularify.ytapi.getVideoId();
+		return video_id != circularify.ytapi.getPlayer().getVideoData().video_id;
 	};
 
 	function _circReady() {
