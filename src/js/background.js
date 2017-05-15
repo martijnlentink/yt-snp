@@ -52,10 +52,16 @@ chrome.webRequest.onBeforeRequest.addListener(
 					/([A-Za-z]{1,3}\(this\,\"loadVideoByPlayerVars\"\,)(this\.[A-Za-z]{1,3})(\)\;)/,
 					"$1 function (obj) { if (typeof (YTSPPreventRequeue) != \"function\" || YTSPPreventRequeue(obj.video_id)) { $2.apply(this, arguments); } } $3"
 				),
+				//g.h.Jf=function(){this.td()&&(VN&&0<this.getCurrentTime()&&this.wc(0),this.g.removeAttribute("src")
+				new sourceReplacement("requeue-prevention-polymer",
+					/([a-zA-Z]{2}=function\(a,b\)\{)(.*?(a\.[a-z])\.startSeconds=)/,
+					"$1try{if($3.videoId == circularify.ytapi.getPlayer().getVideoData().video_id)return;}catch(QQQ){}$2"
+				),
+				//oU=function(a,b){a.o&&(a.o.pause(),ST(a),UT(a),a.g&&(a.g.startSeconds
 				//updatePlayer_:function(a,b,c,d,e){try{
 				new sourceReplacement("requeue-prevention-polymer",
-					/(updatePlayer_.*?)(try)/,
-					"$1try{if(a.args.video_id == p.getVideoData().video_id)return;}catch(QQQ){}$2"
+					/([a-zA-Z]{2}=function\(a,b\)\{)(.*?(a\.[a-z])\.startSeconds=)/,
+					"$1try{if($3.videoId == circularify.ytapi.getPlayer().getVideoData().video_id)return;}catch(QQQ){}$2"
 				),
 				// Disable the pauseVideo function that the advertisers call so that the original video can get loaded
 				// Matches: this.j&&this.A&&this.ha.pauseVideo()
