@@ -73,6 +73,11 @@ chrome.webRequest.onBeforeRequest.addListener(
 				new sourceReplacement("disable-stop",
 					/([A-Za-z]{1,3}\(this\,\"stopVideo\"\,)this\.[A-Za-z@$%&*]{1,3}\)\;/,
 					'$1function(){});'
+				),
+				//stopPlayer_:function(){var a=this.getInterface(Ds).getPlayer();a&&5!=a.getPlayerState()&&a.stopVideo()}
+				new sourceReplacement("disable-stop-polymer",
+					/(stopPlayer\_.*?&&a.stopVideo)(\(\))/,
+					'$1'
 				)
 			];
 
