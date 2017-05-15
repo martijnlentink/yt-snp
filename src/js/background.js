@@ -52,6 +52,11 @@ chrome.webRequest.onBeforeRequest.addListener(
 					/([A-Za-z]{1,3}\(this\,\"loadVideoByPlayerVars\"\,)(this\.[A-Za-z]{1,3})(\)\;)/,
 					"$1 function (obj) { if (typeof (YTSPPreventRequeue) != \"function\" || YTSPPreventRequeue(obj.video_id)) { $2.apply(this, arguments); } } $3"
 				),
+				//updatePlayer_:function(a,b,c,d,e){try{
+				new sourceReplacement("requeue-prevention-polymer",
+					/(updatePlayer_.*?)(try)/,
+					"$1try{if(a.args.video_id == p.getVideoData().video_id)return;}catch(QQQ){}$2"
+				),
 				// Disable the pauseVideo function that the advertisers call so that the original video can get loaded
 				// Matches: this.j&&this.A&&this.ha.pauseVideo()
 				new sourceReplacement("enable-advertisements-pause",
@@ -73,6 +78,11 @@ chrome.webRequest.onBeforeRequest.addListener(
 				new sourceReplacement("disable-stop",
 					/([A-Za-z]{1,3}\(this\,\"stopVideo\"\,)this\.[A-Za-z@$%&*]{1,3}\)\;/,
 					'$1function(){});'
+				),
+				//stopPlayer_:function(){var a=this.getInterface(Ds).getPlayer();a&&5!=a.getPlayerState()&&a.stopVideo()}
+				new sourceReplacement("disable-stop-polymer",
+					/(stopPlayer\_.*?&&a.stopVideo)(\(\))/,
+					'$1'
 				)
 			];
 
