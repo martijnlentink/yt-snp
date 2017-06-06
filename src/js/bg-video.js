@@ -186,8 +186,8 @@ circularify.snp.backgroundPlayer.events.subscribe('frame', function (e) {
     chrome.tabs.sendMessage(pushTabId, { image: e });
 });
 
-circularify.snp.backgroundPlayer.events.subscribe('time', function (cur, dur) {
+circularify.snp.backgroundPlayer.events.subscribe('time', function (cur, dur, state) {
     lastTime = cur;
-    chrome.tabs.sendMessage(pushTabId, { currentTime: cur, duration: dur});
+    chrome.tabs.sendMessage(pushTabId, { currentTime: cur, duration: dur, state: state});
     // chrome.tabs.executeScript(pushTabId, {code: 'var rang = document.querySelector("input[type=\'range\']"); rang.value = ' + cur + '; rang.max = ' + dur + ';'});
 });

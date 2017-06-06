@@ -74,12 +74,13 @@ function _beginPushingFrameChanges(frequency) {
 				name: 'frame',
 				args: [newFrame]
 			});
-			port.postMessage({
+			
+		}
+		port.postMessage({
 				type: 'event',
 				name: 'time',
-				args: [vid.currentTime, vid.duration]
+				args: [vid.currentTime, vid.duration, { paused: vid.paused, volume: vid.volume, muted: vid.muted }]
 			})
-		}
 		if (document.querySelector(".ad-showing") && vid.currentTime != vid.duration) {
 			vid.currentTime = vid.duration;
 		}
