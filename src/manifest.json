@@ -65,6 +65,7 @@
 	"background": 
 	{ 
 		"scripts": [
+			"js/chrome-storage-promise.js",
 			"js/core/modules.js",
 			"js/core/ytapi.js",
 			"js/background.js",

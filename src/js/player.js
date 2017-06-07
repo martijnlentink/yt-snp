@@ -37,7 +37,7 @@ document.YTSNPisDeployed || ((async function () {
 
 	var volume = document.querySelector("#YTSNP-volume");
 	volume.addEventListener("change", function () {
-		chrome.runtime.sendMessage({ func: 'volume', args: [volume.value]});
+		chrome.runtime.sendMessage({ func: 'volume', args: [volume.value], setting: 'volume', val: volume.value});
 	});
 
 	var mutebutton = document.querySelector("#YTSNP-mute");
@@ -90,9 +90,9 @@ document.YTSNPisDeployed || ((async function () {
 	}, false);
 
 	chrome.runtime.onMessage.addListener(function (message, sender, resp) {
-		if (message.image) {
+		if (message.image || (message.settings && message.settings.lastFrame)) {
 			var el = document.getElementById("seek-n-play-er");
-			el.src = message.image;
+			el.src = message.image || message.settings.lastFrame;
 		}
 		if (message.settings) {
 			document.getElementById('YTSNP-player-everywhere').style.left = message.settings.move[0];
