@@ -31,7 +31,8 @@ document.YTSNPisDeployed || ((async function () {
 	};
 
 	range.addEventListener('input', updateProgress);
-	range.addEventListener('change', function () {
+	range.addEventListener('click', function (ev) {
+		range.value = (ev.offsetX / range.clientWidth) * range.max;
 		chrome.runtime.sendMessage({ func: 'seek', args: [range.value]});
 	});
 
@@ -118,4 +119,6 @@ document.YTSNPisDeployed || ((async function () {
 			resp(document.querySelector("video").currentTime);
 		}
 	});
+
+	chrome.runtime.sendMessage({ request: 'settings'});
 })());

@@ -266,7 +266,7 @@
   display: inline-block;
 }
 
-#YTSNP-mute-container:hover #YTSNP-volume {
+#YTSNP-mute-container:hover #YTSNP-volume, #YTSNP-mute-container:active #YTSNP-volume {
   width: 60px;
   opacity: 1;
   /*animation-name: volume-hide;*/

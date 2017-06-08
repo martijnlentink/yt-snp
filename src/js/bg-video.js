@@ -12,6 +12,10 @@
     );
 
     var settings = (await chrome.storage.promise.local.get("everywhereSettings")).everywhereSettings || {};
+    var pushTabId = null;
+    var vidTabId = null;
+    var vidId = null;
+    var previousTab = null;
 
     /**
      * Strip headers provided
@@ -83,6 +87,8 @@
 
         chrome.runtime.onMessage.addListener(function (message) {
             console.log("MESSAGE");
+            if (message.request == 'settings')
+                chrome.tabs.sendMessage(pushTabId, { settings: settings });        
             if (message.func)
                 _port.postMessage(new VideoIframeMessage(message.func, null, message.args));
 
@@ -154,11 +160,6 @@
         if (changeNfo.status === 'loading' && tab.active)
             _tabChanged(tab);
     });
-
-    var pushTabId = null;
-    var vidTabId = null;
-    var vidId = null;
-    var previousTab = null;
 
     function _tabChanged(tab) {
 
