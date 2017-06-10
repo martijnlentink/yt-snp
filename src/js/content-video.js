@@ -52,8 +52,8 @@ port.onMessage.addListener(function (message, sender, response) {
 var _canvasElement = document.createElement("canvas");
 var _currentFrame;
   
-function getCurrentFrame() {
-    var videoEl = document.querySelector("video");
+function getCurrentFrame(vid) {
+    var videoEl = vid || document.querySelector("video");
     if (videoEl) {
         var ctx = _canvasElement.getContext("2d");
         ctx.drawImage(videoEl, 0, 0, _canvasElement.width, _canvasElement.height);
@@ -63,27 +63,31 @@ function getCurrentFrame() {
 
 var _pushIntervalId;
 function _beginPushingFrameChanges(frequency) {
+	var vid = document.querySelector("video");
 	_pushIntervalId = setInterval(function () {
-		var newFrame = getCurrentFrame();
-		var vid = document.querySelector("video");
-		if (_currentFrame != newFrame)
-		{
-			_currentFrame = newFrame;
-			port.postMessage({
-				type: 'event',
-				name: 'frame',
-				args: [newFrame]
-			});
-			
+		if (document.querySelector(".ad-showing") && vid.currentTime != vid.duration) {
+			vid.currentTime = vid.duration;
+			return;
+		}
+
+		if (!vid.paused) {
+			var newFrame = getCurrentFrame(vid);
+			if (_currentFrame != newFrame)
+			{
+				_currentFrame = newFrame;
+				port.postMessage({
+					type: 'event',
+					name: 'frame',
+					args: [newFrame]
+				});
+				
+			}
 		}
 		port.postMessage({
 				type: 'event',
 				name: 'time',
 				args: [vid.currentTime, vid.duration, { paused: vid.paused, volume: vid.volume, muted: vid.muted }]
-			})
-		if (document.querySelector(".ad-showing") && vid.currentTime != vid.duration) {
-			vid.currentTime = vid.duration;
-		}
+			});
 	}, frequency);
 }
 

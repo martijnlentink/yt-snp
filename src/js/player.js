@@ -15,12 +15,17 @@ document.YTSNPisDeployed || ((async function () {
 	while (!document.getElementById("YTSNP-player-everywhere"))
 		await (new Promise(r => setTimeout(r, 100)));
 
+	// Initialize all the element references
 	var range = document.querySelector('#YTSNP-progressbar');
+	var container = document.getElementById('YTSNP-player-everywhere');
+	var videoImg = document.getElementById("seek-n-play-er");
+	var volume = document.querySelector("#YTSNP-volume");
+	var mutebutton = document.querySelector("#YTSNP-mute");
+	var playtime = document.querySelector("#YTSNP-time");
 
 	var updateProgress = function() {
 	  var ran = range.value / range.max;
 	  range.style.background = '-webkit-gradient(linear, left top, right top, color-stop(' + ran + ', #F12B24), color-stop(' + ran + ', rgba(255, 255, 255, 0.4)))';
-		var playtime = document.querySelector("#YTSNP-time");
 		var date = new Date(null);
 		date.setSeconds(range.value);
 		var hourCutoff = range.max >= 3600 ? 0 : 3;
@@ -36,12 +41,10 @@ document.YTSNPisDeployed || ((async function () {
 		chrome.runtime.sendMessage({ func: 'seek', args: [range.value]});
 	});
 
-	var volume = document.querySelector("#YTSNP-volume");
 	volume.addEventListener("change", function () {
 		chrome.runtime.sendMessage({ func: 'volume', args: [volume.value], setting: 'volume', val: volume.value});
 	});
 
-	var mutebutton = document.querySelector("#YTSNP-mute");
 	var prevVal = 0;
 	mutebutton.addEventListener("click", function () {
 		chrome.runtime.sendMessage({ func: 'toggleMute' });
@@ -67,37 +70,36 @@ document.YTSNPisDeployed || ((async function () {
 		chrome.runtime.sendMessage({ func: 'playPause' });
 	});
 
-	var player = document.querySelector("#YTSNP-player-everywhere");
+	// Drag n drop of the player
 	var target = null;
 	var offset = {};
 
-	player.addEventListener('dragstart', function (ev) {
-		ev.dataTransfer.setDragImage(player, -999999, -999999);
-		offset.x = ev.clientX - player.offsetLeft;
-		offset.y = ev.clientY - player.offsetTop;
-		target = player;
+	container.addEventListener("mousedown", function (ev) {
+		target = container;
+		offset.x = ev.clientX - container.offsetLeft;
+		offset.y = ev.clientY - container.offsetTop;
 	});
 
-	player.addEventListener('dragend', function () {
+	document.addEventListener("mousemove", function (ev) {
+		if (target) {
+			target.style.left = Math.min(Math.max(ev.clientX - offset.x, 0), window.innerWidth - target.clientWidth) + "px";
+			target.style.top = Math.min(Math.max(ev.clientY - offset.y, 0), window.innerHeight - target.clientHeight) + "px";
+		}
+	});
+
+	container.addEventListener("mouseup", function (ev) {
 		chrome.runtime.sendMessage({ setting: 'move', val: [target.style.left, target.style.top]});
 		target = null;
 	});
 
-	document.addEventListener("dragover", function (ev) {
-		if (target) {
-			target.style.left = Math.min(Math.max(ev.clientX - offset.x, 0), window.innerWidth - player.clientWidth) + "px";
-			target.style.top = Math.min(Math.max(ev.clientY - offset.y, 0), window.innerHeight - player.clientHeight) + "px";
-		}
-	}, false);
-
+	// Incoming messages from the background
 	chrome.runtime.onMessage.addListener(function (message, sender, resp) {
 		if (message.image || (message.settings && message.settings.lastFrame)) {
-			var el = document.getElementById("seek-n-play-er");
-			el.src = message.image || message.settings.lastFrame;
+			videoImg.src = message.image || message.settings.lastFrame;
 		}
 		if (message.settings) {
-			document.getElementById('YTSNP-player-everywhere').style.left = message.settings.move[0];
-			document.getElementById('YTSNP-player-everywhere').style.top = message.settings.move[1];
+			container.style.left = message.settings.move[0];
+			container.style.top = message.settings.move[1];
 		}
 		if (message.currentTime) {
 			var progress = document.getElementById('YTSNP-progressbar');
@@ -120,5 +122,6 @@ document.YTSNPisDeployed || ((async function () {
 		}
 	});
 
+	// Upon initialisation sync settings
 	chrome.runtime.sendMessage({ request: 'settings'});
 })());

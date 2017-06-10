@@ -17,6 +17,16 @@
     var vidId = null;
     var previousTab = null;
 
+    // chrome.webRequest.onBeforeRequest.addListener(
+    // function(details) {
+    //     // Whilst using the HTML5 player, do:
+    //     if (details.url.indexOf("ytsnp.helper") > -1) {
+    //         return { redirectUrl: settings.lastFrame };
+    //     }
+    // }, 
+    // { urls: ["*://*.ytsnp.helper/*"]},
+    // ["blocking"]);
+
     /**
      * Strip headers provided
      *
