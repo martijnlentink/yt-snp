@@ -119,7 +119,7 @@
             return "https://www.youtube.com/watch?v=" + _videoId + "&vq=medium&autoplay=1&play_small=true&t=" + Math.round(_startTime || 0) + "s&bgplay=YTSNP";
         }
 
-        function _setVideo(id, time) {
+        async function _setVideo(id, time) {
             if (!id)
                 return;
             if (id == _videoId)
@@ -128,9 +128,15 @@
             if (!_videoId)
                 document.body.appendChild(_videoElement);
 
+
             _startTime = time;
             _videoId = id;
-            _videoElement.src = _getVideoUrl();
+            return new Promise(function (resolve, reject) {
+                _videoElement.addEventListener("load", function () {
+                    resolve();
+                }, { once: true });
+                _videoElement.src = _getVideoUrl();
+            });
         }
 
         function _subscribeEvent (event, callback) {
@@ -146,6 +152,7 @@
             setVideoDimensions: function (width, height) { _callExternal('setVideoDimensions', null, width, height)},
             getCurrentFrame: function (callback) { _callExternal('getCurrentFrame', callback)},
             pauseVideo: function () { _callExternal('stopVideo') },
+            startPaused: function () { _callExternal('startPaused') },
             playVideo: function () { _callExternal('play') },
             events: {
                 subscribe: _subscribeEvent
@@ -175,9 +182,12 @@
 
         // Continue playing video after tab switch
         if (vidTabId && vidTabId != tab.id && previousTab == vidTabId) {
-            chrome.tabs.sendMessage(vidTabId, { get: "currentTime"}, function (time) {
-                circularify.snp.backgroundPlayer.playVideo();
-                circularify.snp.backgroundPlayer.setVideo(vidId, time);
+            chrome.tabs.sendMessage(vidTabId, { get: "currentState"}, async function (state) {
+                await circularify.snp.backgroundPlayer.setVideo(vidId, state.time);
+                if (state.paused)
+                    circularify.snp.backgroundPlayer.startPaused();
+                else
+                    circularify.snp.backgroundPlayer.playVideo();
             });
             chrome.tabs.update(vidTabId, { muted: true });
         }

@@ -94,6 +94,7 @@ document.YTSNPisDeployed || ((async function () {
 
 	// Incoming messages from the background
 	chrome.runtime.onMessage.addListener(function (message, sender, resp) {
+		var videoEl = document.querySelector("video");
 		if (message.image || (message.settings && message.settings.lastFrame)) {
 			videoImg.src = message.image || message.settings.lastFrame;
 		}
@@ -114,11 +115,13 @@ document.YTSNPisDeployed || ((async function () {
 				playUI(message.state.paused);
 		}
 		if (message.syncTime) {
-			var video = document.querySelector("video");
-			video.currentTime = message.syncTime;
+			videoEl.currentTime = message.syncTime;
 		}
-		if (message.get == 'currentTime') {
-			resp(document.querySelector("video").currentTime);
+		if (message.get == 'currentState') {
+			resp({
+				time: videoEl.currentTime,
+				paused: videoEl.paused
+			});
 		}
 	});
 

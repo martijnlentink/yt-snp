@@ -3,7 +3,6 @@
 circularify.omni.page.injectScript(circularify.core.files.ytapi);
 
 chrome.runtime.onConnect.addListener(function(port) {
-	document.querySelector("video").muted = true;
         console.log ("Foreground received connection");
     });
 var port = chrome.runtime.connect({name: 'snp-background-video'});
@@ -12,7 +11,13 @@ port.onDisconnect.addListener(function () {
 	console.log("Foreground disconnected");
 })
 
-port.onMessage.addListener(function (message, sender, response) {
+port.onMessage.addListener(async function (message, sender, response) {
+	var vid = document.querySelector("video");
+	while (!vid) {
+		vid = document.querySelector("video");
+		await (new Promise(r => setTimeout(r, 100)));
+	}
+
 	var func = this[message.func];
 	console.log(typeof func);
 	if (typeof func === 'function')
@@ -26,12 +31,17 @@ port.onMessage.addListener(function (message, sender, response) {
 	}
 	if (typeof func === 'undefined')
 	{
-		var vid = document.querySelector("video");
 		// var el = document.createElement("script");
 		// el.innerHTML = "document.location.href='about:blank';";
 		// document.head.appendChild(el);
 		// circularify.omni.page.injectScript(function (f, args) {
 		// 	circularify.ytapi.getPlayer()[f].apply(null, args)
+		if (message.func === 'startPaused')
+		{
+			while(vid.readyState < 4)
+				await (new Promise(r => setTimeout(r, 100)));
+			vid.pause();
+		}
 		// }, message.func, message.args);
 		if (message.func === 'play')
 			vid.play();
