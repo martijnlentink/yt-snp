@@ -81,8 +81,8 @@
                 var callback = _callbacks[request.id];
                 if (callback)
                 {
+                    callback.apply(this, [request.response]);
                     delete _callbacks[request.id];
-                    callback.apply(this, request.response);
                 }    
             }
             if (request.type == 'event')
@@ -154,6 +154,7 @@
             pauseVideo: function () { _callExternal('stopVideo') },
             startPaused: function () { _callExternal('startPaused') },
             playVideo: function () { _callExternal('play') },
+            getState: function (callback) { _callExternal('getState', callback) },
             events: {
                 subscribe: _subscribeEvent
             }
@@ -206,9 +207,14 @@
                 // the small player and continue in the page. So we check
                 // if vidTabId is set and sync the video to the right moment.
                 if (vidTabId) {
-                    chrome.tabs.update(vidTabId, { muted: false });
                     chrome.tabs.sendMessage(vidTabId, { syncTime: settings.lastTime }); // TODO: This may go wrong if we use multiple YT tabs. we may sync the wrong time to the wrong video
+                    (function (tId) {
+                        circularify.snp.backgroundPlayer.getState(function (state) {
+                            chrome.tabs.sendMessage(tId, { setState: state });
+                        });
+                    })(vidTabId);
                     circularify.snp.backgroundPlayer.pauseVideo();
+                    chrome.tabs.update(vidTabId, { muted: false });
                 }
 
                 // Register the current tab as the YT-tab

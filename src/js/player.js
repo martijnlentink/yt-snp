@@ -117,6 +117,9 @@ document.YTSNPisDeployed || ((async function () {
 		if (message.syncTime) {
 			videoEl.currentTime = message.syncTime;
 		}
+		if (typeof message.setState !== 'undefined') {
+			message.setState ? videoEl.play() : videoEl.pause();
+		}
 		if (message.get == 'currentState') {
 			resp({
 				time: videoEl.currentTime,

@@ -108,4 +108,8 @@ function setVideoDimensions(width, height) {
 	// TODO: also change player size
 }
 
+function getState() {
+	return !document.querySelector("video").paused;
+}
+
 _beginPushingFrameChanges(25);
