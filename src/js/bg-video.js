@@ -180,16 +180,22 @@
     });
 
     function _tabChanged(tab) {
+        // If current URL is YT then get the video
+        var vid = circularify.ytapi.getVideoId(tab.url);
+        // if (vidId && vid && vidId != vid)
+        //     vidTabId = null;
 
         // Continue playing video after tab switch
         if (vidTabId && vidTabId != tab.id && previousTab == vidTabId) {
-            chrome.tabs.sendMessage(vidTabId, { get: "currentState"}, async function (state) {
-                await circularify.snp.backgroundPlayer.setVideo(vidId, state.time);
-                if (state.paused)
-                    circularify.snp.backgroundPlayer.startPaused();
-                else
-                    circularify.snp.backgroundPlayer.playVideo();
-            });
+            if (vid == null) {
+                chrome.tabs.sendMessage(vidTabId, { get: "currentState"}, async function (state) {
+                    await circularify.snp.backgroundPlayer.setVideo(vidId, state.time);
+                    if (state.paused)
+                        circularify.snp.backgroundPlayer.startPaused();
+                    else
+                        circularify.snp.backgroundPlayer.playVideo();
+                });
+            }
             chrome.tabs.update(vidTabId, { muted: true });
         }
 
@@ -197,16 +203,11 @@
         if (tab.url.indexOf("chrome-devtools://") == -1) {
             pushTabId = tab.id;
 
-            // If current URL is YT then get the video
-            var vid = circularify.ytapi.getVideoId(tab.url);
-
             if (vid) {
-                vidId = vid;
-
                 // If we are playing a video, this means we need to remove
                 // the small player and continue in the page. So we check
                 // if vidTabId is set and sync the video to the right moment.
-                if (vidTabId) {
+                if (vidTabId && vid == vidId) {
                     chrome.tabs.sendMessage(vidTabId, { syncTime: settings.lastTime }); // TODO: This may go wrong if we use multiple YT tabs. we may sync the wrong time to the wrong video
                     (function (tId) {
                         circularify.snp.backgroundPlayer.getState(function (state) {
@@ -214,10 +215,11 @@
                         });
                     })(vidTabId);
                     circularify.snp.backgroundPlayer.pauseVideo();
-                    chrome.tabs.update(vidTabId, { muted: false });
                 }
+                chrome.tabs.update(tab.id, { muted: false });
 
                 // Register the current tab as the YT-tab
+                vidId = vid;
                 vidTabId = pushTabId || tabs[0].id;
             }
             // Notify the tab about the current settings
