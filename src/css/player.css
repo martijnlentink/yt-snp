@@ -182,10 +182,12 @@
 
 #YTSNP-player-everywhere .controls .bar {
     height: 36px;
+    display: flex;
 }
 
 #YTSNP-player-everywhere .controls .bar * {
     height: 100%;
+    display: flex;
 }
 
 #YTSNP-player-everywhere:hover .controls {
@@ -274,8 +276,10 @@
   animation-duration: 0.1;
 }
 
-#YTSNP-time {
-  vertical-align: top;
+#YTSNP-player-everywhere .controls #YTSNP-time {
+  display: inline-block;
+  height: 36px;
+  vertical-align: middle;
   color: white;
 }
 
