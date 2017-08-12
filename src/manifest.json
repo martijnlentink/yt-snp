@@ -28,7 +28,8 @@
 		"<all_urls>",
 		"webRequestBlocking",
 		"storage",
-		"activeTab"
+		"activeTab",
+		"tabs"
 	],
 
 	"externally_connectable": {

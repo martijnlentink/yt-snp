@@ -1,5 +1,7 @@
 // This content script will run in the background on the iframe
 
+console.log ("HELLO FOREGROUND");
+
 circularify.omni.page.injectScript(circularify.core.files.ytapi);
 
 chrome.runtime.onConnect.addListener(function(port) {
@@ -9,6 +11,7 @@ var port = chrome.runtime.connect({name: 'snp-background-video'});
 
 port.onDisconnect.addListener(function () {
 	console.log("Foreground disconnected");
+	port = chrome.runtime.connect({name: 'snp-background-video'});
 })
 
 port.onMessage.addListener(async function (message, sender, response) {
@@ -75,10 +78,10 @@ var _pushIntervalId;
 function _beginPushingFrameChanges(frequency) {
 	var vid = document.querySelector("video");
 	_pushIntervalId = setInterval(function () {
-		if (document.querySelector(".ad-showing") && vid.currentTime != vid.duration) {
-			vid.currentTime = vid.duration;
-			return;
-		}
+		// if (document.querySelector(".ad-showing") && vid.currentTime != vid.duration) {
+		// 	vid.currentTime = vid.duration;
+		// 	return;
+		// }
 
 		if (!vid.paused) {
 			var newFrame = getCurrentFrame(vid);

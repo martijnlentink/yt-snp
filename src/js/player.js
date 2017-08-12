@@ -3,6 +3,21 @@
 document.YTSNPisDeployed || ((async function () {
 	document.YTSNPisDeployed = true;
 
+	function _injectScript(fn) {
+		var isFile = typeof fn !== 'function' && fn.endsWith(".js");
+		var script = document.createElement('script');
+
+		if (isFile)
+			script.src = chrome.runtime.getURL(fn);
+		else
+		{
+			var params = Array.prototype.slice.call(arguments, 1);
+			script.innerHTML = '(' + fn.toString() + ')("' + params.join('","') +'");';
+		}
+
+		document.body.appendChild(script);
+	}
+
 	while (!document.body)
 		await (new Promise(r => setTimeout(r, 100)));
 
@@ -23,16 +38,26 @@ document.YTSNPisDeployed || ((async function () {
 	var mutebutton = document.querySelector("#YTSNP-mute");
 	var playtime = document.querySelector("#YTSNP-time");
 
+	var secondsToTime = function (secs, total) {
+		var sec_num = parseInt(secs, 10); // don't forget the second param
+	    var hours   = Math.floor(sec_num / 3600);
+	    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+	    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+	    if (hours   < 10) {hours   = "0"+hours;}
+	    if (minutes < 10) {minutes = "0"+minutes;}
+	    if (seconds < 10) {seconds = "0"+seconds;}
+
+	    if ((total||secs) < 3600)
+	    	return minutes + ":" + seconds;
+	    return hours+':'+minutes+':'+seconds;
+	}
+
 	var updateProgress = function() {
 	  var ran = range.value / range.max;
 	  range.style.background = '-webkit-gradient(linear, left top, right top, color-stop(' + ran + ', #F12B24), color-stop(' + ran + ', rgba(255, 255, 255, 0.4)))';
-		var date = new Date(null);
-		date.setSeconds(range.value);
-		var hourCutoff = range.max >= 3600 ? 0 : 3;
-		var curTime = date.toISOString().substr(11 + hourCutoff, 8 - hourCutoff);
-		date.setSeconds(range.max); 
-		var endTime = date.toISOString().substr(11 + hourCutoff, 8 - hourCutoff);
-		playtime.innerText = curTime + " / " + endTime;
+		
+	  	playtime.innerHTML = secondsToTime(range.value, range.max) + "/" + secondsToTime(range.max);
 	};
 
 	range.addEventListener('input', updateProgress);
@@ -81,6 +106,11 @@ document.YTSNPisDeployed || ((async function () {
 	});
 
 	document.addEventListener("mousemove", function (ev) {
+		if (ev.which != 1)
+		{
+			document.dispatchEvent(new Event("mouseup"));
+			return;
+		}
 		if (target) {
 			target.style.left = Math.min(Math.max(ev.clientX - offset.x, 0), window.innerWidth - target.clientWidth) + "px";
 			target.style.top = Math.min(Math.max(ev.clientY - offset.y, 0), window.innerHeight - target.clientHeight) + "px";
@@ -88,7 +118,8 @@ document.YTSNPisDeployed || ((async function () {
 	});
 
 	container.addEventListener("mouseup", function (ev) {
-		chrome.runtime.sendMessage({ setting: 'move', val: [target.style.left, target.style.top]});
+		if (target)
+			chrome.runtime.sendMessage({ setting: 'move', val: [target.style.left, target.style.top]});
 		target = null;
 	});
 
@@ -120,8 +151,15 @@ document.YTSNPisDeployed || ((async function () {
 		}
 		if (typeof message.setState !== 'undefined') {
 			message.setState ? videoEl.play() : videoEl.pause();
+			videoImg.src = null;
+			_injectScript(function () {
+				circularify.ytapi.getPlayer().setAutonav(true);
+			});
 		}
 		if (message.get == 'currentState') {
+			_injectScript(function () {
+				circularify.ytapi.getPlayer().setAutonav(false);
+			});
 			resp({
 				time: videoEl.currentTime,
 				paused: videoEl.paused

@@ -47,6 +47,13 @@
         return headers;
     }
 
+    function setSetting(key, val, propagate) {
+        settings[key] = val;
+        chrome.storage.local.set({ everywhereSettings: settings });
+        if (propagate)
+            chrome.tabs.sendMessage(pushTabId, { settings: settings });  
+    }
+
     var _callbacks = {};
     var _events = {}
     function VideoIframeMessage(functionName, callback, args) {
@@ -70,6 +77,14 @@
 
         if (typeof video_id !== "undefined")
             _setVideo(video_id);
+
+        _videoElement.addEventListener("pageshow", function () {
+            setSetting("started", true, true);
+            _videoId = circularify.ytapi.getVideoId(_videoElement.src);
+        });
+        _videoElement.addEventListener("pagehide", function () {
+            setSetting("started", false, true);
+        });
 
         function _callExternal(name, callback) {
             var args = Array.prototype.slice.call(arguments, 2);
@@ -105,13 +120,16 @@
 
             // Upon updating settings write it to localStorage
             if (message.setting) {
-                settings[message.setting] = message.val;
-                chrome.storage.local.set({ everywhereSettings: settings });
+                setSetting(message.setting, message.val);
             }
         });
         
         chrome.runtime.onConnect.addListener(function(port) {
             _port = port;
+            _port.onDisconnect.addListener(function(port) {
+                console.log ("Background disconnection");
+            });
+
             _port.onMessage.addListener(_onMessageListener);
             console.log ("Background received connection");
         });
@@ -134,7 +152,7 @@
             _videoId = id;
             return new Promise(function (resolve, reject) {
                 _videoElement.addEventListener("load", function () {
-                    settings.started = true;
+                    setSetting("started", true, true);
                     resolve();
                 }, { once: true });
                 _videoElement.src = _getVideoUrl();
@@ -184,8 +202,6 @@
     function _tabChanged(tab) {
         // If current URL is YT then get the video
         var vid = circularify.ytapi.getVideoId(tab.url);
-        // if (vidId && vid && vidId != vid)
-        //     vidTabId = null;
 
         // Continue playing video after tab switch
         if (vidTabId && vidTabId != tab.id && previousTab == vidTabId) {
@@ -209,14 +225,21 @@
                 // If we are playing a video, this means we need to remove
                 // the small player and continue in the page. So we check
                 // if vidTabId is set and sync the video to the right moment.
-                if (vidTabId && vid == vidId) {
-                    chrome.tabs.sendMessage(vidTabId, { syncTime: settings.lastTime }); // TODO: This may go wrong if we use multiple YT tabs. we may sync the wrong time to the wrong video
-                    (function (tId) {
-                        circularify.snp.backgroundPlayer.getState(function (state) {
-                            chrome.tabs.sendMessage(tId, { setState: state });
-                        });
-                    })(vidTabId);
-                    circularify.snp.backgroundPlayer.pauseVideo();
+                if (vidTabId) {
+                    if (vid == vidId) {
+                        chrome.tabs.sendMessage(vidTabId, { syncTime: settings.lastTime }); // TODO: This may go wrong if we use multiple YT tabs. we may sync the wrong time to the wrong video
+                        (function (tId) {
+                            circularify.snp.backgroundPlayer.getState(function (state) {
+                                chrome.tabs.sendMessage(tId, { setState: state });
+                            });
+                        })(vidTabId);
+                        circularify.snp.backgroundPlayer.pauseVideo();
+                    }
+                    else
+                    {
+                        setSetting("started", false, true);
+                        circularify.snp.backgroundPlayer.pauseVideo();
+                    }
                 }
                 chrome.tabs.update(tab.id, { muted: false });
 
