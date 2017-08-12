@@ -88,6 +88,18 @@ circularify.omni.page.injectScript(function () {
 			_isCornerizedOov = elementRect.bottom < 0;
 		}
 	}
+
+	document.addEventListener("webkitfullscreenchange", function(event) {
+	    if (document.webkitFullscreenEnabled && document.webkitFullscreenElement && document.webkitFullscreenElement.classList.contains("html5-video-player")) {
+	        circularify.ytsnp.decornerize();
+	    }
+	    else
+	    {
+	    	if (circularify.ytsnp.shouldCornerize(document.location.href)) {
+				circularify.ytsnp.cornerize();
+			}
+	    }
+	});
 	
 	// Get the locally saved settings
 	function getSettings() {
