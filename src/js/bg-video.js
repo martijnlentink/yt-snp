@@ -61,6 +61,7 @@
     }
 
     function VideoElement(video_id) {
+        settings.started = false;
         var _videoId;
         var _startTime;
         var _videoElement = document.createElement("iframe");
@@ -133,6 +134,7 @@
             _videoId = id;
             return new Promise(function (resolve, reject) {
                 _videoElement.addEventListener("load", function () {
+                    settings.started = true;
                     resolve();
                 }, { once: true });
                 _videoElement.src = _getVideoUrl();
@@ -164,7 +166,7 @@
     circularify = circularify || {};
     circularify.snp = circularify.snp || {};
 
-    circularify.snp.backgroundPlayer = new VideoElement("Cf_4WmACpws");
+    circularify.snp.backgroundPlayer = new VideoElement();
 
     //chrome.tabs.onUpdated.addListener(checkProcess);
     chrome.tabs.onActivated.addListener(function (activeNfo) {

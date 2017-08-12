@@ -99,6 +99,7 @@ document.YTSNPisDeployed || ((async function () {
 			videoImg.src = message.image || message.settings.lastFrame;
 		}
 		if (message.settings) {
+			container.style.display = message.settings.started ? 'initial' : 'none';
 			container.style.left = message.settings.move[0];
 			container.style.top = message.settings.move[1];
 		}
