@@ -125,6 +125,9 @@
         });
         
         chrome.runtime.onConnect.addListener(function(port) {
+            if (port.name != 'snp-background-video')
+                return;
+            
             _port = port;
             _port.onDisconnect.addListener(function(port) {
                 console.log ("Background disconnection");
