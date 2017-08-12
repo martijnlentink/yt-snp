@@ -61,11 +61,9 @@ function ytsnp() {
 				var polymer = document.getElementsByTagName("ytd-watch");
 				if (polymer.length > 0) {
 					polymer = polymer[0];
-					if (polymer.hasAttribute('hidden')) {
-						polymer.removeAttribute("hidden");
-						polymer.style.visibility = 'collapse';
-						polymer.style.position = 'absolute';
-					}
+					polymer.removeAttribute("hidden");
+					polymer.style.visibility = 'collapse';
+					polymer.style.position = 'absolute';
 					element = document.getElementById("movie_player");
 					element.style.visibility = 'visible';
 				}
