@@ -20,6 +20,31 @@ circularify.omni.page.injectScript(function () {
 	// Every navigation we get notified by SPF what the new URL is
 	window.addEventListener("spfrequest", _spfrequest);
 	document.addEventListener("yt-navigate-finish", _spfrequest);
+
+	(function(send, open, setHeader) {
+
+		XMLHttpRequest.prototype.setRequestHeader = function (header, val) {
+			this._headers = this._headers || {};
+
+			this._headers[header] = val;
+
+			return setHeader.apply(this, arguments);
+		}
+
+		 XMLHttpRequest.prototype.open = function (method, url) {
+		    this._url = url;
+		    return open.apply(this, arguments);
+		};
+
+	    XMLHttpRequest.prototype.send = function(data) {
+	        if (this._headers && this._headers['X-SPF-Referer'] && this._headers['X-SPF-Previous'] !== document.location.href)
+	       		_spfrequest({ detail: { url: this._url }});
+
+	        return send.apply(this, arguments);
+	    };
+
+	})(XMLHttpRequest.prototype.send, XMLHttpRequest.prototype.open, XMLHttpRequest.prototype.setRequestHeader);
+
 	// Singles if snp is ready on the page
 	window.addEventListener("circReady", _circReady);
 	window.addEventListener("scroll", _outOfView);
@@ -78,7 +103,7 @@ circularify.omni.page.injectScript(function () {
 
 			if (circularify && circularify.ytsnp) {
 				if (elementRect.bottom < 0) {
-					circularify.ytsnp.cornerize();
+					circularify.ytsnp.cornerize(false);
 				}
 				else {
 					circularify.ytsnp.decornerize();

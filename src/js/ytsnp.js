@@ -37,7 +37,8 @@ function ytsnp() {
 	}
 	
 	// Put the element in the corner
-	function _cornerize() {		
+	function _cornerize(showButtons) {
+		showButtons = typeof showButtons !== 'undefined' ? showButtons : true;	
 		var element = circularify.ytapi.getVideoElement();
 		// The player is cornerized
 		window.YTSNPIsCorner = true;
@@ -60,14 +61,17 @@ function ytsnp() {
 
 				var polymer = document.getElementsByTagName("ytd-watch");
 				if (polymer.length > 0) {
-					polymer = polymer[0];
-					polymer.removeAttribute("hidden");
-					polymer.style.visibility = 'collapse';
-					polymer.style.position = 'absolute';
+					if (_shouldCornerize()) {
+						polymer = polymer[0];
+						polymer.removeAttribute("hidden");
+						polymer.style.visibility = 'collapse';
+						polymer.style.position = 'absolute';
+					}
+
 					element = document.getElementById("movie_player");
 					element.style.visibility = 'visible';
 				}
-				else
+				else if (element && element.firstChild && element.firstChild.style)
 					element.firstChild.style.display = "block";
 
 				// Player sizing and positioning
@@ -89,7 +93,8 @@ function ytsnp() {
 					ad[0].style.transform = "scale(.8)";
 				
 				// We're searching, so add the buttons (close & back)
-				_displayButtons();
+				if (showButtons)
+					_displayButtons();
 				_forceResize();
 			}
 		}
