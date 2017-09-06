@@ -57,7 +57,7 @@ document.YTSNPisDeployed || ((async function () {
 	  var ran = range.value / range.max;
 	  range.style.background = '-webkit-gradient(linear, left top, right top, color-stop(' + ran + ', #F12B24), color-stop(' + ran + ', rgba(255, 255, 255, 0.4)))';
 		
-	  	playtime.innerHTML = secondsToTime(range.value, range.max) + "/" + secondsToTime(range.max);
+	  	playtime.innerHTML = secondsToTime(range.value, range.max) + " / " + secondsToTime(range.max);
 	};
 
 	range.addEventListener('input', updateProgress);

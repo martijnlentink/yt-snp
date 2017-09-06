@@ -163,7 +163,7 @@
   font-family: Roboto;
 }
 
-#YTSNP-pauseplay > .hidden {
+#YTSNP-player-everywhere #YTSNP-pauseplay > .hidden {
   display:none;
 }
 
@@ -279,8 +279,11 @@
 #YTSNP-player-everywhere .controls #YTSNP-time {
   display: inline-block;
   height: 36px;
-  vertical-align: middle;
+  font-weight: 700;
   color: white;
+  text-shadow: 0 0 2px #333;
+  line-height: 0;
+  transform: translateY(50%);
 }
 
 #YTSNP-player-everywhere .ytp-svg-fill {
