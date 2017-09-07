@@ -89,45 +89,22 @@ chrome.webRequest.onBeforeRequest.addListener(
 			// Let's nicely return the JavaScript so that YouTube can access it
 			return {redirectUrl: "data:application/javascript," + encodeURIComponent(resp) };
 		}
-		
-		// Fix for navigation
-		if (details.url.indexOf("spf.js") > -1) {
+
+		if (details.url.indexOf("desktop_polymer.js") > -1) {
 			var xhr = new XMLHttpRequest();
 			xhr.open("GET", details.url, false);
 			xhr.send();
-			var resp = xhr.responsetext;
-	
-			// look for pattern -- dynamically called
-			var regex2 = new regexp(/(function [a-za-z]\([a-za-z]\)\{var [a-za-z]\=new [a-za-z]{2};)/);
-	
-			// our own function
-			var replacestring = '$1 if (typeof (window.ytspnavigating) == "function") {try{window.ytspnavigating();}catch(error){}}';
-						
-			// add our own code and return
-			var result = resp.replace(regex2, replacestring); 
+			var resp = xhr.responseText;
 
-			return {redirecturl: "data:application/javascript," + encodeuricomponent(result) };
+			//update:function(a,b,c,d,e){this.updateSwfConfig_
+			var polyfix = new sourceReplacement("polymer-disable-newvid",
+				/(update\:function\(([a-z]\,){1,9}[a-z]\)\{)(this\.updateSwfConfig\_)/,
+				'$1if(circularify&&circularify.ytsnp&&circularify.ytsnp.shouldCornerize())return$3'
+			)
+			resp = polyfix.performReplace(resp);
+
+			return {redirectUrl: "data:application/javascript," + encodeURIComponent(resp) };
 		}
-		
-		// if (details.url.indexOf("desktop_polymer.js" > -1)) {
-			// var xhr = new XMLHttpRequest();
-			// xhr.open("GET", details.url, false);
-			// xhr.send();
-			// var resp = xhr.responseText;
-			
-			// var regexs = [ new sourceReplacement("fix-player-functions",
-					// /for\(var ([a-z]) in ([a-z]).api\)\2.api\[\1\]=null;/,
-					// ""
-			// )];
-			
-			// for (var idx in regexs) {
-				// var currentRegex = regexs[idx];
-				// resp = currentRegex.performReplace(resp);
-			// }
-			
-			// // Let's nicely return the JavaScript so that YouTube can access it
-			// return {redirectUrl: "data:application/javascript," + encodeURIComponent(resp) };
-		// }
 	}
 	, 
 	{ urls: ["*://*.youtube.com/*"]},
