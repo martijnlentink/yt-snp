@@ -19,39 +19,44 @@ circularify.omni.page.injectScript(function () {
 	//window.addEventListener("popstate", _navigateBackward);
 	// Every navigation we get notified by SPF what the new URL is
 	window.addEventListener("spfrequest", _spfrequest);
-	document.addEventListener("yt-navigate-finish", _spfrequest);
+	window.addEventListener("yt-navigate-finish", _spfrequest);
 
-	(function(send, open, setHeader) {
+	// (function(send, open, setHeader) {
 
-		XMLHttpRequest.prototype.setRequestHeader = function (header, val) {
-			this._headers = this._headers || {};
+	// 	XMLHttpRequest.prototype.setRequestHeader = function (header, val) {
+	// 		this._headers = this._headers || {};
 
-			this._headers[header] = val;
+	// 		this._headers[header] = val;
 
-			return setHeader.apply(this, arguments);
-		}
+	// 		return setHeader.apply(this, arguments);
+	// 	}
 
-		 XMLHttpRequest.prototype.open = function (method, url) {
-		    this._url = url;
-		    return open.apply(this, arguments);
-		};
+	// 	 XMLHttpRequest.prototype.open = function (method, url) {
+	// 	    this._url = url;
+	// 	    return open.apply(this, arguments);
+	// 	};
 
-	    XMLHttpRequest.prototype.send = function(data) {
-	        if (this._headers && this._headers['X-SPF-Referer'] && this._headers['X-SPF-Previous'] !== document.location.href)
-	       		_spfrequest({ detail: { url: this._url }});
+	//     XMLHttpRequest.prototype.send = function(data) {
+	//         if (this._headers && this._headers['X-SPF-Referer'] && this._headers['X-SPF-Previous'] !== document.location.href)
+	//        		_spfrequest({ detail: { url: this._url }});
 
-	        return send.apply(this, arguments);
-	    };
+	//         return send.apply(this, arguments);
+	//     };
 
-	})(XMLHttpRequest.prototype.send, XMLHttpRequest.prototype.open, XMLHttpRequest.prototype.setRequestHeader);
+	// })(XMLHttpRequest.prototype.send, XMLHttpRequest.prototype.open, XMLHttpRequest.prototype.setRequestHeader);
 
 	// Singles if snp is ready on the page
 	window.addEventListener("circReady", _circReady);
 	window.addEventListener("scroll", _outOfView);
 
 	function _spfrequest(event) {
-		if (event.detail)
-			_url = event.detail.url || event.detail.response.url;
+		if (event.detail) {
+			var url = event.detail.url || event.detail.response.url;
+			if (url.indexOf("://") === -1)
+				url = "https://youtube.com" + url;
+			_url = url;
+		}
+			
 		_navigateForward();
 	}
 
@@ -69,8 +74,9 @@ circularify.omni.page.injectScript(function () {
 	
 	function _navigateForward(url) {
 		// Get the URL
-		url = _url || window.location.href;
-	
+		url = url || _url || window.location.href;
+		console.log(url);
+
 		// Get a reference job
 		var player = circularify.ytapi.getPlayer();
 				
