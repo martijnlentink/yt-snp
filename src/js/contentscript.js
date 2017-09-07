@@ -15,41 +15,19 @@ circularify.omni.page.injectScript(function () {
 	// Next URL
 	var _url = window.location.href;
 	
-	// Subscribe to the popstate event to handle going back in history
-	//window.addEventListener("popstate", _navigateBackward);
 	// Every navigation we get notified by SPF what the new URL is
 	window.addEventListener("spfrequest", _spfrequest);
 	window.addEventListener("yt-navigate-finish", _spfrequest);
-
-	// (function(send, open, setHeader) {
-
-	// 	XMLHttpRequest.prototype.setRequestHeader = function (header, val) {
-	// 		this._headers = this._headers || {};
-
-	// 		this._headers[header] = val;
-
-	// 		return setHeader.apply(this, arguments);
-	// 	}
-
-	// 	 XMLHttpRequest.prototype.open = function (method, url) {
-	// 	    this._url = url;
-	// 	    return open.apply(this, arguments);
-	// 	};
-
-	//     XMLHttpRequest.prototype.send = function(data) {
-	//         if (this._headers && this._headers['X-SPF-Referer'] && this._headers['X-SPF-Previous'] !== document.location.href)
-	//        		_spfrequest({ detail: { url: this._url }});
-
-	//         return send.apply(this, arguments);
-	//     };
-
-	// })(XMLHttpRequest.prototype.send, XMLHttpRequest.prototype.open, XMLHttpRequest.prototype.setRequestHeader);
 
 	// Singles if snp is ready on the page
 	window.addEventListener("circReady", _circReady);
 	window.addEventListener("scroll", _outOfView);
 
 	function _spfrequest(event) {
+		var bc =document.querySelector('.ytd-page-manager #contents ytd-item-section-renderer');
+		if (bc)
+			bc.parentNode.removeChild(bc);
+		
 		if (event.detail) {
 			var url = event.detail.url || event.detail.response.url;
 			if (url.indexOf("://") === -1)
@@ -60,18 +38,15 @@ circularify.omni.page.injectScript(function () {
 		_navigateForward();
 	}
 
-	// Function that handles a navigation going back in history
-	function _navigateBackward(event) {
-		var url = _url;
-		if (circularify.ytsnp.shouldCornerize(url)) {
-			circularify.ytsnp.cornerize();
-		}
-		else {
-			circularify.ytapi.restoreTime(url);
-			circularify.ytsnp.decornerize();
-		}
-	}
-	
+	var oldFire = Polymer.Base.fire;
+	Polymer.Base.fire = function (ev) { console.log(ev);
+	if (ev === 'yt-player-requested' && circularify.ytsnp.shouldCornerize())
+		return new CustomEvent('fake');
+	// if (ev === 'yt-player-updated')
+	// 	debugger;
+	return oldFire.apply(this, arguments);
+	};
+
 	function _navigateForward(url) {
 		// Get the URL
 		url = url || _url || window.location.href;
