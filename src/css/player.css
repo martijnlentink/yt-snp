@@ -8,6 +8,10 @@
 }
 */
 
+#YTSNP-player-everywhere.hide {
+  dislapy: none;
+}
+
 #YTSNP-player-everywhere * {
  animation : none;
     animation-delay : 0;

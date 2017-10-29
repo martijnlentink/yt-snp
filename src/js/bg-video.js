@@ -17,6 +17,27 @@
     var vidId = null;
     var previousTab = null;
 
+    var ytAdUrls = ["ssl.google-analytics.com",
+"www-google-analytics.l.google.com",
+"stats.g.doubleclick.net",
+"clients.l.google.com",
+"pagead.l.doubleclick.net",
+"www-googletagmanager.l.google.com",
+"googleadapis.l.google.com"];
+
+    chrome.webRequest.onBeforeRequest.addListener(
+        function(details) {
+            //if (details.frameId > 0)
+          return {cancel: ytAdUrls.filter(url => details.url.indexOf(url) > -1) > 0};
+        },
+        {urls: ["<all_urls>"]},
+        ["blocking"]
+        );
+      
+
+
+    
+
     // chrome.webRequest.onBeforeRequest.addListener(
     // function(details) {
     //     // Whilst using the HTML5 player, do:
@@ -87,6 +108,12 @@
         });
 
         function _callExternal(name, callback) {
+            // Port may not be set when we switch tabs back to YT video
+            // while the background player was never initiated, this
+            // could happend if we switch between pages on YouTube
+            if (!_port)
+                return;
+
             var args = Array.prototype.slice.call(arguments, 2);
             _port.postMessage(new VideoIframeMessage(name, callback, args));
         }
@@ -137,11 +164,11 @@
             console.log ("Background received connection");
         });
 
-        function _getVideoUrl() {
-            return "https://www.youtube.com/watch?v=" + _videoId + "&vq=medium&autoplay=1&play_small=true&t=" + Math.round(_startTime || 0) + "s&bgplay=YTSNP";
+        function _getVideoUrl(volume) {
+            return "https://www.youtube.com/watch?v=" + _videoId + "&vq=medium&autoplay=1&play_small=true&t=" + Math.round(_startTime || 0) + "s&volume=" + (volume||0) + "&bgplay=YTSNP";
         }
 
-        async function _setVideo(id, time) {
+        async function _setVideo(id, time, volume) {
             if (!id)
                 return;
             if (id == _videoId)
@@ -150,7 +177,6 @@
             if (!_videoId)
                 document.body.appendChild(_videoElement);
 
-
             _startTime = time;
             _videoId = id;
             return new Promise(function (resolve, reject) {
@@ -158,7 +184,7 @@
                     setSetting("started", true, true);
                     resolve();
                 }, { once: true });
-                _videoElement.src = _getVideoUrl();
+                _videoElement.src = _getVideoUrl(volume);
             });
         }
 
@@ -202,15 +228,24 @@
             _tabChanged(tab);
     });
 
+    var counter = 0;
     function _tabChanged(tab) {
+        counter++;
+        console.log("--------- TAB CHANGE -----------");
+        console.log(counter + ": " + tab.id + " " + tab.url);
+        console.log("--------- TAB CHANGE -----------");
         // If current URL is YT then get the video
         var vid = circularify.ytapi.getVideoId(tab.url);
 
         // Continue playing video after tab switch
         if (vidTabId && vidTabId != tab.id && previousTab == vidTabId) {
+            console.log("--- CONTINUE PLAYING --- " + counter);
             if (vid == null) {
+                console.log("---- CURRENTLY NO VIDEO PLAYING ---- " + counter);
+                console.log("---- BACKGROUND STARTING " + vidId + " " + vidTabId + " " + counter);
                 chrome.tabs.sendMessage(vidTabId, { get: "currentState"}, async function (state) {
-                    await circularify.snp.backgroundPlayer.setVideo(vidId, state.time);
+                    console.log("---- BACKGROUND STATE - Paused " +  state.paused + " " + counter);
+                    await circularify.snp.backgroundPlayer.setVideo(vidId, state.time, state.volume);
                     if (state.paused)
                         circularify.snp.backgroundPlayer.startPaused();
                     else
@@ -218,21 +253,27 @@
                 });
             }
             chrome.tabs.update(vidTabId, { muted: true });
+            console.log("--- MUTE CURRENT VIDEO --- " + counter);
         }
 
         // Exclude devtools pages
         if (tab.url.indexOf("chrome-devtools://") == -1) {
+            console.log("--- GEEN DEVTOOLS --- " + counter);
             pushTabId = tab.id;
 
             if (vid) {
+                console.log("---- WE SPELEN VIDEO AF: " + vid + " ---- " + counter);
                 // If we are playing a video, this means we need to remove
                 // the small player and continue in the page. So we check
                 // if vidTabId is set and sync the video to the right moment.
                 if (vidTabId) {
+                    console.log("----- WE ZITTEN IN ORGINELE TAB ----- " + counter);
                     if (vid == vidId) {
+                        console.log("------ VIDEOS MATCHING ------ " + counter);
                         chrome.tabs.sendMessage(vidTabId, { syncTime: settings.lastTime }); // TODO: This may go wrong if we use multiple YT tabs. we may sync the wrong time to the wrong video
                         (function (tId) {
                             circularify.snp.backgroundPlayer.getState(function (state) {
+                                console.log("----- ZET ORGINELE VIDEO IN JUISTE STATE ----- " + counter);
                                 chrome.tabs.sendMessage(tId, { setState: state });
                             });
                         })(vidTabId);
@@ -240,21 +281,25 @@
                     }
                     else
                     {
+                        console.log("---- ANDERE VIDEO ATM? ---- " + counter);
                         setSetting("started", false, true);
                         circularify.snp.backgroundPlayer.pauseVideo();
                     }
                 }
                 chrome.tabs.update(tab.id, { muted: false });
 
+                console.log("--- UPDATE TAB STATS VOOR VOLGENDE SWITCH --- " + counter);
                 // Register the current tab as the YT-tab
                 vidId = vid;
                 vidTabId = pushTabId || tabs[0].id;
             }
+
+            console.log("-- INJECTEREN EN SETTINGS RONDSTUREN -- " + counter);
             // Notify the tab about the current settings
-            chrome.tabs.sendMessage(pushTabId, { settings: settings });        
+            chrome.tabs.sendMessage(pushTabId, { settings: settings }); 
+            chrome.tabs.executeScript(null, {file: 'js/player.js', runAt: 'document_start'});
+            previousTab = tab.id;      
         }
-        chrome.tabs.executeScript(null, {file: 'js/player.js', runAt: 'document_start'});
-        previousTab = tab.id;
     }
 
     circularify.snp.backgroundPlayer.events.subscribe('frame', function (e) {
@@ -264,6 +309,7 @@
 
     circularify.snp.backgroundPlayer.events.subscribe('time', function (cur, dur, state) {
         settings.lastTime = cur;
+        settings.volume = state.volume;
         chrome.tabs.sendMessage(pushTabId, { currentTime: cur, duration: dur, state: state});
         // chrome.tabs.executeScript(pushTabId, {code: 'var rang = document.querySelector("input[type=\'range\']"); rang.value = ' + cur + '; rang.max = ' + dur + ';'});
     });

@@ -20,6 +20,8 @@ port.onMessage.addListener(async function (message, sender, response) {
 		vid = document.querySelector("video");
 		await (new Promise(r => setTimeout(r, 100)));
 	}
+	if (document.location && document.location.search.indexOf("volume") > -1)
+		vid.volume = document.location.search.split("&").filter(str => str.indexOf("volume") == 0)[0].substring(7);
 
 	var func = this[message.func];
 	console.log(typeof func);
@@ -41,9 +43,15 @@ port.onMessage.addListener(async function (message, sender, response) {
 		// 	circularify.ytapi.getPlayer()[f].apply(null, args)
 		if (message.func === 'startPaused')
 		{
+			vid.autoplay = false;
+			console.log("Trying to start paused!");
 			while(vid.readyState < 4)
 				await (new Promise(r => setTimeout(r, 100)));
-			vid.pause();
+			while(!vid.paused) {
+				await (new Promise(r => setTimeout(r, 100)));
+				vid.pause();
+			}
+			console.log("This should have worked!");
 		}
 		// }, message.func, message.args);
 		if (message.func === 'play')
@@ -93,13 +101,12 @@ function _beginPushingFrameChanges(frequency) {
 					name: 'frame',
 					args: [newFrame]
 				});
-				
 			}
 		}
 		port.postMessage({
 				type: 'event',
 				name: 'time',
-				args: [vid.currentTime, vid.duration, { paused: vid.paused, volume: vid.volume, muted: vid.muted }]
+				args: [vid.currentTime, vid.duration, { paused: vid.paused, volume: !vid.muted * vid.volume }]
 			});
 	}, frequency);
 }
@@ -112,7 +119,11 @@ function setVideoDimensions(width, height) {
 }
 
 function getState() {
-	return !document.querySelector("video").paused;
+	var vid = document.querySelector("video");
+	return {
+		paused: vid.paused,
+		volume: !vid.muted * vid.volume
+	};
 }
 
 _beginPushingFrameChanges(25);

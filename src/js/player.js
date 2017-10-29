@@ -70,7 +70,7 @@ document.YTSNPisDeployed || ((async function () {
 		chrome.runtime.sendMessage({ func: 'volume', args: [volume.value], setting: 'volume', val: volume.value});
 	});
 
-	var prevVal = 0;
+	var prevVal = 1;
 	mutebutton.addEventListener("click", function () {
 		chrome.runtime.sendMessage({ func: 'toggleMute' });
 		if (volume.value > 0) {
@@ -128,8 +128,10 @@ document.YTSNPisDeployed || ((async function () {
 		var videoEl = document.querySelector("video");
 		if (message.image || (message.settings && message.settings.lastFrame)) {
 			videoImg.src = message.image || message.settings.lastFrame;
+			videoImg.parentNode.classList.remove("hide");
 		}
 		if (message.settings) {
+			volume.value = message.settings.volume;
 			container.style.display = message.settings.started ? 'initial' : 'none';
 			container.style.left = message.settings.move[0];
 			container.style.top = message.settings.move[1];
@@ -149,20 +151,25 @@ document.YTSNPisDeployed || ((async function () {
 		if (message.syncTime) {
 			videoEl.currentTime = message.syncTime;
 		}
-		if (typeof message.setState !== 'undefined') {
-			message.setState ? videoEl.play() : videoEl.pause();
+		if (typeof message.setState === 'object') {
+			message.setState.paused ? videoEl.pause() : videoEl.play();
+			videoEl.volume = message.setState.volume;
 			videoImg.src = null;
+			videoImg.parentNode.classList.add("hide");
 			_injectScript(function () {
 				circularify.ytapi.getPlayer().setAutonav(true);
 			});
 		}
 		if (message.get == 'currentState') {
+			console.log("=-=-=-=-=-=-=  currentState opgevraagd");
+			console.log(videoEl.currentTime + " " + videoEl.paused)
 			_injectScript(function () {
 				circularify.ytapi.getPlayer().setAutonav(false);
 			});
 			resp({
 				time: videoEl.currentTime,
-				paused: videoEl.paused
+				paused: videoEl.paused,
+				volume: videoEl.volume
 			});
 		}
 	});
