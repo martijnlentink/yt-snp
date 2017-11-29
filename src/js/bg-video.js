@@ -229,7 +229,7 @@
     });
 
     var counter = 0;
-    function _tabChanged(tab) {
+    async function _tabChanged(tab) {
         counter++;
         console.log("--------- TAB CHANGE -----------");
         console.log(counter + ": " + tab.id + " " + tab.url);
@@ -243,7 +243,7 @@
             if (vid == null) {
                 console.log("---- CURRENTLY NO VIDEO PLAYING ---- " + counter);
                 console.log("---- BACKGROUND STARTING " + vidId + " " + vidTabId + " " + counter);
-                chrome.tabs.sendMessage(vidTabId, { get: "currentState"}, async function (state) {
+                getCurrentState(vidTabId).then(async function (state) {
                     console.log("---- BACKGROUND STATE - Paused " +  state.paused + " " + counter);
                     await circularify.snp.backgroundPlayer.setVideo(vidId, state.time, state.volume);
                     if (state.paused)
@@ -270,13 +270,7 @@
                     console.log("----- WE ZITTEN IN ORGINELE TAB ----- " + counter);
                     if (vid == vidId) {
                         console.log("------ VIDEOS MATCHING ------ " + counter);
-                        chrome.tabs.sendMessage(vidTabId, { syncTime: settings.lastTime }); // TODO: This may go wrong if we use multiple YT tabs. we may sync the wrong time to the wrong video
-                        (function (tId) {
-                            circularify.snp.backgroundPlayer.getState(function (state) {
-                                console.log("----- ZET ORGINELE VIDEO IN JUISTE STATE ----- " + counter);
-                                chrome.tabs.sendMessage(tId, { setState: state });
-                            });
-                        })(vidTabId);
+                        syncState(vidTabId);
                         circularify.snp.backgroundPlayer.pauseVideo();
                     }
                     else
@@ -302,15 +296,35 @@
         }
     }
 
+    async function getCurrentState(tabId) {
+        return await sendFunction(tabId, arguments.callee.name);
+    }
+
+    function syncState(tabId) {
+        sendFunction(tabId, arguments.callee.name, settings.state);
+    }
+
+    function updateTime(time, duration) {
+        sendFunction(pushTabId, arguments.callee.name, time, duration).catch(e => console.error(e));
+    }
+
+    async function sendFunction(tabId, funcName) {
+        let args = Array.prototype.slice.call(arguments, 2);
+        return new Promise(function (resolve, reject) {
+            chrome.tabs.sendMessage(tabId, { func: funcName, args: args }, function (message) {
+                resolve(message);
+            });
+            setTimeout(() => reject("Took too long to complete"), 5000);
+        });
+    }
+
     circularify.snp.backgroundPlayer.events.subscribe('frame', function (e) {
         settings.lastFrame = e;
         chrome.tabs.sendMessage(pushTabId, { image: e });
     });
 
     circularify.snp.backgroundPlayer.events.subscribe('time', function (cur, dur, state) {
-        settings.lastTime = cur;
-        settings.volume = state.volume;
-        chrome.tabs.sendMessage(pushTabId, { currentTime: cur, duration: dur, state: state});
-        // chrome.tabs.executeScript(pushTabId, {code: 'var rang = document.querySelector("input[type=\'range\']"); rang.value = ' + cur + '; rang.max = ' + dur + ';'});
+        settings.state = { currentTime: cur, volume: state.volume, paused: state.volume };
+        updateTime(cur, dur);
     });
 })();

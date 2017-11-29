@@ -35,10 +35,11 @@ document.YTSNPisDeployed || ((async function () {
 	var container = document.getElementById('YTSNP-player-everywhere');
 	var videoImg = document.getElementById("seek-n-play-er");
 	var volume = document.querySelector("#YTSNP-volume");
+	var progress = document.getElementById('YTSNP-progressbar');
 	var mutebutton = document.querySelector("#YTSNP-mute");
 	var playtime = document.querySelector("#YTSNP-time");
 
-	var secondsToTime = function (secs, total) {
+	var secondsToTime = function secToTime (secs, total) {
 		var sec_num = parseInt(secs, 10); // don't forget the second param
 	    var hours   = Math.floor(sec_num / 3600);
 	    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
@@ -48,16 +49,16 @@ document.YTSNPisDeployed || ((async function () {
 	    if (minutes < 10) {minutes = "0"+minutes;}
 	    if (seconds < 10) {seconds = "0"+seconds;}
 
-	    if ((total||secs) < 3600)
-	    	return minutes + ":" + seconds;
-	    return hours+':'+minutes+':'+seconds;
+	    if (!total)
+	    	return (secs < 3600 ? '' : hours+':')+minutes+':'+seconds;
+	    return (secs < 3600 ? '' : hours+':')+minutes+':'+seconds + " / " + secToTime(total);
 	}
 
 	var updateProgress = function() {
 	  var ran = range.value / range.max;
 	  range.style.background = '-webkit-gradient(linear, left top, right top, color-stop(' + ran + ', #F12B24), color-stop(' + ran + ', rgba(255, 255, 255, 0.4)))';
 		
-	  	playtime.innerHTML = secondsToTime(range.value, range.max) + " / " + secondsToTime(range.max);
+	  	playtime.innerHTML = secondsToTime(range.value, range.max);
 	};
 
 	range.addEventListener('input', updateProgress);
@@ -123,9 +124,55 @@ document.YTSNPisDeployed || ((async function () {
 		target = null;
 	});
 
+	var videoEl = null;
+	var stateVars = ["currentTime", "paused", "volume"];
+	this.getCurrentState = function() {
+		let resp = {};
+		for (let idx in stateVars) {
+			let prop = stateVars[idx];
+			resp[prop] = videoEl[prop]; 
+		}
+
+		_injectScript(function () {
+			circularify.ytapi.getPlayer().setAutonav(false);
+		});
+
+		return resp;
+	}
+
+	this.syncState = function(state) {
+		for (var idx in state) {
+			videoEl[idx] = state[idx];
+		}
+
+		state.paused ? videoEl.pause() : videoEl.play();
+		playUI(state.paused);
+		videoImg.src = null;
+		videoImg.parentNode.classList.add("hide");
+		_injectScript(function () {
+			circularify.ytapi.getPlayer().setAutonav(true);
+		});
+	}
+
+	this.updateTime = function(time, duration) {
+		if (progress.value == time)
+			return;
+
+		progress.value = time;
+		progress.max = duration;
+		progress.dispatchEvent(new Event('input'));
+	}
+
 	// Incoming messages from the background
+
 	chrome.runtime.onMessage.addListener(function (message, sender, resp) {
-		var videoEl = document.querySelector("video");
+		videoEl = document.querySelector("video");
+		let funcAsFunction = this[message.func];// || eval(message.func); //eval dirty fix1
+		if (typeof funcAsFunction === 'function') {
+			let res = funcAsFunction.apply(this, message.args);
+			return typeof res !== 'undefined' && resp(res);
+		}
+
 		if (message.image || (message.settings && message.settings.lastFrame)) {
 			videoImg.src = message.image || message.settings.lastFrame;
 			videoImg.parentNode.classList.remove("hide");
@@ -135,42 +182,6 @@ document.YTSNPisDeployed || ((async function () {
 			container.style.display = message.settings.started ? 'initial' : 'none';
 			container.style.left = message.settings.move[0];
 			container.style.top = message.settings.move[1];
-		}
-		if (message.currentTime) {
-			var progress = document.getElementById('YTSNP-progressbar');
-
-			if (progress.value != message.currentTime)
-			{
-				progress.value = message.currentTime;
-				progress.max = message.duration;
-				progress.dispatchEvent(new Event('input'));
-			}
-			if (typeof message.state.paused !== 'undefined')
-				playUI(message.state.paused);
-		}
-		if (message.syncTime) {
-			videoEl.currentTime = message.syncTime;
-		}
-		if (typeof message.setState === 'object') {
-			message.setState.paused ? videoEl.pause() : videoEl.play();
-			videoEl.volume = message.setState.volume;
-			videoImg.src = null;
-			videoImg.parentNode.classList.add("hide");
-			_injectScript(function () {
-				circularify.ytapi.getPlayer().setAutonav(true);
-			});
-		}
-		if (message.get == 'currentState') {
-			console.log("=-=-=-=-=-=-=  currentState opgevraagd");
-			console.log(videoEl.currentTime + " " + videoEl.paused)
-			_injectScript(function () {
-				circularify.ytapi.getPlayer().setAutonav(false);
-			});
-			resp({
-				time: videoEl.currentTime,
-				paused: videoEl.paused,
-				volume: videoEl.volume
-			});
 		}
 	});
 

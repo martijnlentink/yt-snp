@@ -118,12 +118,4 @@ function setVideoDimensions(width, height) {
 	// TODO: also change player size
 }
 
-function getState() {
-	var vid = document.querySelector("video");
-	return {
-		paused: vid.paused,
-		volume: !vid.muted * vid.volume
-	};
-}
-
-_beginPushingFrameChanges(25);
+_beginPushingFrameChanges(1000.0/10.0);
