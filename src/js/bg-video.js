@@ -32,12 +32,8 @@
         },
         {urls: ["<all_urls>"]},
         ["blocking"]
-        );
+    );
       
-
-
-    
-
     // chrome.webRequest.onBeforeRequest.addListener(
     // function(details) {
     //     // Whilst using the HTML5 player, do:
@@ -139,7 +135,6 @@
         };
 
         chrome.runtime.onMessage.addListener(function (message) {
-            console.log("MESSAGE");
             if (message.request == 'settings')
                 chrome.tabs.sendMessage(pushTabId, { settings: settings });        
             if (message.func)
@@ -157,11 +152,9 @@
             
             _port = port;
             _port.onDisconnect.addListener(function(port) {
-                console.log ("Background disconnection");
             });
 
             _port.onMessage.addListener(_onMessageListener);
-            console.log ("Background received connection");
         });
 
         function _getVideoUrl(volume) {
@@ -215,7 +208,6 @@
 
     circularify.snp.backgroundPlayer = new VideoElement();
 
-    //chrome.tabs.onUpdated.addListener(checkProcess);
     chrome.tabs.onActivated.addListener(function (activeNfo) {
         chrome.tabs.query({ active: true }, function (tabs) {
             _tabChanged(tabs[0]);
@@ -223,7 +215,6 @@
     });
     // chrome.tabs.onCreated.addListener(_tabChanged);
     chrome.tabs.onUpdated.addListener(function (tabId, changeNfo, tab) {
-        console.log(changeNfo);
         if (changeNfo.status === 'loading' && tab.active)
             _tabChanged(tab);
     });
@@ -231,21 +222,14 @@
     var counter = 0;
     async function _tabChanged(tab) {
         counter++;
-        console.log("--------- TAB CHANGE -----------");
-        console.log(counter + ": " + tab.id + " " + tab.url);
-        console.log("--------- TAB CHANGE -----------");
         // If current URL is YT then get the video
         var vid = circularify.ytapi.getVideoId(tab.url);
         setSetting("playerVisible", !vid);
 
         // Continue playing video after tab switch
         if (vidTabId && vidTabId != tab.id && previousTab == vidTabId) {
-            console.log("--- CONTINUE PLAYING --- " + counter);
             if (vid == null) {
-                console.log("---- CURRENTLY NO VIDEO PLAYING ---- " + counter);
-                console.log("---- BACKGROUND STARTING " + vidId + " " + vidTabId + " " + counter);
                 getCurrentState(vidTabId).then(async function (state) {
-                    console.log("---- BACKGROUND STATE - Paused " +  state.paused + " " + counter + " t: " + state.currentTime);
                     await circularify.snp.backgroundPlayer.setVideo(vidId, state.currentTime, state.volume);
                     if (state.paused)
                         circularify.snp.backgroundPlayer.startPaused();
@@ -254,42 +238,34 @@
                 });
             }
             chrome.tabs.update(vidTabId, { muted: true });
-            console.log("--- MUTE CURRENT VIDEO --- " + counter);
         }
 
         // Exclude devtools pages
         if (tab.url.indexOf("chrome-devtools://") == -1) {
-            console.log("--- GEEN DEVTOOLS --- " + counter);
             pushTabId = tab.id;
 
             if (vid) {
-                console.log("---- WE SPELEN VIDEO AF: " + vid + " ---- " + counter);
                 // If we are playing a video, this means we need to remove
                 // the small player and continue in the page. So we check
                 // if vidTabId is set and sync the video to the right moment.
                 if (vidTabId) {
-                    console.log("----- WE ZITTEN IN ORGINELE TAB ----- " + counter);
                     if (vid == vidId) {
-                        console.log("------ VIDEOS MATCHING ------ " + counter);
                         syncState(vidTabId);
                         circularify.snp.backgroundPlayer.pauseVideo();
                     }
                     else
                     {
-                        console.log("---- ANDERE VIDEO ATM? ---- " + counter);
                         setSetting("started", false, true);
                         circularify.snp.backgroundPlayer.pauseVideo();
                     }
                 }
                 chrome.tabs.update(tab.id, { muted: false });
 
-                console.log("--- UPDATE TAB STATS VOOR VOLGENDE SWITCH --- " + counter);
                 // Register the current tab as the YT-tab
                 vidId = vid;
                 vidTabId = pushTabId || tabs[0].id;
             }
 
-            console.log("-- INJECTEREN EN SETTINGS RONDSTUREN -- " + counter);
             // Notify the tab about the current settings
             chrome.tabs.sendMessage(pushTabId, { settings: settings }); 
             chrome.tabs.executeScript(null, {file: 'js/player.js', runAt: 'document_start'});

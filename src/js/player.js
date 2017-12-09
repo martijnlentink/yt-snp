@@ -141,15 +141,12 @@ document.YTSNPisDeployed || ((async function () {
 	}
 
 	this.syncState = function(state) {
-		console.log("syncing state!");
 		for (var idx in state) {
 			videoEl[idx] = state[idx];
 		}
 
 		state.paused ? videoEl.pause() : videoEl.play();
 		playUI(state.paused);
-		// videoImg.src = null;
-		// videoImg.parentNode.classList.add("hide");
 		_injectScript(function () {
 			circularify.ytapi.getPlayer().setAutonav(true);
 		});
@@ -175,11 +172,9 @@ document.YTSNPisDeployed || ((async function () {
 		}
 
 		if (message.image || (message.settings && message.settings.lastFrame)) {
-			console.log("Image was set!");
 			videoImg.src = message.image || message.settings.lastFrame;
 		}
 		if (message.settings) {
-			console.log("Settings zeggen: " + message.settings.playerVisible);
 			volume.value = message.settings.volume;
 			container.style.left = message.settings.move[0];
 			container.style.top = message.settings.move[1];

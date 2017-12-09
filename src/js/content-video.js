@@ -30,14 +30,14 @@ circularify.snp.backgroundPlayer = circularify.snp.backgroundPlayer || (function
 		let prevVolume = vid.volume;
 		vid.volume = 0;
 		vid.autoplay = false;
-		console.log("Trying to start paused!");
+		//console.log("Trying to start paused!");
 
 		while(!vid.paused || vid.readyState < 4) {
 			if (vid.readyState >= 4)
 				vid.pause();
 			await (new Promise(r => setTimeout(r, 100)));
 		}
-		console.log("This should have worked!");
+		//console.log("This should have worked!");
 		vid.volume = prevVolume;
 	};
 
@@ -130,7 +130,7 @@ circularify.snp.backgroundPlayer = circularify.snp.backgroundPlayer || (function
 
 	var port = connect();
 
-	console.log("Connection established!");
+	//console.log("Connection established!");
 
 	_pageLoadWaitHandle = new Promise(async function(resolve, reject) {
 		// Keep looping until we found a matching tag
@@ -143,7 +143,7 @@ circularify.snp.backgroundPlayer = circularify.snp.backgroundPlayer || (function
 		}
 
 		vid.volume = _grabFromQuery(volume);
-		console.log("Resolved!");
+		//console.log("Resolved!");
 		resolve();
 	});
 
@@ -154,10 +154,10 @@ circularify.snp.backgroundPlayer = circularify.snp.backgroundPlayer || (function
 
 	port.onMessage.addListener(async function (message, sender, response) {
 		await _pageLoadWaitHandle;
-		console.log("Wait handle waited");
+		//console.log("Wait handle waited");
 
 		var func = this[message.func];
-		console.log(typeof func);
+		//console.log(typeof func);
 		if (typeof func === 'function')
 		{
 			var result = func.apply(this, message.args);
