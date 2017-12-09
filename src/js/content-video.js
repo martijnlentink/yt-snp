@@ -1,121 +1,175 @@
 // This content script will run in the background on the iframe
 
-console.log ("HELLO FOREGROUND");
-
 circularify.omni.page.injectScript(circularify.core.files.ytapi);
 
-chrome.runtime.onConnect.addListener(function(port) {
-        console.log ("Foreground received connection");
-    });
-var port = chrome.runtime.connect({name: 'snp-background-video'});
+circularify.snp = circularify.snp || {};
 
-port.onDisconnect.addListener(function () {
-	console.log("Foreground disconnected");
-	port = chrome.runtime.connect({name: 'snp-background-video'});
-})
+circularify.snp.backgroundPlayer = circularify.snp.backgroundPlayer || (function (videoFps) {
+	const _connectionName = 'snp-background-video';
+	var _canvasElement = document.createElement("canvas");
+	var _pageLoadWaitHandle;
+	var _currentFrame;
+	var _pushIntervalId;
+	var _seconds = 0;
+	var _numErrors = 0;
+	var vid;
 
-port.onMessage.addListener(async function (message, sender, response) {
-	var vid = document.querySelector("video");
-	while (!vid) {
-		vid = document.querySelector("video");
-		await (new Promise(r => setTimeout(r, 100)));
+	this._grabFromQuery = function (name) {
+		if (document.location && document.location.search.indexOf(name) > -1) {
+			let matches = document.location.search.split("&").filter((str, idx) => str.substring(!idx).indexOf(name) == 0);
+
+			if (matches.length)
+				return matches[0].substring(name.length+1);
+		}
+		return null;
+	};
+
+	/* Video functions */
+
+	this.startPaused = async function () {
+		let prevVolume = vid.volume;
+		vid.volume = 0;
+		vid.autoplay = false;
+		console.log("Trying to start paused!");
+
+		while(!vid.paused || vid.readyState < 4) {
+			if (vid.readyState >= 4)
+				vid.pause();
+			await (new Promise(r => setTimeout(r, 100)));
+		}
+		console.log("This should have worked!");
+		vid.volume = prevVolume;
+	};
+
+	this.play = function () {
+		vid.play();
+	};
+
+	this.stopVideo = function () {
+		vid.pause();
+	};
+
+	this.playPause = function () {
+		vid.paused ? vid.play() : vid.pause();
+	};
+
+	this.seek = function (time) {
+		vid.currentTime = time;
+	};
+
+	this.volume = function (volume) {
+		vid.volume = volume;
+	};
+
+	this.toggleMute = function () {
+		vid.muted = !vid.muted;
+	};
+
+	/* Connection functions */
+
+	// Connect port to background
+	this.connect = function() {
+		return chrome.runtime.connect({name: _connectionName});
+	};
+
+	this._getCurrentFrame = function (vid) {
+        var ctx = _canvasElement.getContext("2d");
+        ctx.drawImage(vid, 0, 0, _canvasElement.width, _canvasElement.height);
+        return _canvasElement.toDataURL("image/jpeg", 1);
 	}
-	if (document.location && document.location.search.indexOf("volume") > -1)
-		vid.volume = document.location.search.split("&").filter(str => str.indexOf("volume") == 0)[0].substring(7);
 
-	var func = this[message.func];
-	console.log(typeof func);
-	if (typeof func === 'function')
-	{
-		var result = func.apply(this, message.args);
+	this._emitEvent = function(name) {
+		var args = Array.prototype.slice.call(arguments, 1);
+
 		port.postMessage({
-			type: 'callback',
-			id: message.id,
-			response: result
+			type: 'event',
+			name: name,
+			args: args
 		});
 	}
-	if (typeof func === 'undefined')
-	{
-		// var el = document.createElement("script");
-		// el.innerHTML = "document.location.href='about:blank';";
-		// document.head.appendChild(el);
-		// circularify.omni.page.injectScript(function (f, args) {
-		// 	circularify.ytapi.getPlayer()[f].apply(null, args)
-		if (message.func === 'startPaused')
-		{
-			vid.autoplay = false;
-			console.log("Trying to start paused!");
-			while(vid.readyState < 4)
-				await (new Promise(r => setTimeout(r, 100)));
-			while(!vid.paused) {
-				await (new Promise(r => setTimeout(r, 100)));
-				vid.pause();
-			}
-			console.log("This should have worked!");
-		}
-		// }, message.func, message.args);
-		if (message.func === 'play')
-			vid.play();
-		if (message.func === 'stopVideo')
-			vid.pause();
-		if (message.func === 'playPause')
-			vid.paused ? vid.play() : vid.pause();
-		if (message.func === 'seek')
-		{
-			vid.currentTime = message.args[0];
-		}
-		if (message.func === 'volume')
-			vid.volume = message.args[0];
-		if (message.func === 'toggleMute')
-			vid.muted = !vid.muted;
+
+	this._setVideoDimensions = function(width, height) {
+		// TODO: also change player size
+		_canvasElement.width = width;
+		_canvasElement.height = height;
 	}
-});
-var _canvasElement = document.createElement("canvas");
-var _currentFrame;
-  
-function getCurrentFrame(vid) {
-    var videoEl = vid || document.querySelector("video");
-    if (videoEl) {
-        var ctx = _canvasElement.getContext("2d");
-        ctx.drawImage(videoEl, 0, 0, _canvasElement.width, _canvasElement.height);
-        return _canvasElement.toDataURL("image/jpeg", 1);
-    }
-}
 
-var _pushIntervalId;
-function _beginPushingFrameChanges(frequency) {
-	var vid = document.querySelector("video");
-	_pushIntervalId = setInterval(function () {
-		// if (document.querySelector(".ad-showing") && vid.currentTime != vid.duration) {
-		// 	vid.currentTime = vid.duration;
-		// 	return;
-		// }
+	this._beginPushingFrameChanges = function (frequency) {
+		_pushIntervalId = setInterval(function () {
+			if (!vid)
+				return;
+			// if (document.querySelector(".ad-showing") && vid.currentTime != vid.duration) {
+			// 	vid.currentTime = vid.duration;
+			// 	return;
+			// }
 
-		if (!vid.paused) {
-			var newFrame = getCurrentFrame(vid);
-			if (_currentFrame != newFrame)
-			{
-				_currentFrame = newFrame;
-				port.postMessage({
-					type: 'event',
-					name: 'frame',
-					args: [newFrame]
-				});
+			try {
+				_seconds += 1.0 / videoFps;
+				if (!vid.paused) {
+					var newFrame = _getCurrentFrame(vid);
+					if (_currentFrame != newFrame)
+					{
+						_emitEvent('frame', newFrame);
+						_currentFrame = newFrame;
+					}
+				}
+				_emitEvent('videoState', vid.currentTime, vid.duration, { paused: vid.paused, volume: !vid.muted * vid.volume });
+
+				if (_seconds > 1000) {
+					_seconds = _numErrors = 0;
+				}
+			} catch (err) {
+				_numErrors++;
+
+				// 80 percent of the time we got an error stahp!
+				if (_seconds > 5 && _numErrors > _seconds * videoFps * .8)
+					clearInterval(_pushIntervalId);
 			}
+		}, frequency);
+	}
+
+	var port = connect();
+
+	console.log("Connection established!");
+
+	_pageLoadWaitHandle = new Promise(async function(resolve, reject) {
+		// Keep looping until we found a matching tag
+		// This is the video tag that we need for all
+		// of our information!
+		vid = document.querySelector("video");
+		while (!vid) {
+			vid = document.querySelector("video");
+			await (new Promise(r => setTimeout(r, 100)));
 		}
-		port.postMessage({
-				type: 'event',
-				name: 'time',
-				args: [vid.currentTime, vid.duration, { paused: vid.paused, volume: !vid.muted * vid.volume }]
-			});
-	}, frequency);
-}
 
-function setVideoDimensions(width, height) {
-	_canvasElement.width = width;
-	_canvasElement.height = height;
+		vid.volume = _grabFromQuery(volume);
+		console.log("Resolved!");
+		resolve();
+	});
 
-	// TODO: also change player size
-}
+	// Automatic reconnect!
+	port.onDisconnect.addListener(function () {
+		port = connect();
+	});
 
-_beginPushingFrameChanges(1000.0/10.0);
+	port.onMessage.addListener(async function (message, sender, response) {
+		await _pageLoadWaitHandle;
+		console.log("Wait handle waited");
+
+		var func = this[message.func];
+		console.log(typeof func);
+		if (typeof func === 'function')
+		{
+			var result = func.apply(this, message.args);
+			if (typeof result !== 'undefined')
+				port.postMessage({
+					type: 'callback',
+					id: message.id,
+					response: result
+				});
+		}
+	});
+
+	_beginPushingFrameChanges(1000.0/videoFps);
+
+})(25);

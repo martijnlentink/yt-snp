@@ -165,7 +165,7 @@
         });
 
         function _getVideoUrl(volume) {
-            return "https://www.youtube.com/watch?v=" + _videoId + "&vq=medium&autoplay=1&play_small=true&t=" + Math.round(_startTime || 0) + "s&volume=" + (volume||0) + "&bgplay=YTSNP";
+            return "https://www.youtube.com/watch?v=" + _videoId + "&vq=medium&autoplay=1&play_small=true&t=" + Math.round(_startTime || 0) + "s&volume=" + (volume||1) + "&bgplay=YTSNP";
         }
 
         async function _setVideo(id, time, volume) {
@@ -236,6 +236,7 @@
         console.log("--------- TAB CHANGE -----------");
         // If current URL is YT then get the video
         var vid = circularify.ytapi.getVideoId(tab.url);
+        setSetting("playerVisible", !vid);
 
         // Continue playing video after tab switch
         if (vidTabId && vidTabId != tab.id && previousTab == vidTabId) {
@@ -244,8 +245,8 @@
                 console.log("---- CURRENTLY NO VIDEO PLAYING ---- " + counter);
                 console.log("---- BACKGROUND STARTING " + vidId + " " + vidTabId + " " + counter);
                 getCurrentState(vidTabId).then(async function (state) {
-                    console.log("---- BACKGROUND STATE - Paused " +  state.paused + " " + counter);
-                    await circularify.snp.backgroundPlayer.setVideo(vidId, state.time, state.volume);
+                    console.log("---- BACKGROUND STATE - Paused " +  state.paused + " " + counter + " t: " + state.currentTime);
+                    await circularify.snp.backgroundPlayer.setVideo(vidId, state.currentTime, state.volume);
                     if (state.paused)
                         circularify.snp.backgroundPlayer.startPaused();
                     else
@@ -323,8 +324,8 @@
         chrome.tabs.sendMessage(pushTabId, { image: e });
     });
 
-    circularify.snp.backgroundPlayer.events.subscribe('time', function (cur, dur, state) {
-        settings.state = { currentTime: cur, volume: state.volume, paused: state.volume };
+    circularify.snp.backgroundPlayer.events.subscribe('videoState', function (cur, dur, state) {
+        settings.state = { currentTime: cur, volume: state.volume, paused: state.paused };
         updateTime(cur, dur);
     });
 })();

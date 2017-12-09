@@ -9,7 +9,7 @@
 */
 
 #YTSNP-player-everywhere.hide {
-  dislapy: none;
+  display: none;
 }
 
 #YTSNP-player-everywhere * {

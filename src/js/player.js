@@ -86,8 +86,8 @@ document.YTSNPisDeployed || ((async function () {
 	var pauseplay = document.querySelector("#YTSNP-pauseplay");
 	var playUI = function (pause) {
 		pause = pause + 0;
-		var button1 = pauseplay.querySelector(pause == 3 ? "svg:not(.hidden)" : "svg." + (pause == 0 ? "play" : "pause"));
-		var button2 = pauseplay.querySelector(pause == 3 ? "svg.hidden" : "svg." + (pause == 1 ? "play" : "pause"));
+		var button1 = pauseplay.querySelector(pause == 3 ? "svg:not(.hidden)" : "svg." + (pause == 1 ? "play" : "pause"));
+		var button2 = pauseplay.querySelector(pause == 3 ? "svg.hidden" : "svg." + (pause == 0 ? "play" : "pause"));
 		button1.classList.add("hidden");
 		button2.classList.remove("hidden");
 	};
@@ -141,14 +141,15 @@ document.YTSNPisDeployed || ((async function () {
 	}
 
 	this.syncState = function(state) {
+		console.log("syncing state!");
 		for (var idx in state) {
 			videoEl[idx] = state[idx];
 		}
 
 		state.paused ? videoEl.pause() : videoEl.play();
 		playUI(state.paused);
-		videoImg.src = null;
-		videoImg.parentNode.classList.add("hide");
+		// videoImg.src = null;
+		// videoImg.parentNode.classList.add("hide");
 		_injectScript(function () {
 			circularify.ytapi.getPlayer().setAutonav(true);
 		});
@@ -174,14 +175,15 @@ document.YTSNPisDeployed || ((async function () {
 		}
 
 		if (message.image || (message.settings && message.settings.lastFrame)) {
+			console.log("Image was set!");
 			videoImg.src = message.image || message.settings.lastFrame;
-			videoImg.parentNode.classList.remove("hide");
 		}
 		if (message.settings) {
+			console.log("Settings zeggen: " + message.settings.playerVisible);
 			volume.value = message.settings.volume;
-			container.style.display = message.settings.started ? 'initial' : 'none';
 			container.style.left = message.settings.move[0];
 			container.style.top = message.settings.move[1];
+			videoImg.parentNode.classList.toggle("hide", !message.settings.playerVisible || !message.settings.started);
 		}
 	});
 
