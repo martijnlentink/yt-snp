@@ -29,12 +29,15 @@ circularify.snp.backgroundPlayer = circularify.snp.backgroundPlayer || (function
 	this.startPaused = async function () {
 		let prevVolume = vid.volume;
 		vid.volume = 0;
-		vid.autoplay = false;
+		 vid.autoplay = false;
 		//console.log("Trying to start paused!");
 
 		while(!vid.paused || vid.readyState < 4) {
-			if (vid.readyState >= 4)
-				vid.pause();
+			if (vid.readyState >= 4) {
+				try {
+					await vid.pause();
+				} catch (error) {}
+			}
 			await (new Promise(r => setTimeout(r, 100)));
 		}
 		//console.log("This should have worked!");
@@ -63,6 +66,14 @@ circularify.snp.backgroundPlayer = circularify.snp.backgroundPlayer || (function
 
 	this.toggleMute = function () {
 		vid.muted = !vid.muted;
+	};
+
+	this.setState = function (state) {
+		for (let idx in state) {
+			let prop = state[idx];
+			vid[idx] = prop;
+		}
+		state.paused ? vid.pause() : vid.play();
 	};
 
 	/* Connection functions */
@@ -113,7 +124,7 @@ circularify.snp.backgroundPlayer = circularify.snp.backgroundPlayer || (function
 						_currentFrame = newFrame;
 					}
 				}
-				_emitEvent('videoState', vid.currentTime, vid.duration, { paused: vid.paused, volume: !vid.muted * vid.volume });
+				 _emitEvent('videoState', vid.currentTime, vid.duration);//, { paused: vid.paused, volume: !vid.muted * vid.volume });
 
 				if (_seconds > 1000) {
 					_seconds = _numErrors = 0;
@@ -122,8 +133,10 @@ circularify.snp.backgroundPlayer = circularify.snp.backgroundPlayer || (function
 				_numErrors++;
 
 				// 80 percent of the time we got an error stahp!
-				if (_seconds > 5 && _numErrors > _seconds * videoFps * .8)
+				if (_seconds > 5 && _numErrors > _seconds * videoFps * .8) {
+					console.warn("Errors -- Daarom gestopt!");
 					clearInterval(_pushIntervalId);
+				}
 			}
 		}, frequency);
 	}
@@ -143,6 +156,10 @@ circularify.snp.backgroundPlayer = circularify.snp.backgroundPlayer || (function
 		}
 
 		vid.volume = _grabFromQuery(volume);
+
+		// vid.addEventListener("volumechanged", function () {
+		// 	_emitEvent('volume', vid.volume);
+		// });
 		//console.log("Resolved!");
 		resolve();
 	});
@@ -172,4 +189,4 @@ circularify.snp.backgroundPlayer = circularify.snp.backgroundPlayer || (function
 
 	_beginPushingFrameChanges(1000.0/videoFps);
 
-})(25);
+})(1);

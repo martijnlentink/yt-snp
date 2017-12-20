@@ -65,6 +65,9 @@
     }
 
     function setSetting(key, val, propagate) {
+        if (settings[key] === val)
+            return;
+
         settings[key] = val;
         chrome.storage.local.set({ everywhereSettings: settings });
         if (propagate)
@@ -135,8 +138,8 @@
         };
 
         chrome.runtime.onMessage.addListener(function (message) {
-            if (message.request == 'settings')
-                chrome.tabs.sendMessage(pushTabId, { settings: settings });        
+            if (message.request == 'settings') 
+                chrome.tabs.sendMessage(pushTabId, { settings: settings });    
             if (message.func)
                 _port.postMessage(new VideoIframeMessage(message.func, null, message.args));
 
@@ -191,6 +194,7 @@
             getVideoUrl: _getVideoUrl,
             getVideoId: function () { return _videoId; },
             setVideo: _setVideo,
+            setState: function (state) { _callExternal("setState", null, state); },
             setVideoDimensions: function (width, height) { _callExternal('setVideoDimensions', null, width, height)},
             getCurrentFrame: function (callback) { _callExternal('getCurrentFrame', callback)},
             pauseVideo: function () { _callExternal('stopVideo') },
@@ -230,11 +234,24 @@
         if (vidTabId && vidTabId != tab.id && previousTab == vidTabId) {
             if (vid == null) {
                 getCurrentState(vidTabId).then(async function (state) {
-                    await circularify.snp.backgroundPlayer.setVideo(vidId, state.currentTime, state.volume);
-                    if (state.paused)
-                        circularify.snp.backgroundPlayer.startPaused();
+                    if (!state)
+                        return;
+                    
+                    for (let name in state)
+                        settings[name] = state[name];
+
+                    if (circularify.snp.backgroundPlayer.getVideoId() == vidId)
+                        circularify.snp.backgroundPlayer.setState(state);
                     else
-                        circularify.snp.backgroundPlayer.playVideo();
+                    {
+                        await circularify.snp.backgroundPlayer.setVideo(vidId, state.currentTime, state.volume);
+                        if (state.paused)
+                            circularify.snp.backgroundPlayer.startPaused();
+                        else
+                            circularify.snp.backgroundPlayer.playVideo();
+                    }
+                    
+                    chrome.tabs.sendMessage(tab.id, { settings: settings }); 
                 });
             }
             chrome.tabs.update(vidTabId, { muted: true });
@@ -267,7 +284,7 @@
             }
 
             // Notify the tab about the current settings
-            chrome.tabs.sendMessage(pushTabId, { settings: settings }); 
+            // chrome.tabs.sendMessage(pushTabId, { settings: settings }); 
             chrome.tabs.executeScript(null, {file: 'js/player.js', runAt: 'document_start'});
             previousTab = tab.id;      
         }
@@ -278,7 +295,7 @@
     }
 
     function syncState(tabId) {
-        sendFunction(tabId, arguments.callee.name, settings.state);
+        sendFunction(tabId, arguments.callee.name, settings);
     }
 
     function updateTime(time, duration) {
@@ -301,7 +318,17 @@
     });
 
     circularify.snp.backgroundPlayer.events.subscribe('videoState', function (cur, dur, state) {
-        settings.state = { currentTime: cur, volume: state.volume, paused: state.paused };
+        // updatePlayer(state);
+        setSetting("currentTime", cur);
+        if (state) {
+            setSetting("volume", state.volume, true);
+            setSetting("paused", state.paused, true);
+        }
+        // settings.state = { currentTime: cur, volume: state.volume, paused: state.paused };
         updateTime(cur, dur);
+    });
+
+    circularify.snp.backgroundPlayer.events.subscribe('volume', function (volume) {
+        setSetting("volume", state.volume, true);
     });
 })();

@@ -2,6 +2,7 @@
 //var port = chrome.runtime.connect(chrome.runtime.id, { name: 'snp-browser'});
 document.YTSNPisDeployed || ((async function () {
 	document.YTSNPisDeployed = true;
+	console.log("Playerjs injected");
 
 	function _injectScript(fn) {
 		var isFile = typeof fn !== 'function' && fn.endsWith(".js");
@@ -67,27 +68,34 @@ document.YTSNPisDeployed || ((async function () {
 		chrome.runtime.sendMessage({ func: 'seek', args: [range.value]});
 	});
 
+	var prevVal = 1;
 	volume.addEventListener("change", function () {
-		chrome.runtime.sendMessage({ func: 'volume', args: [volume.value], setting: 'volume', val: volume.value});
+		chrome.runtime.sendMessage({ func: 'volume', args: [volume.value], setting: 'volume', val: volume.value });
+		if (prevVal) {
+			chrome.runtime.sendMessage({ setting: 'muted', val: false });
+			prevVal = null;
+		}
 	});
 
-	var prevVal = 1;
 	mutebutton.addEventListener("click", function () {
-		chrome.runtime.sendMessage({ func: 'toggleMute' });
+		chrome.runtime.sendMessage({ func: 'toggleMute', setting: 'muted', val: volume.value > 0 });
 		if (volume.value > 0) {
 			prevVal = volume.value;
 			volume.value = 0;
 		}
 		else
+		{
 			volume.value = prevVal;
+			prevVal = null;			
+		}
 	});
 
 
 	var pauseplay = document.querySelector("#YTSNP-pauseplay");
 	var playUI = function (pause) {
 		pause = pause + 0;
-		var button1 = pauseplay.querySelector(pause == 3 ? "svg:not(.hidden)" : "svg." + (pause == 1 ? "play" : "pause"));
-		var button2 = pauseplay.querySelector(pause == 3 ? "svg.hidden" : "svg." + (pause == 0 ? "play" : "pause"));
+		var button1 = pauseplay.querySelector(pause == 3 ? "svg:not(.hidden)" : "svg." + (pause == 0 ? "play" : "pause"));
+		var button2 = pauseplay.querySelector(pause == 3 ? "svg.hidden" : "svg." + (pause == 1 ? "play" : "pause"));
 		button1.classList.add("hidden");
 		button2.classList.remove("hidden");
 	};
@@ -99,6 +107,18 @@ document.YTSNPisDeployed || ((async function () {
 	// Drag n drop of the player
 	var target = null;
 	var offset = {};
+
+	var setPosition = function (t, x, y) {
+		let target = t || target;
+		if (target) {
+			target.style.left = Math.min(Math.max(x, 0), window.innerWidth - target.clientWidth) + "px";
+			target.style.top = Math.min(Math.max(y, 0), window.innerHeight - target.clientHeight) + "px";
+		}
+	};
+
+	window.addEventListener("resize", function () {
+		setPosition(container, parseFloat(container.style.left), parseFloat(container.style.top));
+	});
 
 	container.addEventListener("mousedown", function (ev) {
 		target = container;
@@ -112,20 +132,17 @@ document.YTSNPisDeployed || ((async function () {
 			document.dispatchEvent(new Event("mouseup"));
 			return;
 		}
-		if (target) {
-			target.style.left = Math.min(Math.max(ev.clientX - offset.x, 0), window.innerWidth - target.clientWidth) + "px";
-			target.style.top = Math.min(Math.max(ev.clientY - offset.y, 0), window.innerHeight - target.clientHeight) + "px";
-		}
+		setPosition(target, ev.clientX - offset.x, ev.clientY - offset.y);
 	});
 
 	container.addEventListener("mouseup", function (ev) {
 		if (target)
-			chrome.runtime.sendMessage({ setting: 'move', val: [target.style.left, target.style.top]});
+			chrome.runtime.sendMessage({ setting: 'move', val: [parseFloat(target.style.left), parseFloat(target.style.top)]});
 		target = null;
 	});
 
 	var videoEl = null;
-	var stateVars = ["currentTime", "paused", "volume"];
+	var stateVars = ["currentTime", "paused", "volume", "muted"];
 	this.getCurrentState = function() {
 		let resp = {};
 		for (let idx in stateVars) {
@@ -146,10 +163,12 @@ document.YTSNPisDeployed || ((async function () {
 		}
 
 		state.paused ? videoEl.pause() : videoEl.play();
-		playUI(state.paused);
-		_injectScript(function () {
+		_injectScript(function (volume, mute) {
+			if (mute === "true") circularify.ytapi.getPlayer().mute();
+			else circularify.ytapi.getPlayer().unMute();
+			circularify.ytapi.getPlayer().setVolume(volume * 100);
 			circularify.ytapi.getPlayer().setAutonav(true);
-		});
+		}, state.volume, state.muted);
 	}
 
 	this.updateTime = function(time, duration) {
@@ -175,9 +194,9 @@ document.YTSNPisDeployed || ((async function () {
 			videoImg.src = message.image || message.settings.lastFrame;
 		}
 		if (message.settings) {
-			volume.value = message.settings.volume;
-			container.style.left = message.settings.move[0];
-			container.style.top = message.settings.move[1];
+			playUI(message.settings.paused);
+			volume.value = message.settings.volume * !message.settings.muted;
+			setPosition(container, message.settings.move[0], message.settings.move[1]);
 			videoImg.parentNode.classList.toggle("hide", !message.settings.playerVisible || !message.settings.started);
 		}
 	});
