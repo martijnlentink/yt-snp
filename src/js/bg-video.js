@@ -145,7 +145,7 @@
 
             // Upon updating settings write it to localStorage
             if (message.setting) {
-                setSetting(message.setting, message.val);
+                setSetting(message.setting, message.val, message.propagate || false);
             }
         });
         
@@ -228,10 +228,10 @@
         counter++;
         // If current URL is YT then get the video
         var vid = circularify.ytapi.getVideoId(tab.url);
-        setSetting("playerVisible", !vid);
 
         // Continue playing video after tab switch
         if (vidTabId && vidTabId != tab.id && previousTab == vidTabId) {
+            setSetting("playerVisible", !vid);
             if (vid == null) {
                 getCurrentState(vidTabId).then(async function (state) {
                     if (!state)
@@ -262,19 +262,16 @@
             pushTabId = tab.id;
 
             if (vid) {
+                setSetting("playerVisible", false);
                 // If we are playing a video, this means we need to remove
                 // the small player and continue in the page. So we check
                 // if vidTabId is set and sync the video to the right moment.
                 if (vidTabId) {
-                    if (vid == vidId) {
+                    if (vid == vidId)
                         syncState(vidTabId);
-                        circularify.snp.backgroundPlayer.pauseVideo();
-                    }
                     else
-                    {
                         setSetting("started", false, true);
-                        circularify.snp.backgroundPlayer.pauseVideo();
-                    }
+                    circularify.snp.backgroundPlayer.pauseVideo();
                 }
                 chrome.tabs.update(tab.id, { muted: false });
 
@@ -283,8 +280,9 @@
                 vidTabId = pushTabId || tabs[0].id;
             }
 
-            // Notify the tab about the current settings
-            // chrome.tabs.sendMessage(pushTabId, { settings: settings }); 
+            // De onderstaande regel wordt momenteel alleen gebruikt zodat, wanneer de YT float wordt ge-force-closed
+            // Dat hij ook verdwijnt in andere tabbladen!
+            chrome.tabs.sendMessage(pushTabId, { settings: settings }); 
             chrome.tabs.executeScript(null, {file: 'js/player.js', runAt: 'document_start'});
             previousTab = tab.id;      
         }

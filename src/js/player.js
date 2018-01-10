@@ -39,6 +39,11 @@ document.YTSNPisDeployed || ((async function () {
 	var progress = document.getElementById('YTSNP-progressbar');
 	var mutebutton = document.querySelector("#YTSNP-mute");
 	var playtime = document.querySelector("#YTSNP-time");
+	var closeBtn = document.querySelector("#YTSNP-player-everywhere .close");
+
+	closeBtn.addEventListener("click", function () {
+		chrome.runtime.sendMessage({ setting: 'playerVisible', val: false, propagate: true, func: 'stopVideo' });
+	});
 
 	var secondsToTime = function secToTime (secs, total) {
 		var sec_num = parseInt(secs, 10); // don't forget the second param
