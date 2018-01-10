@@ -55,15 +55,18 @@ circularify.omni.page.injectScript(function () {
 		_navigateForward();
 	}
 
-	var oldFire = Polymer.Base.fire;
-	Polymer.Base.fire = function (ev) { console.log(ev);
-	if (ev === 'yt-player-requested' && circularify.ytsnp.shouldCornerize())
-		return new CustomEvent('fake');
-	// if (ev === 'yt-player-updated')
-	// 	debugger;
-	return oldFire.apply(this, arguments);
-	};
-
+	// Function that handles a navigation going back in history
+	function _navigateBackward(event) {
+		var url = _url;
+		if (circularify.ytsnp.shouldCornerize(url)) {
+			circularify.ytsnp.cornerize();
+		}
+		else {
+			circularify.ytapi.restoreTime(url);
+			circularify.ytsnp.decornerize();
+		}
+	}
+	
 	function _navigateForward(url) {
 		// Get the URL
 		url = _url || window.location.href;
@@ -150,4 +153,3 @@ circularify.omni.page.injectScript(function () {
 	
 	window.yttrcooldown = 0;
 });
-
