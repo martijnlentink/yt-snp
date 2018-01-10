@@ -5,6 +5,12 @@
 	"installNotification": {
 		"message": "A new update has been installed. Click here to check out the changelog."
 	},
+	"donateNotification": {
+		"message": "Like what we're doing? Consider to donate!"
+	},
+	"donateNotificationButton": {
+		"message": "Donate"
+	},
 	"popupMessage": {
 		"message": "Found a bug? Report it at the <a href='http://bugs.circularify.com' target='_blank'>Circularify Bug Tracker</a>."
 	},

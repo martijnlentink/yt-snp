@@ -58,6 +58,12 @@ body {
 		-webkit-appearance: button;
 	}
 	
+		.button > img {
+			width: 15px;
+			margin-right: 4px;
+			margin-left: -8px;
+		}
+	
 		.button-snp {
 			color: #fff;
 			background-color: #d52528;

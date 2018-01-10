@@ -89,22 +89,45 @@ chrome.webRequest.onBeforeRequest.addListener(
 			// Let's nicely return the JavaScript so that YouTube can access it
 			return {redirectUrl: "data:application/javascript," + encodeURIComponent(resp) };
 		}
-
-		if (details.url.indexOf("desktop_polymer.js") > -1) {
+		
+		// Fix for navigation
+		if (details.url.indexOf("spf.js") > -1) {
 			var xhr = new XMLHttpRequest();
 			xhr.open("GET", details.url, false);
 			xhr.send();
-			var resp = xhr.responseText;
+			var resp = xhr.responsetext;
+	
+			// look for pattern -- dynamically called
+			var regex2 = new regexp(/(function [a-za-z]\([a-za-z]\)\{var [a-za-z]\=new [a-za-z]{2};)/);
+	
+			// our own function
+			var replacestring = '$1 if (typeof (window.ytspnavigating) == "function") {try{window.ytspnavigating();}catch(error){}}';
+						
+			// add our own code and return
+			var result = resp.replace(regex2, replacestring); 
 
-			//update:function(a,b,c,d,e){this.updateSwfConfig_
-			var polyfix = new sourceReplacement("polymer-disable-newvid",
-				/(update\:function\(([a-z]\,){1,9}[a-z]\)\{)(this\.updateSwfConfig\_)/,
-				'$1if(circularify&&circularify.ytsnp&&circularify.ytsnp.shouldCornerize())return$3'
-			)
-			resp = polyfix.performReplace(resp);
-
-			return {redirectUrl: "data:application/javascript," + encodeURIComponent(resp) };
+			return {redirecturl: "data:application/javascript," + encodeuricomponent(result) };
 		}
+		
+		// if (details.url.indexOf("desktop_polymer.js" > -1)) {
+			// var xhr = new XMLHttpRequest();
+			// xhr.open("GET", details.url, false);
+			// xhr.send();
+			// var resp = xhr.responseText;
+			
+			// var regexs = [ new sourceReplacement("fix-player-functions",
+					// /for\(var ([a-z]) in ([a-z]).api\)\2.api\[\1\]=null;/,
+					// ""
+			// )];
+			
+			// for (var idx in regexs) {
+				// var currentRegex = regexs[idx];
+				// resp = currentRegex.performReplace(resp);
+			// }
+			
+			// // Let's nicely return the JavaScript so that YouTube can access it
+			// return {redirectUrl: "data:application/javascript," + encodeURIComponent(resp) };
+		// }
 	}
 	, 
 	{ urls: ["*://*.youtube.com/*"]},
@@ -124,6 +147,26 @@ chrome.runtime.onInstalled.addListener(function(details){
 		title: 'Seek \'n Play',
 		message: installMsg
 	}, null);
+		
+	// i18n donate messages
+	var donateMsg = chrome.i18n.getMessage("donateNotification");
+	var donateBtnMsg = chrome.i18n.getMessage("donateNotificationButton");
+	
+	// SHOW DONATE POPUP
+	setTimeout(function() {		
+ 		chrome.notifications.create("9999", {
+ 			type: 'basic',
+ 			iconUrl: chrome.extension.getURL('img/icon.128.png'),
+ 			title: 'Seek \'n Play',
+ 			message: donateMsg,
+ 			buttons: [
+ 				{
+ 					title: donateBtnMsg,
+ 			iconUrl: chrome.extension.getURL('img/paypal-logo.png'),
+ 				}
+ 			]
+ 		}, null);
+ 	}, 500);
 	
 	circularify.omni.analytics.registerEvent(details.reason, chrome.runtime.getManifest().version);
 	
@@ -135,14 +178,30 @@ chrome.runtime.onInstalled.addListener(function(details){
 chrome.notifications.onClicked.addListener(function(notificationId) {
 
 	// #SNP Update Notifications
-	if(notificationId == "9310") {
+	if (notificationId == "9310") {
 	
 		// Get version number and replace '.' with '-'
 		var vnr = chrome.app.getDetails().version.replace(/\./g, '-');
 	
-		// Navigate to our website
-		chrome.tabs.create({'url': 'http://circularify.com/release/snp/' + vnr });
+		// Register with analytics.
+ 		circularify.omni.analytics.registerEvent("notification-update-click-v" + vnr);
 	
+		// Navigate to our website
+		chrome.tabs.create({'url': 'http://circularify.com/release/snp/' + vnr });	
+	}
+});
+
+// Add Event Listener for Notifications
+chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex) {
+	
+	// #SNP Donate Button
+	if (notificationId == "9999") {
+		
+		// Register with analytics.
+ 		circularify.omni.analytics.registerEvent("notification-donate-click");
+		
+		// Navigate to the donate page.
+		chrome.tabs.create({'url': 'http://paypal.me/circularify' });	
 	}
 });
 

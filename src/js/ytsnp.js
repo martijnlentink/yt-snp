@@ -150,10 +150,9 @@ function ytsnp() {
 		
 		// Add an eventlistener on event 'click', so we can handle the closing
 		button.addEventListener('click', function (event) {
-			var playel = document.getElementById('player-api');
-			playel.removeAttribute("style");
-			//playel.childNodes[0].childNodes[0].removeAttribute("style");
-			playel.childNodes[0].childNodes[1].removeAttribute("style");
+			var playel = document.getElementById('movie_player');
+			playel.removeAttribute("style");			
+ 			playel.childNodes[0].childNodes[0].removeAttribute("style");
 			circularify.debug.log(playel);
 			var player = _getPlayer();
 			player.cueVideoById();
