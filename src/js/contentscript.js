@@ -20,6 +20,31 @@ circularify.omni.page.injectScript(function () {
 	// Every navigation we get notified by SPF what the new URL is
 	window.addEventListener("spfrequest", _spfrequest);
 	document.addEventListener("yt-navigate-finish", _spfrequest);
+
+	(function(send, open, setHeader) {
+
+		XMLHttpRequest.prototype.setRequestHeader = function (header, val) {
+			this._headers = this._headers || {};
+
+			this._headers[header] = val;
+
+			return setHeader.apply(this, arguments);
+		}
+
+		 XMLHttpRequest.prototype.open = function (method, url) {
+		    this._url = url;
+		    return open.apply(this, arguments);
+		};
+
+	    XMLHttpRequest.prototype.send = function(data) {
+	        if (this._headers && this._headers['X-SPF-Referer'] && this._headers['X-SPF-Previous'] !== document.location.href)
+	       		_spfrequest({ detail: { url: this._url }});
+
+	        return send.apply(this, arguments);
+	    };
+
+	})(XMLHttpRequest.prototype.send, XMLHttpRequest.prototype.open, XMLHttpRequest.prototype.setRequestHeader);
+
 	// Singles if snp is ready on the page
 	window.addEventListener("circReady", _circReady);
 	window.addEventListener("scroll", _outOfView);
@@ -69,7 +94,7 @@ circularify.omni.page.injectScript(function () {
 
 	var _isCornerizedOov = null;
 	function _outOfView() {
-		var target = document.getElementById("theater-background");
+		var target = document.getElementById("theater-background") || document.querySelector("h1.title");
 
 		if (target && _url.indexOf("watch?") > -1) {
 			var elementRect = target.getBoundingClientRect();
@@ -78,7 +103,7 @@ circularify.omni.page.injectScript(function () {
 
 			if (circularify && circularify.ytsnp) {
 				if (elementRect.bottom < 0) {
-					circularify.ytsnp.cornerize();
+					circularify.ytsnp.cornerize(false);
 				}
 				else {
 					circularify.ytsnp.decornerize();
@@ -88,6 +113,18 @@ circularify.omni.page.injectScript(function () {
 			_isCornerizedOov = elementRect.bottom < 0;
 		}
 	}
+
+	document.addEventListener("webkitfullscreenchange", function(event) {
+	    if (document.webkitFullscreenEnabled && document.webkitFullscreenElement && document.webkitFullscreenElement.classList.contains("html5-video-player")) {
+	        circularify.ytsnp.decornerize();
+	    }
+	    else
+	    {
+	    	if (circularify.ytsnp.shouldCornerize(document.location.href)) {
+				circularify.ytsnp.cornerize();
+			}
+	    }
+	});
 	
 	// Get the locally saved settings
 	function getSettings() {
@@ -105,7 +142,7 @@ circularify.omni.page.injectScript(function () {
 	
 
 	function _doesVideoIdMatchCurrent (video_id) {
-		return video_id == circularify.ytapi.getVideoId();
+		return video_id != circularify.ytapi.getPlayer().getVideoData().video_id;
 	};
 
 	function _circReady() {
@@ -116,4 +153,3 @@ circularify.omni.page.injectScript(function () {
 	
 	window.yttrcooldown = 0;
 });
-
