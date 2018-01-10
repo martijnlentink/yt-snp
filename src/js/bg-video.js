@@ -214,7 +214,8 @@
 
     chrome.tabs.onActivated.addListener(function (activeNfo) {
         chrome.tabs.query({ active: true }, function (tabs) {
-            _tabChanged(tabs[0]);
+            var currentTab = tabs.find(tab => tab.id === activeNfo.tabId);
+            _tabChanged(currentTab);
         });
     });
     // chrome.tabs.onCreated.addListener(_tabChanged);
