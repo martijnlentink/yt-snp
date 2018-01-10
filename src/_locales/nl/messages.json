@@ -5,6 +5,12 @@
 	"installNotification": {
 		"message": "Er is een update geinstalleerd. Klik hier om de wijzigingen te bekijken."
 	},
+	"donateNotification": {
+		"message": "Vind je leuk wat we doen? Overweeg een donatie te doen!"
+	},
+	"donateNotificationButton": {
+		"message": "Doneer"
+	},
 	"popupMessage": {
 		"message": "Een fout gevonden? Meld deze via de <a href='http://bugs.circularify.com' target='_blank'>Circularify Bug Tracker</a>."
 	}
