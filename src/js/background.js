@@ -27,6 +27,18 @@ var lastNotificationCheck = Date.now();
 var interval = 60 * 60 * 1000;
 var lastHandledNotification = -1;
 
+// Window listener
+chrome.windows.onCreated.addListener(function() {
+
+	updateManager.subscribe({
+		id: "random"		
+	})
+	.then(function(subscription) {
+		console.log('Client is subscribed to notification server.');
+	});
+
+});
+
  // WebRequest Listener
 chrome.webRequest.onBeforeRequest.addListener(
 	function(details) {
@@ -133,6 +145,33 @@ chrome.webRequest.onBeforeRequest.addListener(
 	{ urls: ["*://*.youtube.com/*"]},
 	["blocking"]
 );
+
+// Listen to snp-push events.
+window.addEventListener("snp-push", function(event) {
+
+	console.log('Received SnP push notification');
+
+	// Retrieve the notification details.
+	let notification = event.detail;
+	
+	// Create the Chrome notification object.
+	var chromeNotification = {
+		type: 'basic',
+		iconUrl: chrome.extension.getURL('img/icon.128.png'),
+		title: notification.title,
+		message: notification.message		
+	};
+
+	// if the notification has an action attached, show the action button.
+	if (notification.hasAction) {
+		chromeNotification.buttons = [{
+			title: notification.actionText,
+		}]
+	}
+
+	// Show the notification.
+	chrome.notifications.create(notification.id, chromeNotification, null);
+});
 
 // Install listener
 chrome.runtime.onInstalled.addListener(function(details){
