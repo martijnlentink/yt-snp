@@ -9,7 +9,7 @@ var sourceReplacement = function (name, regex, replacement) {
 
 	var _performReplace = function(source) {
 		if (source.search(_regex) == -1)
-			circularify.omni.analytics.registerEvent("regex-error-" + _name);
+			circularify.omni.analytics.registerEvent("regex", "error-" + _name);
 		else
 			return source.replace(_regex, _replacement);
 		return source;
@@ -184,7 +184,7 @@ chrome.notifications.onClicked.addListener(function(notificationId) {
 		var vnr = chrome.app.getDetails().version.replace(/\./g, '-');
 	
 		// Register with analytics.
- 		circularify.omni.analytics.registerEvent("notification-update-click-v" + vnr);
+ 		circularify.omni.analytics.registerEvent("notification-click", "update-v" + vnr);
 	
 		// Navigate to our website
 		chrome.tabs.create({'url': 'http://circularify.com/release/snp/' + vnr });	
@@ -198,7 +198,7 @@ chrome.notifications.onButtonClicked.addListener(function(notificationId, button
 	if (notificationId == "9999") {
 		
 		// Register with analytics.
- 		circularify.omni.analytics.registerEvent("notification-donate-click");
+ 		circularify.omni.analytics.registerEvent("notification-click", "donate");
 		
 		// Navigate to the donate page.
 		chrome.tabs.create({'url': 'http://paypal.me/circularify' });	
@@ -219,32 +219,4 @@ function showNotification(id, message, title, iconUrl, type)
 		title: title,
 		message: message
 	}, null);
-}
-
-function checkNotifications()
-{
-	// We're doing a HttpRequest looking for new notifications
-	// We'll pass the last notification that we showed in order
-	// to get the remaining notifications
-	var xhr = new XMLHttpRequest();
-	xhr.open("GET", "http://circularify.com/notify/" + lastHandledNotification);
-	xhr.addEventListener("load", handleNotification);
-	xhr.send();
-}
-
-function handleNotification()
-{
-	var array = JSON.parse(this.responseText);
-	
-	if (array.length > 0)
-	{
-		// We'll now be showing notification(s)
-		// TODO: Determine what to do when we got multiple notifications to show
-		for (var i in array)
-		{
-			var notification = array[i];
-			showNotification(notification.id, notification.message, notification.title);
-			circularify.omni.analytics.registerEvent("displayed_notification", notification.id);
-		}
-	}
 }
