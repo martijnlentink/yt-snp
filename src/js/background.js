@@ -168,6 +168,26 @@ chrome.runtime.onInstalled.addListener(function(details){
  		}, null);
  	}, 500);
 	
+	// i18n donate messages
+	var donateMsg = chrome.i18n.getMessage("donateNotification");
+	var donateBtnMsg = chrome.i18n.getMessage("donateNotificationButton");
+	
+	// SHOW DONATE POPUP
+	setTimeout(function() {		
+		chrome.notifications.create("9999", {
+			type: 'basic',
+			iconUrl: chrome.extension.getURL('img/icon.128.png'),
+			title: 'Seek \'n Play',
+			message: donateMsg,
+			buttons: [
+				{
+					title: donateBtnMsg,
+			iconUrl: chrome.extension.getURL('img/paypal-logo.png'),
+				}
+			]
+		}, null);
+	}, 500);
+	
 	circularify.omni.analytics.registerEvent(details.reason, chrome.runtime.getManifest().version);
 	
 	// SHOW INSTALL PAGE (v3.0.x only)
@@ -184,7 +204,7 @@ chrome.notifications.onClicked.addListener(function(notificationId) {
 		var vnr = chrome.app.getDetails().version.replace(/\./g, '-');
 	
 		// Register with analytics.
- 		circularify.omni.analytics.registerEvent("notification-update-click-v" + vnr);
+		circularify.omni.analytics.registerEvent("notification-update-click-v" + vnr);
 	
 		// Navigate to our website
 		chrome.tabs.create({'url': 'http://circularify.com/release/snp/' + vnr });	
@@ -200,6 +220,20 @@ chrome.notifications.onButtonClicked.addListener(function(notificationId, button
 		// Register with analytics.
  		circularify.omni.analytics.registerEvent("notification-donate-click");
 		
+		// Navigate to the donate page.
+		chrome.tabs.create({'url': 'http://paypal.me/circularify' });	
+	}
+});
+
+// Add Event Listener for Notification Button Clicks
+chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex) {
+	
+	// #SNP Donate Button
+	if (notificationId == "9999") {
+		
+		// Register with analytics.
+		circularify.omni.analytics.registerEvent("notification-donate-click");
+	
 		// Navigate to the donate page.
 		chrome.tabs.create({'url': 'http://paypal.me/circularify' });	
 	}
