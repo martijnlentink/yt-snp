@@ -1,0 +1,87 @@
+﻿@model Circularify.Notifier.ViewModels.NotificationViewModelEntity
+
+@{
+    ViewBag.Title = "New Notification";
+}
+
+<h2>@ViewBag.Title</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Message, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.Message, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Message, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+                <div class="checkbox">
+                    <input type="checkbox" id="HasAction" name="HasAction" style="margin-left: 0px; margin-top: 11px; position: absolute" />
+                    @Html.LabelFor(model => model.HasAction, htmlAttributes: new { @class = "control-label", style = "margin-left: 10px; font-weight: bold" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ActionText, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.ActionText, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.ActionText, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ActionUrl, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.ActionUrl, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.ActionUrl, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+    // Initial setup.
+    $(document).ready(function () {
+        //set initial state.
+        $('#ActionText').attr('disabled', !this.checked);
+        $('#ActionUrl').attr('disabled', !this.checked);
+    });
+
+    // Checkbox change.
+    $('#HasAction').change(function () {
+        if (this.checked) {
+            console.log('Checked');
+            $('#ActionText').attr('disabled', false);
+            $('#ActionUrl').attr('disabled', false);
+        } else {
+            console.log('Unchecked');
+            $('#ActionText').attr('disabled', true);
+            $('#ActionUrl').attr('disabled', true);
+        }
+    });
+</script>
