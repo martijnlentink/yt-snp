@@ -2,12 +2,15 @@
  * Seek 'n Play is an application developed by Circularify
  */
 
+var registrationId;
+var senderId = "88754012915";
+
 var sourceReplacement = function (name, regex, replacement) {
 	var _name = name;
 	var _regex = regex;
 	var _replacement = replacement;
 
-	var _performReplace = function(source) {
+	var _performReplace = function (source) {
 		if (source.search(_regex) == -1)
 			circularify.omni.analytics.registerEvent("regex-error-" + _name);
 		else
@@ -22,36 +25,14 @@ var sourceReplacement = function (name, regex, replacement) {
 		performReplace: _performReplace
 	};
 }
- 
-var lastNotificationCheck = Date.now();
-var interval = 60 * 60 * 1000;
-var lastHandledNotification = -1;
 
-// Window listener
-chrome.windows.onCreated.addListener(function() {
-
-	updateManager.subscribe({
-		id: "random"		
-	})
-	.then(function(subscription) {
-		console.log('Client is subscribed to notification server.');
-	});
-
-});
-
- // WebRequest Listener
+// WebRequest Listener
 chrome.webRequest.onBeforeRequest.addListener(
-	function(details) {
-	// Remove false when we're using this again!
-		if (false && Date.now() - lastNotificationCheck >= interval)
-		{
-			lastnotificationcheck = Date.now();
-			checkNotifications();
-		}
-	
+	function (details) {
+
 		// Whilst using the HTML5 player, do:
 		if (details.url.match(/player.*\/base\.js/)) {
-		
+
 			// Let, just, me, get that YT API JavaScript file
 			var xhr = new XMLHttpRequest();
 			xhr.open("GET", details.url, false);
@@ -97,84 +78,57 @@ chrome.webRequest.onBeforeRequest.addListener(
 				var currentRegex = regexs[idx];
 				resp = currentRegex.performReplace(resp);
 			}
-			
+
 			// Let's nicely return the JavaScript so that YouTube can access it
-			return {redirectUrl: "data:application/javascript," + encodeURIComponent(resp) };
+			return { redirectUrl: "data:application/javascript," + encodeURIComponent(resp) };
 		}
-		
+
 		// Fix for navigation
 		if (details.url.indexOf("spf.js") > -1) {
 			var xhr = new XMLHttpRequest();
 			xhr.open("GET", details.url, false);
 			xhr.send();
 			var resp = xhr.responsetext;
-	
+
 			// look for pattern -- dynamically called
 			var regex2 = new regexp(/(function [a-za-z]\([a-za-z]\)\{var [a-za-z]\=new [a-za-z]{2};)/);
-	
+
 			// our own function
 			var replacestring = '$1 if (typeof (window.ytspnavigating) == "function") {try{window.ytspnavigating();}catch(error){}}';
-						
-			// add our own code and return
-			var result = resp.replace(regex2, replacestring); 
 
-			return {redirecturl: "data:application/javascript," + encodeuricomponent(result) };
+			// add our own code and return
+			var result = resp.replace(regex2, replacestring);
+
+			return { redirecturl: "data:application/javascript," + encodeuricomponent(result) };
 		}
-		
+
 		// if (details.url.indexOf("desktop_polymer.js" > -1)) {
-			// var xhr = new XMLHttpRequest();
-			// xhr.open("GET", details.url, false);
-			// xhr.send();
-			// var resp = xhr.responseText;
-			
-			// var regexs = [ new sourceReplacement("fix-player-functions",
-					// /for\(var ([a-z]) in ([a-z]).api\)\2.api\[\1\]=null;/,
-					// ""
-			// )];
-			
-			// for (var idx in regexs) {
-				// var currentRegex = regexs[idx];
-				// resp = currentRegex.performReplace(resp);
-			// }
-			
-			// // Let's nicely return the JavaScript so that YouTube can access it
-			// return {redirectUrl: "data:application/javascript," + encodeURIComponent(resp) };
+		// var xhr = new XMLHttpRequest();
+		// xhr.open("GET", details.url, false);
+		// xhr.send();
+		// var resp = xhr.responseText;
+
+		// var regexs = [ new sourceReplacement("fix-player-functions",
+		// /for\(var ([a-z]) in ([a-z]).api\)\2.api\[\1\]=null;/,
+		// ""
+		// )];
+
+		// for (var idx in regexs) {
+		// var currentRegex = regexs[idx];
+		// resp = currentRegex.performReplace(resp);
+		// }
+
+		// // Let's nicely return the JavaScript so that YouTube can access it
+		// return {redirectUrl: "data:application/javascript," + encodeURIComponent(resp) };
 		// }
 	}
-	, 
-	{ urls: ["*://*.youtube.com/*"]},
+	,
+	{ urls: ["*://*.youtube.com/*"] },
 	["blocking"]
 );
 
-// Listen to snp-push events.
-window.addEventListener("snp-push", function(event) {
-
-	console.log('Received SnP push notification');
-
-	// Retrieve the notification details.
-	let notification = event.detail;
-	
-	// Create the Chrome notification object.
-	var chromeNotification = {
-		type: 'basic',
-		iconUrl: chrome.extension.getURL('img/icon.128.png'),
-		title: notification.title,
-		message: notification.message		
-	};
-
-	// if the notification has an action attached, show the action button.
-	if (notification.hasAction) {
-		chromeNotification.buttons = [{
-			title: notification.actionText,
-		}]
-	}
-
-	// Show the notification.
-	chrome.notifications.create(notification.id, chromeNotification, null);
-});
-
 // Install listener
-chrome.runtime.onInstalled.addListener(function(details){
+chrome.runtime.onInstalled.addListener(function (details) {
 
 	// i18n install message
 	var installMsg = chrome.i18n.getMessage("installNotification");
@@ -186,72 +140,71 @@ chrome.runtime.onInstalled.addListener(function(details){
 		title: 'Seek \'n Play',
 		message: installMsg
 	}, null);
-		
+
 	// i18n donate messages
 	var donateMsg = chrome.i18n.getMessage("donateNotification");
 	var donateBtnMsg = chrome.i18n.getMessage("donateNotificationButton");
-	
+
 	// SHOW DONATE POPUP
-	setTimeout(function() {		
- 		chrome.notifications.create("9999", {
- 			type: 'basic',
- 			iconUrl: chrome.extension.getURL('img/icon.128.png'),
- 			title: 'Seek \'n Play',
- 			message: donateMsg,
- 			buttons: [
- 				{
- 					title: donateBtnMsg,
- 			iconUrl: chrome.extension.getURL('img/paypal-logo.png'),
- 				}
- 			]
- 		}, null);
- 	}, 500);
-	
+	setTimeout(function () {
+		chrome.notifications.create("9999", {
+			type: 'basic',
+			iconUrl: chrome.extension.getURL('img/icon.128.png'),
+			title: 'Seek \'n Play',
+			message: donateMsg,
+			buttons: [
+				{
+					title: donateBtnMsg,
+					iconUrl: chrome.extension.getURL('img/paypal-logo.png'),
+				}
+			]
+		}, null);
+	}, 500);
+
 	circularify.omni.analytics.registerEvent(details.reason, chrome.runtime.getManifest().version);
-	
+
 	// SHOW INSTALL PAGE (v3.0.x only)
-	chrome.tabs.create({ "url": "html/startup.html"});
+	chrome.tabs.create({ "url": "html/startup.html" });
 });
 
 // Add Event Listener for Notifications
-chrome.notifications.onClicked.addListener(function(notificationId) {
+chrome.notifications.onClicked.addListener(function (notificationId) {
 
 	// #SNP Update Notifications
 	if (notificationId == "9310") {
-	
+
 		// Get version number and replace '.' with '-'
 		var vnr = chrome.app.getDetails().version.replace(/\./g, '-');
-	
+
 		// Register with analytics.
- 		circularify.omni.analytics.registerEvent("notification-update-click-v" + vnr);
-	
+		circularify.omni.analytics.registerEvent("notification-update-click-v" + vnr);
+
 		// Navigate to our website
-		chrome.tabs.create({'url': 'http://circularify.com/release/snp/' + vnr });	
+		chrome.tabs.create({ 'url': 'http://circularify.com/release/snp/' + vnr });
 	}
 });
 
 // Add Event Listener for Notifications
-chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex) {
-	
+chrome.notifications.onButtonClicked.addListener(function (notificationId, buttonIndex) {
+
 	// #SNP Donate Button
 	if (notificationId == "9999") {
-		
+
 		// Register with analytics.
- 		circularify.omni.analytics.registerEvent("notification-donate-click");
-		
+		circularify.omni.analytics.registerEvent("notification-donate-click");
+
 		// Navigate to the donate page.
-		chrome.tabs.create({'url': 'http://paypal.me/circularify' });	
+		chrome.tabs.create({ 'url': 'http://paypal.me/circularify' });
 	}
 });
 
-function showNotification(id, message, title, iconUrl, type)
-{
+function showNotification(id, message, title, iconUrl, type) {
 	title = title || 'Seek \'n Play';
 	iconUrl = iconUrl || 'img/icon.128.png';
 	if (!iconUrl.indexOf("://"))
 		iconUrl = chrome.extension.getURL(iconUrl);
 	type = type || 'basic';
-	
+
 	chrome.notifications.create(id, {
 		type: type,
 		iconUrl: iconUrl,
@@ -260,30 +213,159 @@ function showNotification(id, message, title, iconUrl, type)
 	}, null);
 }
 
-function checkNotifications()
-{
-	// We're doing a HttpRequest looking for new notifications
-	// We'll pass the last notification that we showed in order
-	// to get the remaining notifications
-	var xhr = new XMLHttpRequest();
-	xhr.open("GET", "http://circularify.com/notify/" + lastHandledNotification);
-	xhr.addEventListener("load", handleNotification);
-	xhr.send();
+function messageReceived(notification) {
+
+	console.log('Received SnP push notification', notification);
+
+	// // Create the Chrome notification object.
+	// let chromeNotification = {
+	// 	type: 'basic',
+	// 	iconUrl: chrome.extension.getURL('img/icon.128.png'),
+	// 	title: notification.title,
+	// 	message: notification.message
+	// };
+
+	// // if the notification has an action attached, show the action button.
+	// if (notification.hasAction) {
+	// 	chromeNotification.buttons = [{
+	// 		title: notification.actionText,
+	// 	}]
+	// }
+
+	// // Show the notification.
+	// chrome.notifications.create(notification.id, chromeNotification, null);
 }
 
-function handleNotification()
-{
-	var array = JSON.parse(this.responseText);
-	
-	if (array.length > 0)
-	{
-		// We'll now be showing notification(s)
-		// TODO: Determine what to do when we got multiple notifications to show
-		for (var i in array)
-		{
-			var notification = array[i];
-			showNotification(notification.id, notification.message, notification.title);
-			circularify.omni.analytics.registerEvent("displayed_notification", notification.id);
+function firstTimeRegistration() {
+	// Retrieve if the client is already registered.
+	let isRegistered = window.localStorage.getItem("registered");
+
+	// If the above result is undefined, the user is not yet registered.
+	if (isRegistered === null) {
+
+		// Register the client to GCM.
+		chrome.gcm.register([senderId], registerCallback);
+
+		// Register with Notificaion Hub.
+		registerNH();
+	}
+}
+
+function registerCallback(regId) {
+
+	// If an error occurred, log it.
+	if (chrome.runtime.lastError) {
+		console.error('An error occurred while registering with GCM: ', chrome.runtime.lastError.message);
+	} else {
+		// Set that the client is registered.
+		console.log("Registered with GCM.");
+		window.localStorage.setItem("registered", true);
+
+		// Save the registration id locally.
+		registrationId = regId;
+	}
+}
+
+function registerNH() {
+	// Split the connection string.
+	let uri = splitConnectionString("Endpoint=sb://nh-seek-n-play.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=REDACTED");
+
+	// Generate a SAS token.
+	let sasToken = generateSaSToken(uri);
+
+	// Register with Notification Hub.
+	sendNHRegistrationRequest(uri, sasToken);
+}
+
+// Setup the listener.
+chrome.gcm.onMessage.addListener(messageReceived);
+
+// Register the client to the hub on installation, and on startup.
+chrome.runtime.onInstalled.addListener(firstTimeRegistration);
+chrome.runtime.onStartup.addListener(firstTimeRegistration);
+
+
+// Notification Hub Helpers.
+function splitConnectionString(connectionString) {
+	var parts = connectionString.split(';');
+	if (parts.length != 3)
+		throw "Error parsing connection string";
+
+	parts.forEach(function (part) {
+		if (part.indexOf('Endpoint') == 0) {
+			endpoint = 'https' + part.substring(11);
+		} else if (part.indexOf('SharedAccessKeyName') == 0) {
+			sasKeyName = part.substring(20);
+		} else if (part.indexOf('SharedAccessKey') == 0) {
+			sasKeyValue = part.substring(16);
 		}
+	});
+
+	return endpoint + "NH-Seek-n-Play";
+}
+
+function generateSaSToken(uri) {
+	targetUri = encodeURIComponent(uri.toLowerCase()).toLowerCase();
+	var expiresInMins = 10; // 10 minute expiration
+
+	// Set expiration in seconds.
+	var expireOnDate = new Date();
+	expireOnDate.setMinutes(expireOnDate.getMinutes() + expiresInMins);
+	var expires = Date.UTC(expireOnDate.getUTCFullYear(), expireOnDate
+		.getUTCMonth(), expireOnDate.getUTCDate(), expireOnDate
+			.getUTCHours(), expireOnDate.getUTCMinutes(), expireOnDate
+				.getUTCSeconds()) / 1000;
+	var tosign = targetUri + '\n' + expires;
+
+	// Using CryptoJS.
+	var signature = CryptoJS.HmacSHA256(tosign, sasKeyValue);
+	var base64signature = signature.toString(CryptoJS.enc.Base64);
+	var base64UriEncoded = encodeURIComponent(base64signature);
+
+	// Construct authorization string.
+	return "SharedAccessSignature sr=" + targetUri + "&sig=" + base64UriEncoded + "&se=" + expires + "&skn=" + sasKeyName;
+}
+
+function sendNHRegistrationRequest(uri, sasToken) {
+	var registrationPayload =
+		"<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+		"<entry xmlns=\"http://www.w3.org/2005/Atom\">" +
+		"<content type=\"application/xml\">" +
+		"<GcmRegistrationDescription xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://schemas.microsoft.com/netservices/2010/10/servicebus/connect\">" +
+		"<GcmRegistrationId>{GCMRegistrationId}</GcmRegistrationId>" +
+		"</GcmRegistrationDescription>" +
+		"</content>" +
+		"</entry>";
+
+	// Update the payload with the registration ID obtained earlier.
+	registrationPayload = registrationPayload.replace("{GCMRegistrationId}", registrationId);
+
+	var url = uri + "/registrations/?api-version=2014-09";
+	var client = new XMLHttpRequest();
+
+	client.onload = function () {
+		if (client.readyState == 4) {
+			if (client.status == 200) {
+				console.info("Registered with Notification Hub Registration.");
+			} else {
+				console.error("Error while registering with Notification Hub.");
+			}
+		}
+	};
+
+	client.onerror = function () {
+		console.error("ERROR - Notification Hub Registration did not succeed!");
+	}
+
+	client.open("POST", url, true);
+	client.setRequestHeader("Content-Type", "application/atom+xml;type=entry;charset=utf-8");
+	client.setRequestHeader("Authorization", sasToken);
+	client.setRequestHeader("x-ms-version", "2014-09");
+
+	try {
+		client.send(registrationPayload);
+	}
+	catch (err) {
+		console.error('An error occurred while registering with Azure:', err);
 	}
 }
