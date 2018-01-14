@@ -198,42 +198,30 @@ chrome.notifications.onButtonClicked.addListener(function (notificationId, butto
 	}
 });
 
-function showNotification(id, message, title, iconUrl, type) {
-	title = title || 'Seek \'n Play';
-	iconUrl = iconUrl || 'img/icon.128.png';
-	if (!iconUrl.indexOf("://"))
-		iconUrl = chrome.extension.getURL(iconUrl);
-	type = type || 'basic';
+function messageReceived(message) {
 
-	chrome.notifications.create(id, {
-		type: type,
-		iconUrl: iconUrl,
-		title: title,
-		message: message
-	}, null);
-}
+	console.log('Received SnP push notification', message);
 
-function messageReceived(notification) {
+	// Retrieve the notification body.
+	let notification = message.data;
 
-	console.log('Received SnP push notification', notification);
+	// Create the Chrome notification object.
+	let chromeNotification = {
+		type: 'basic',
+		iconUrl: chrome.extension.getURL('img/icon.128.png'),
+		title: notification.title,
+		message: notification.message
+	};
 
-	// // Create the Chrome notification object.
-	// let chromeNotification = {
-	// 	type: 'basic',
-	// 	iconUrl: chrome.extension.getURL('img/icon.128.png'),
-	// 	title: notification.title,
-	// 	message: notification.message
-	// };
+	// if the notification has an action attached, show the action button.
+	if (notification.hasAction !== "false") {
+		chromeNotification.buttons = [{
+			title: notification.actionText
+		}]
+	}
 
-	// // if the notification has an action attached, show the action button.
-	// if (notification.hasAction) {
-	// 	chromeNotification.buttons = [{
-	// 		title: notification.actionText,
-	// 	}]
-	// }
-
-	// // Show the notification.
-	// chrome.notifications.create(notification.id, chromeNotification, null);
+	// Show the notification.
+	chrome.notifications.create(notification.id, chromeNotification, null);
 }
 
 function firstTimeRegistration() {
@@ -245,9 +233,6 @@ function firstTimeRegistration() {
 
 		// Register the client to GCM.
 		chrome.gcm.register([senderId], registerCallback);
-
-		// Register with Notificaion Hub.
-		registerNH();
 	}
 }
 
@@ -257,12 +242,16 @@ function registerCallback(regId) {
 	if (chrome.runtime.lastError) {
 		console.error('An error occurred while registering with GCM: ', chrome.runtime.lastError.message);
 	} else {
-		// Set that the client is registered.
 		console.log("Registered with GCM.");
-		window.localStorage.setItem("registered", true);
 
 		// Save the registration id locally.
 		registrationId = regId;
+
+		// Register with Notificaion Hub.
+		registerNH();
+
+		// Set that the client is registered.
+		window.localStorage.setItem("registered", true);
 	}
 }
 
@@ -346,7 +335,7 @@ function sendNHRegistrationRequest(uri, sasToken) {
 	client.onload = function () {
 		if (client.readyState == 4) {
 			if (client.status == 200) {
-				console.info("Registered with Notification Hub Registration.");
+				console.info("Registered with Notification Hub.");
 			} else {
 				console.error("Error while registering with Notification Hub.");
 			}
