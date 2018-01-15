@@ -2,6 +2,11 @@
  * Seek 'n Play is an application developed by Circularify
  */
 
+// Debugging property.
+circularify = circularify || {}
+circularify.debugging = false;
+
+// GCM Configuration.
 var registrationId;
 var senderId = "88754012915";
 
@@ -26,7 +31,9 @@ var sourceReplacement = function (name, regex, replacement) {
 	};
 }
 
-// WebRequest Listener
+/*
+	WebRequest Listener
+*/
 chrome.webRequest.onBeforeRequest.addListener(
 	function (details) {
 
@@ -127,7 +134,9 @@ chrome.webRequest.onBeforeRequest.addListener(
 	["blocking"]
 );
 
-// Install listener
+/*
+	Install listener
+*/
 chrome.runtime.onInstalled.addListener(function (details) {
 
 	// i18n install message
@@ -167,7 +176,9 @@ chrome.runtime.onInstalled.addListener(function (details) {
 	chrome.tabs.create({ "url": "html/startup.html" });
 });
 
-// Add Event Listener for Notifications
+/*
+	Add Event Listener for Notifications.
+*/
 chrome.notifications.onClicked.addListener(function (notificationId) {
 
 	// #SNP Update Notifications
@@ -184,7 +195,9 @@ chrome.notifications.onClicked.addListener(function (notificationId) {
 	}
 });
 
-// Add Event Listener for Notifications
+/* 
+	Add Event Listener for Notifications.
+*/
 chrome.notifications.onButtonClicked.addListener(function (notificationId, buttonIndex) {
 
 	// #SNP Donate Button
@@ -198,6 +211,28 @@ chrome.notifications.onButtonClicked.addListener(function (notificationId, butto
 	}
 });
 
+/*
+	Check wether the received notification should be shown.
+*/
+function shouldShowNotification(isProduction) {
+
+	// Production messages should always be shown!
+	if (isProduction === "true") {
+		return true;
+	}
+
+	// If debugging is enabled, then always show any message.
+	if (circularify.debugging == true) {
+		return true;
+	}
+
+	// Default case: false.
+	return false;
+}
+
+/*
+	GCM Message Received Event Handler.
+*/
 function messageReceived(message) {
 
 	console.log('Received SnP push notification', message);
@@ -205,25 +240,32 @@ function messageReceived(message) {
 	// Retrieve the notification body.
 	let notification = message.data;
 
-	// Create the Chrome notification object.
-	let chromeNotification = {
-		type: 'basic',
-		iconUrl: chrome.extension.getURL('img/icon.128.png'),
-		title: notification.title,
-		message: notification.message
-	};
+	// Check wether the notification should be processed and shown.
+	if (shouldShowNotification(notification.isProduction)) {
 
-	// if the notification has an action attached, show the action button.
-	if (notification.hasAction !== "false") {
-		chromeNotification.buttons = [{
-			title: notification.actionText
-		}]
+		// Create the Chrome notification object.
+		let chromeNotification = {
+			type: 'basic',
+			iconUrl: chrome.extension.getURL('img/icon.128.png'),
+			title: notification.title,
+			message: notification.message
+		};
+
+		// if the notification has an action attached, show the action button.
+		if (notification.hasAction !== "false") {
+			chromeNotification.buttons = [{
+				title: notification.actionText
+			}]
+		}
+
+		// Show the notification.
+		chrome.notifications.create(notification.id, chromeNotification, null);
 	}
-
-	// Show the notification.
-	chrome.notifications.create(notification.id, chromeNotification, null);
 }
 
+/*
+	Method handling the first time registration to GCM.
+*/
 function firstTimeRegistration() {
 	// Retrieve if the client is already registered.
 	let isRegistered = window.localStorage.getItem("registered");
@@ -236,6 +278,9 @@ function firstTimeRegistration() {
 	}
 }
 
+/*
+	Method handling the GCM registration callback.
+*/
 function registerCallback(regId) {
 
 	// If an error occurred, log it.

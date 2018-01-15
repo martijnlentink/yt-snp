@@ -23,3 +23,7 @@
 h2 {
     margin-bottom: 20px;
 }
+
+.link-delete {
+    cursor: pointer;
+}

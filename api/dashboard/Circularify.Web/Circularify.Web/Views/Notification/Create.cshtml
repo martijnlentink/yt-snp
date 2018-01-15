@@ -75,23 +75,25 @@
 }
 
 <script>
+    var hasAction = false;
+
     // Initial setup.
     $(document).ready(function () {
         //set initial state.
-        let isChecked = $('#HasAction').val() == "true";
+        let isChecked = $('input[type=hidden][name=HasAction]').val() == "true";
 
+        hasAction = isChecked;
         $('#ActionText').attr('disabled', !isChecked);
         $('#ActionUrl').attr('disabled', !isChecked);
     });
 
     // Checkbox change.
     $('#HasAction').change(function () {
+        
         if (this.checked) {
-            console.log('Checked');
             $('#ActionText').attr('disabled', false);
             $('#ActionUrl').attr('disabled', false);
         } else {
-            console.log('Unchecked');
             $('#ActionText').attr('disabled', true);
             $('#ActionUrl').attr('disabled', true);
         }

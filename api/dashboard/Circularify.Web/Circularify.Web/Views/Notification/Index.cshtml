@@ -47,7 +47,7 @@
                     @if (item.HasAction)
                     {
                         <td>
-                            @item.ActionText (@item.ActionUrl.Substring(0, 20)...)
+                            @item.ActionText (<a href="@item.ActionUrl" target="_blank">@item.ActionUrl.Substring(0, 20)...</a>)
                         </td>
                     }
                     else
@@ -57,7 +57,7 @@
                         </td>
                     }
                     <td>
-                        <a onclick="Delete(@item.NotificationId)">Delete</a>
+                        <a class="link-delete" onclick="Delete(@item.NotificationId)">Delete</a>
                     </td>
                 </tr>
             }

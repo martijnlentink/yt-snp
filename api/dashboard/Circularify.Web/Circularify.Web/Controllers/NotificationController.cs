@@ -34,6 +34,7 @@ namespace Circularify.Web.Controllers
                     NotificationId = nof.NotificationId,
                     Title = nof.Title,
                     Message = nof.Message,
+                    IsProduction = nof.IsProduction,
                     HasAction = nof.HasAction,
                     ActionText = nof.ActionText,
                     ActionUrl = nof.ActionUrl
