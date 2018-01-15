@@ -19,3 +19,7 @@
 .no-hover > a:hover {
     color: #9d9d9d !important;
 }
+
+h2 {
+    margin-bottom: 20px;
+}

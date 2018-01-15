@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Mvc;
 
-namespace Circularify.Notifier
+namespace Circularify.Web
 {
     public class AuthorizationFilterAttribute : AuthorizeAttribute, IAuthorizationFilter
     {

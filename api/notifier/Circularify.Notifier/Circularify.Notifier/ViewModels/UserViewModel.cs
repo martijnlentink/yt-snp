@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Circularify.Notifier.ViewModels
+namespace Circularify.Web.ViewModels
 {
     public class UserViewModel
     {

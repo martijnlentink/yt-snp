@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Configuration;
 using System.Threading.Tasks;
-using Circularify.Notifier.Domain;
-using Circularify.Notifier.ViewModels;
+using Circularify.Web.Domain;
+using Circularify.Web.ViewModels;
 using Microsoft.Azure.NotificationHubs;
 using Newtonsoft.Json;
 
-namespace Circularify.Notifier.Managers
+namespace Circularify.Web.Managers
 {
     public class AzureNotificationHubManager
     {

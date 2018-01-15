@@ -1,7 +1,6 @@
-﻿using System.Web;
-using System.Web.Optimization;
+﻿using System.Web.Optimization;
 
-namespace Circularify.Notifier
+namespace Circularify.Web
 {
     public class BundleConfig
     {

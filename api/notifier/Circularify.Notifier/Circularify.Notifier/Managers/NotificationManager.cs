@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Circularify.Notifier.Db;
-using Circularify.Notifier.Db.Models;
-using Circularify.Notifier.Domain;
+using Circularify.Web.Db;
+using Circularify.Web.Db.Models;
+using Circularify.Web.Domain;
 
-namespace Circularify.Notifier.Managers
+namespace Circularify.Web.Managers
 {
     public class NotificationManager
     {
@@ -15,7 +15,7 @@ namespace Circularify.Notifier.Managers
             _db = DbInstance.Get;
         }
 
-        public List<NotificationMessageEntity> LoadNotifications()
+        public List<NotificationMessageEntity> LoadNotifications(int? max)
         {
             // Get all the notfications.
             var storedNotifications = _db.Notifications;
@@ -34,6 +34,13 @@ namespace Circularify.Notifier.Managers
                     ActionText = notification.ActionText,
                     ActionUrl = notification.ActionUrl
                 });
+            }
+
+            // If a max was given, return the last n.
+            if (max != null && max.HasValue)
+            {
+                model.Reverse();
+                model = model.Take(max.Value).ToList();
             }
 
             return model;

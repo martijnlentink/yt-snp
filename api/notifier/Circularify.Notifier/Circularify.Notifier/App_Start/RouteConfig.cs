@@ -1,7 +1,7 @@
 ﻿using System.Web.Mvc;
 using System.Web.Routing;
 
-namespace Circularify.Notifier
+namespace Circularify.Web
 {
     public class RouteConfig
     {
@@ -9,30 +9,50 @@ namespace Circularify.Notifier
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
+            #region Home Controller
+
             routes.MapRoute(
-               name: "Notify",
-               url: "notify",
-               defaults: new { controller = "Home", action = "Notify" });
+               name: "Home",
+               url: "",
+               defaults: new { controller = "Home", action = "Index" });
 
             routes.MapRoute(
                name: "About",
                url: "about",
                defaults: new { controller = "Home", action = "About" });
 
-            routes.MapRoute(
-               name: "Notify Redirect",
-               url: "notify/redirect",
-               defaults: new { controller = "Home", action = "NotifyRedirect" });
+            #endregion
+
+            #region Notification Controller
 
             routes.MapRoute(
-               name: "Delete",
-               url: "notify/delete/{id}",
-               defaults: new { controller = "Home", action = "NotifyDelete" });
+              name: "Notification Index",
+              url: "notifications",
+              defaults: new { controller = "Notification", action = "Index" });
 
             routes.MapRoute(
-               name: "Delete Redirect",
-               url: "delete/redirect",
-               defaults: new { controller = "Home", action = "DeleteRedirect" });
+               name: "Notification Create",
+               url: "notification/new",
+               defaults: new { controller = "Notification", action = "Create" });
+
+            routes.MapRoute(
+               name: "Notification Create Redirect",
+               url: "notification/new/redirect",
+               defaults: new { controller = "Notification", action = "CreateRedirect" });
+
+            routes.MapRoute(
+               name: "Notification Delete",
+               url: "notification/{id}/delete",
+               defaults: new { controller = "Notification", action = "Delete" });
+
+            routes.MapRoute(
+               name: "Notification Delete Redirect",
+               url: "notification/{id}/delete/redirect",
+               defaults: new { controller = "Notification", action = "DeleteRedirect" });
+
+            #endregion
+
+            #region User Controller
 
             routes.MapRoute(
                name: "Login",
@@ -43,6 +63,8 @@ namespace Circularify.Notifier
                name: "Logout",
                url: "logout",
                defaults: new { controller = "User", action = "Logout" });
+
+            #endregion
 
             routes.MapRoute(
                 name: "Default",

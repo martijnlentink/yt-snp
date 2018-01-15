@@ -1,8 +1,8 @@
 ﻿using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
-using Circularify.Notifier.Db.Models;
+using Circularify.Web.Db.Models;
 
-namespace Circularify.Notifier.Db
+namespace Circularify.Web.Db
 {
     public class NotifierDatabaseContext : DbContext
     {

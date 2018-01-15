@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Circularify.Notifier.Db.Models
+namespace Circularify.Web.Db.Models
 {
     public class User
     {
