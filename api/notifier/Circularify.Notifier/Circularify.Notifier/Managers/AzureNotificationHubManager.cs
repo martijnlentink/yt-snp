@@ -47,7 +47,7 @@ namespace Circularify.Notifier.Managers
                 // Save the notification in the database.
                 _notificationManager.SaveNotification(message.Data);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
             }
         }

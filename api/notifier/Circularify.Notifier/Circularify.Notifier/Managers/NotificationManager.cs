@@ -18,7 +18,7 @@ namespace Circularify.Notifier.Managers
         public List<NotificationMessageEntity> LoadNotifications()
         {
             // Get all the notfications.
-            var storedNotifications = _db.Notifications.ToList();
+            var storedNotifications = _db.Notifications;
 
             var model = new List<NotificationMessageEntity>();
 
