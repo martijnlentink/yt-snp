@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Circularify.Notifier.Db;
 using Circularify.Notifier.ViewModels;
 
@@ -44,6 +45,10 @@ namespace Circularify.Notifier.Managers
                 validatedUser.Password = model.Password;
                 validatedUser.LastLoggedIn = model.LastLoggedIn;
             }
+
+            // Update the lastLoggedIn.
+            userInDatabase.LastLoggedIn = DateTime.Now;
+            _db.SaveChanges();
 
             return validatedUser;
         }

@@ -12,6 +12,6 @@ namespace Circularify.Notifier.Db.Models
 
         public string Password { get; set; }
 
-        public DateTimeOffset LastLoggedIn { get; set; }
+        public DateTime? LastLoggedIn { get; set; }
     }
 }

@@ -13,9 +13,11 @@ namespace Circularify.Notifier.Domain
         [JsonProperty(PropertyName = "message")]
         public string Message { get; set; }
 
+        [JsonProperty(PropertyName = "isProduction")]
+        public bool IsProduction { get; set; }
+
         [JsonProperty(PropertyName = "hasAction")]
         public bool HasAction { get; set; }
-
         [JsonProperty(PropertyName = "actionText")]
         public string ActionText { get; set; }
 

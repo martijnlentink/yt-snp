@@ -14,7 +14,7 @@ namespace Circularify.Notifier.ViewModels
 
         // Private values below: (not shown in login).
 
-        public DateTimeOffset LastLoggedIn { get; set; }
+        public DateTime LastLoggedIn { get; set; }
 
         public bool IsValid { get; set; }
 

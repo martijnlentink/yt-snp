@@ -10,7 +10,10 @@ namespace Circularify.Notifier.ViewModels
         public string Title { get; set; }
         
         public string Message { get; set; }
-        
+
+        [Display(Name = "Is production")]
+        public bool IsProduction { get; set; }
+
         [Display(Name = "Has action")]
         public bool HasAction { get; set; }
 

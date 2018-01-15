@@ -15,7 +15,14 @@ namespace Circularify.Notifier.Controllers
 
         // GET: Login
         public ActionResult Login()
-        {
+        {            
+            // If the user is already logged in, redirect to home.
+            if (Session["Username"] != null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            ViewBag.IsLoginPage = true;
             return View();
         }
 
@@ -24,6 +31,8 @@ namespace Circularify.Notifier.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Login(UserViewModel model)
         {
+            ViewBag.IsLoginPage = true;
+
             if (ModelState.IsValid)
             {
                 var validatedUser = _userManager.ValidateUser(model);
@@ -33,10 +42,21 @@ namespace Circularify.Notifier.Controllers
                     Session["Username"] = model.Username;
                     Session["LastLogin"] = model.LastLoggedIn;
 
-                    RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Home");
                 }
                 else
                 {
+                    // User not known error.
+                    if (validatedUser.ErrorMessage[0] == "User is not in the system")
+                    {
+                        ModelState.AddModelError("Username", (validatedUser.ErrorMessage[0]));
+                    }
+                    else
+                    {
+                        // Wrong password error.
+                        ModelState.AddModelError("Password", (validatedUser.ErrorMessage[0]));
+                    }
+
                     return View(validatedUser);
                 }
             }
@@ -50,7 +70,7 @@ namespace Circularify.Notifier.Controllers
             Session.Remove("Username");
             Session.Remove("LastLogin");
 
-            // 
+            // Redirect to home.
             return RedirectToAction("Index", "Home");
         }
     }

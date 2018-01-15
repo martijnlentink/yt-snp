@@ -1,28 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
 using System.Web.Mvc;
 using Circularify.Notifier.Managers;
 using Circularify.Notifier.ViewModels;
 
 namespace Circularify.Notifier.Controllers
 {
-    //[AuthorizationFilter]
+    [AuthorizationFilter]
     public class HomeController : Controller
     {
-        private FileManager _fileManager;
+        private NotificationManager _notificationManager;
         private AzureNotificationHubManager _hubManager;
 
         public HomeController()
         {
-            _fileManager = new FileManager();
+            _notificationManager = new NotificationManager();
             _hubManager = new AzureNotificationHubManager();
         }
 
         public ActionResult Index()
         {
-            var storedNotifications = _fileManager.LoadNotifications();
+            var storedNotifications = _notificationManager.LoadNotifications();
 
             var notificationsModel = new List<NotificationViewModelEntity>();
 
@@ -71,6 +68,14 @@ namespace Circularify.Notifier.Controllers
         public ActionResult NotifyRedirect()
         {
             return View();
+        }
+
+        public ActionResult NotifyDelete(int id)
+        {
+            // Delete the notification.
+            _notificationManager.DeleteNotification(id);
+
+            return RedirectToAction("Index");
         }
     }
 }

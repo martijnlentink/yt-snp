@@ -6,14 +6,13 @@ namespace Circularify.Notifier.Db
 {
     public class NotifierDatabaseContext : DbContext
     {
-        public DbSet<User> Users;
+        public DbSet<User> Users { get; set; }
 
-        public DbSet<Notification> Notifications;
+        public DbSet<Notification> Notifications { get; set; }
 
-        public NotifierDatabaseContext() : base("NotifierDatabaseContext")
+        public NotifierDatabaseContext() : base("name=NotifierDatabaseContext")
         {
-            Database.SetInitializer(new NotifierDatabaseInitializer());
-            Database.Initialize(true);
+            //Database.SetInitializer(new NotifierDatabaseInitializer());            
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -25,7 +24,7 @@ namespace Circularify.Notifier.Db
         }              
     }
 
-    public class NotifierDatabaseInitializer: DropCreateDatabaseAlways<NotifierDatabaseContext>
+    public class NotifierDatabaseInitializer: DropCreateDatabaseIfModelChanges<NotifierDatabaseContext>
     {
         protected override void Seed(NotifierDatabaseContext context)
         {

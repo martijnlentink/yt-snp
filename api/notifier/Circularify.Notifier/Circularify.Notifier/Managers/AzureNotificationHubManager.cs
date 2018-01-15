@@ -10,12 +10,12 @@ namespace Circularify.Notifier.Managers
 {
     public class AzureNotificationHubManager
     {
-        private FileManager _fileManager;
+        private NotificationManager _notificationManager;
         private NotificationHubClient _hub;
 
         public AzureNotificationHubManager()
         {
-            _fileManager = new FileManager();
+            _notificationManager = new NotificationManager();
             _hub = NotificationHubClient.CreateClientFromConnectionString("Endpoint=sb://nh-seek-n-play.servicebus.windows.net/;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=REDACTED", "NH-Seek-n-Play");
         }
 
@@ -28,6 +28,7 @@ namespace Circularify.Notifier.Managers
                     NotificationId = GenerateNotificationId(),
                     Title = notification.Title,
                     Message = notification.Message,
+                    IsProduction = notification.IsProduction,
                     HasAction = notification.HasAction,
                     ActionText = notification.ActionText,
                     ActionUrl = notification.ActionUrl
@@ -43,8 +44,8 @@ namespace Circularify.Notifier.Managers
                 // Send the notification.
                 await _hub.SendGcmNativeNotificationAsync(jsonMessage).ConfigureAwait(false);
 
-                // Save the notification.
-                //_fileManager.SaveNotification(message);
+                // Save the notification in the database.
+                _notificationManager.SaveNotification(message.Data);
             }
             catch (Exception ex)
             {
