@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using Circularify.Notifier.Db;
-using Circularify.Notifier.ViewModels;
+using Circularify.Web.Db;
+using Circularify.Web.ViewModels;
 
-namespace Circularify.Notifier.Managers
+namespace Circularify.Web.Managers
 {
     public class UserManager
     {

@@ -1,4 +1,4 @@
-﻿@model Circularify.Notifier.ViewModels.NotificationViewModelEntity
+﻿@model Circularify.Web.ViewModels.NotificationViewModelEntity
 
 @{
     ViewBag.Title = "New Notification";
@@ -34,7 +34,7 @@
             <div class="col-md-2"></div>
             <div class="col-md-10">
                 <div class="checkbox">
-                    <input type="checkbox" id="IsProduction" name="IsProduction" style="margin-left: 0px; margin-top: 11px; position: absolute" />
+                    @Html.CheckBoxFor(model => model.IsProduction, new { @style = "margin-left: 0px; margin-top: 11px; position: absolute" })
                     @Html.LabelFor(model => model.IsProduction, htmlAttributes: new { @class = "control-label", style = "margin-left: 10px; font-weight: bold" })
                 </div>
             </div>
@@ -44,7 +44,7 @@
             <div class="col-md-2"></div>
             <div class="col-md-10">
                 <div class="checkbox">
-                    <input type="checkbox" id="HasAction" name="HasAction" style="margin-left: 0px; margin-top: 11px; position: absolute" />
+                    @Html.CheckBoxFor(model => model.HasAction, new { @style = "margin-left: 0px; margin-top: 11px; position: absolute" })
                     @Html.LabelFor(model => model.HasAction, htmlAttributes: new { @class = "control-label", style = "margin-left: 10px; font-weight: bold" })
                 </div>
             </div>
@@ -78,8 +78,10 @@
     // Initial setup.
     $(document).ready(function () {
         //set initial state.
-        $('#ActionText').attr('disabled', !this.checked);
-        $('#ActionUrl').attr('disabled', !this.checked);
+        let isChecked = $('#HasAction').val() == "true";
+
+        $('#ActionText').attr('disabled', !isChecked);
+        $('#ActionUrl').attr('disabled', !isChecked);
     });
 
     // Checkbox change.

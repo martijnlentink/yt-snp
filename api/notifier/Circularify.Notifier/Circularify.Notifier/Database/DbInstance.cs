@@ -1,4 +1,4 @@
-﻿namespace Circularify.Notifier.Db
+﻿namespace Circularify.Web.Db
 {
     public class DbInstance
     {

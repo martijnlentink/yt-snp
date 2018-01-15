@@ -1,8 +1,8 @@
 ﻿using System.Web.Mvc;
-using Circularify.Notifier.Managers;
-using Circularify.Notifier.ViewModels;
+using Circularify.Web.Managers;
+using Circularify.Web.ViewModels;
 
-namespace Circularify.Notifier.Controllers
+namespace Circularify.Web.Controllers
 {
     public class UserController : Controller
     {

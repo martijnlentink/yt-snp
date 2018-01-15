@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Circularify.Notifier.Domain
+namespace Circularify.Web.Domain
 {
     public class NotificationMessageEntity
     {

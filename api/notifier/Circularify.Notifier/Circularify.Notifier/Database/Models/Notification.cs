@@ -1,4 +1,4 @@
-﻿namespace Circularify.Notifier.Db.Models
+﻿namespace Circularify.Web.Db.Models
 {
     public class Notification
     {
