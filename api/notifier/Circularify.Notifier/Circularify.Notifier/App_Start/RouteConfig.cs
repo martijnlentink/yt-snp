@@ -15,14 +15,24 @@ namespace Circularify.Notifier
                defaults: new { controller = "Home", action = "Notify" });
 
             routes.MapRoute(
+               name: "About",
+               url: "about",
+               defaults: new { controller = "Home", action = "About" });
+
+            routes.MapRoute(
                name: "Notify Redirect",
                url: "notify/redirect",
                defaults: new { controller = "Home", action = "NotifyRedirect" });
 
             routes.MapRoute(
-               name: "Notify Delete",
+               name: "Delete",
                url: "notify/delete/{id}",
                defaults: new { controller = "Home", action = "NotifyDelete" });
+
+            routes.MapRoute(
+               name: "Delete Redirect",
+               url: "delete/redirect",
+               defaults: new { controller = "Home", action = "DeleteRedirect" });
 
             routes.MapRoute(
                name: "Login",

@@ -75,7 +75,12 @@ namespace Circularify.Notifier.Controllers
             // Delete the notification.
             _notificationManager.DeleteNotification(id);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("DeleteRedirect");
+        }
+
+        public ActionResult DeleteRedirect()
+        {
+            return View();
         }
     }
 }

@@ -39,8 +39,8 @@ namespace Circularify.Notifier.Controllers
 
                 if (validatedUser.IsValid)
                 {
-                    Session["Username"] = model.Username;
-                    Session["LastLogin"] = model.LastLoggedIn;
+                    Session["Username"] = validatedUser.Username;
+                    Session["LastLogin"] = validatedUser.LastLoggedIn;
 
                     return RedirectToAction("Index", "Home");
                 }

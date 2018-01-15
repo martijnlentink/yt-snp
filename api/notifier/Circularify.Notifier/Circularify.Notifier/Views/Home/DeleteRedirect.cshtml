@@ -1,0 +1,12 @@
+﻿
+@{
+    ViewBag.Title = "Notification was deleted!";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<script>
+    window.setTimeout(function () {
+        window.location.href = "http://@Request.Url.Authority"
+    }, 3000);
+</script>

@@ -17,7 +17,7 @@ namespace Circularify.Notifier.Managers
         public UserViewModel ValidateUser(UserViewModel model)
         {
             // Check if the user is in the database.
-            var userInDatabase = _db.Users.FirstOrDefault(u => u.Username == model.Username);
+            var userInDatabase = _db.Users.SingleOrDefault(u => u.Username == model.Username);
 
             var validatedUser = new UserViewModel
             {
@@ -43,7 +43,7 @@ namespace Circularify.Notifier.Managers
             {
                 validatedUser.Username = model.Username;
                 validatedUser.Password = model.Password;
-                validatedUser.LastLoggedIn = model.LastLoggedIn;
+                validatedUser.LastLoggedIn = userInDatabase.LastLoggedIn.Value;
             }
 
             // Update the lastLoggedIn.
