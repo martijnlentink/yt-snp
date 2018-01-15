@@ -19,11 +19,10 @@
                 @Html.DisplayNameFor(model => model.Message)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ActionText)
+                @Html.DisplayNameFor(model => model.IsProduction)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ActionUrl)
-            </th>
+            <th>Action</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -33,21 +32,21 @@
             {
                 <tr>
                     <td>
-                        @Html.DisplayFor(modelItem => item.NotificationId)
-                    </td>
-                    <td>
                         @Html.DisplayFor(modelItem => item.Title)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Message)
                     </td>
+                    <td>
+                        @{
+                            var isProductionText = item.IsProduction == true ? "Yes" : "No";
+                        }
+                        @isProductionText
+                    </td>
                     @if (item.HasAction)
                     {
                         <td>
-                            @Html.DisplayFor(modelItem => item.ActionText)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.ActionUrl)
+                            @Html.DisplayFor(modelItem => item.ActionText) (@item.ActionUrl.Substring(0, 20)...)
                         </td>
                     }
                     else
@@ -56,15 +55,30 @@
                             No action defined.
                         </td>
                     }
+                    <td>
+                        <span onclick="delete(@item.NotificationId)">Delete</span>
+                    </td>
                 </tr>
             }
         }
         else
         {
             <tr>
-                <td colspan="4">No notifications yet.</td>
+                <td colspan="5">No notifications yet.</td>
             </tr>
         }
     </tbody>
 
 </table>
+
+<script typr="text/javascript">
+    let delete = function(id) {
+
+        if (confirm("Are you sure you want to delete this notification?")) {
+
+            $.ajax({
+                url: "notify/delete/" + id
+            });
+        }
+    }
+</script>

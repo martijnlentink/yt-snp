@@ -247,23 +247,9 @@ function registerCallback(regId) {
 		// Save the registration id locally.
 		registrationId = regId;
 
-		// Register with Notificaion Hub.
-		registerNH();
-
 		// Set that the client is registered.
 		window.localStorage.setItem("registered", true);
 	}
-}
-
-function registerNH() {
-	// Split the connection string.
-	let uri = splitConnectionString("Endpoint=sb://nh-seek-n-play.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=MTkTWvEfeRZuu3r/UMznMDdxceU/BDWhfZCND9Yr7iU=");
-
-	// Generate a SAS token.
-	let sasToken = generateSaSToken(uri);
-
-	// Register with Notification Hub.
-	sendNHRegistrationRequest(uri, sasToken);
 }
 
 // Setup the listener.
@@ -272,89 +258,3 @@ chrome.gcm.onMessage.addListener(messageReceived);
 // Register the client to the hub on installation, and on startup.
 chrome.runtime.onInstalled.addListener(firstTimeRegistration);
 chrome.runtime.onStartup.addListener(firstTimeRegistration);
-
-
-// Notification Hub Helpers.
-function splitConnectionString(connectionString) {
-	var parts = connectionString.split(';');
-	if (parts.length != 3)
-		throw "Error parsing connection string";
-
-	parts.forEach(function (part) {
-		if (part.indexOf('Endpoint') == 0) {
-			endpoint = 'https' + part.substring(11);
-		} else if (part.indexOf('SharedAccessKeyName') == 0) {
-			sasKeyName = part.substring(20);
-		} else if (part.indexOf('SharedAccessKey') == 0) {
-			sasKeyValue = part.substring(16);
-		}
-	});
-
-	return endpoint + "NH-Seek-n-Play";
-}
-
-function generateSaSToken(uri) {
-	targetUri = encodeURIComponent(uri.toLowerCase()).toLowerCase();
-	var expiresInMins = 10; // 10 minute expiration
-
-	// Set expiration in seconds.
-	var expireOnDate = new Date();
-	expireOnDate.setMinutes(expireOnDate.getMinutes() + expiresInMins);
-	var expires = Date.UTC(expireOnDate.getUTCFullYear(), expireOnDate
-		.getUTCMonth(), expireOnDate.getUTCDate(), expireOnDate
-			.getUTCHours(), expireOnDate.getUTCMinutes(), expireOnDate
-				.getUTCSeconds()) / 1000;
-	var tosign = targetUri + '\n' + expires;
-
-	// Using CryptoJS.
-	var signature = CryptoJS.HmacSHA256(tosign, sasKeyValue);
-	var base64signature = signature.toString(CryptoJS.enc.Base64);
-	var base64UriEncoded = encodeURIComponent(base64signature);
-
-	// Construct authorization string.
-	return "SharedAccessSignature sr=" + targetUri + "&sig=" + base64UriEncoded + "&se=" + expires + "&skn=" + sasKeyName;
-}
-
-function sendNHRegistrationRequest(uri, sasToken) {
-	var registrationPayload =
-		"<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
-		"<entry xmlns=\"http://www.w3.org/2005/Atom\">" +
-		"<content type=\"application/xml\">" +
-		"<GcmRegistrationDescription xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://schemas.microsoft.com/netservices/2010/10/servicebus/connect\">" +
-		"<GcmRegistrationId>{GCMRegistrationId}</GcmRegistrationId>" +
-		"</GcmRegistrationDescription>" +
-		"</content>" +
-		"</entry>";
-
-	// Update the payload with the registration ID obtained earlier.
-	registrationPayload = registrationPayload.replace("{GCMRegistrationId}", registrationId);
-
-	var url = uri + "/registrations/?api-version=2014-09";
-	var client = new XMLHttpRequest();
-
-	client.onload = function () {
-		if (client.readyState == 4) {
-			if (client.status == 200) {
-				console.info("Registered with Notification Hub.");
-			} else {
-				console.error("Error while registering with Notification Hub.");
-			}
-		}
-	};
-
-	client.onerror = function () {
-		console.error("ERROR - Notification Hub Registration did not succeed!");
-	}
-
-	client.open("POST", url, true);
-	client.setRequestHeader("Content-Type", "application/atom+xml;type=entry;charset=utf-8");
-	client.setRequestHeader("Authorization", sasToken);
-	client.setRequestHeader("x-ms-version", "2014-09");
-
-	try {
-		client.send(registrationPayload);
-	}
-	catch (err) {
-		console.error('An error occurred while registering with Azure:', err);
-	}
-}

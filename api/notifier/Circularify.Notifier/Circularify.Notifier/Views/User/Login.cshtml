@@ -2,38 +2,24 @@
 
 @{
     ViewBag.Title = "Login";
+
+    @Styles.Render("~/Content/login")
 }
 
-<h2>@ViewBag.Title</h2>
-
-@using (Html.BeginForm())
+@using (Html.BeginForm("Login", "User", FormMethod.Post, new { @class = "form-signin" }))
 {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary(true)
 
-    if (Model != null && Model.ErrorMessage != null)
-    {
-        <div style="border: 1px solid red">
-            @Model.ErrorMessage[0]
-        </div>
-    }
-    <table>
-        <tr>
-            <td>@Html.LabelFor(a => a.Username)</td>
-            <td>@Html.TextBoxFor(a => a.Username)</td>
-            <td>@Html.ValidationMessageFor(a => a.Username)</td>
-        </tr>
-        <tr>
-            <td>@Html.LabelFor(a => a.Password)</td>
-            <td>@Html.PasswordFor(a => a.Password)</td>
-            <td>@Html.ValidationMessageFor(a => a.Password)</td>
-        </tr>
-        <tr>
-            <td></td>
-            <td>
-                <input type="submit" value="Login" />
-            </td>
-            <td></td>
-        </tr>
-    </table>
+    <h2 class="form-signin-heading">@ViewBag.Title</h2>
+
+    @Html.LabelFor(a => a.Username, new { @class = "sr-only" })
+    @Html.TextBoxFor(a => a.Username, new { @class = "form-control", placeholder = "Username", required = true, autofocus = true })
+    @Html.ValidationMessageFor(a => a.Username)
+
+    @Html.LabelFor(a => a.Password, new { @class = "sr-only" })
+    @Html.PasswordFor(a => a.Password, new { @class = "form-control", placeholder = "Password", required = true })
+    @Html.ValidationMessageFor(a => a.Password)
+
+    <button class="btn btn-lg btn-primary btn-block">Login</button>
 }
