@@ -30,6 +30,7 @@ namespace Circularify.Web.Managers
                     NotificationId = notification.Id,
                     Title = notification.Title,
                     Message = notification.Message,
+                    IsProduction = notification.IsProduction,
                     HasAction = notification.HasAction,
                     ActionText = notification.ActionText,
                     ActionUrl = notification.ActionUrl
