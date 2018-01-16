@@ -10,7 +10,11 @@ circularify.debugging = false;
 var registrationId;
 var senderId = "88754012915";
 
-var sourceReplacement = function (name, regex, replacement) {
+// Variables containing the last received notification id.
+var receivedNotificationId = -1;
+var receivedNotificationUrl = null;
+
+let sourceReplacement = function (name, regex, replacement) {
 	var _name = name;
 	var _regex = regex;
 	var _replacement = replacement;
@@ -207,7 +211,23 @@ chrome.notifications.onButtonClicked.addListener(function (notificationId, butto
 		circularify.omni.analytics.registerEvent("notification-donate-click");
 
 		// Navigate to the donate page.
-		chrome.tabs.create({ 'url': 'http://paypal.me/circularify' });
+		chrome.tabs.create({ 'url': 'http://paypal.me/ccircularify' });
+	}
+
+	// If a notification with action was received, act upon this notification.
+	if (receivedNotificationId !== -1 &&
+		receivedNotificationUrl !== null) {
+
+		// Check wether this was the notification that was received.
+		if (notificationId === receivedNotificationId) {
+
+			// Navigate to the URL that was sent with the received notification.
+			chrome.tabs.create({ 'url': receivedNotificationUrl });
+		}
+
+		// Lastly, clear the variables.
+		receivedNotificationId = -1;
+		receivedNotificationUrl = null;
 	}
 });
 
@@ -235,7 +255,7 @@ function shouldShowNotification(isProduction) {
 */
 function messageReceived(message) {
 
-	console.log('Received SnP push notification', message);
+	circularify.debug.log('Received SnP push notification', message);
 
 	// Retrieve the notification body.
 	let notification = message.data;
@@ -252,14 +272,18 @@ function messageReceived(message) {
 		};
 
 		// if the notification has an action attached, show the action button.
-		if (notification.hasAction !== "false") {
+		if (notification.hasAction !== false) {
 			chromeNotification.buttons = [{
 				title: notification.actionText
 			}]
+
+			// The notification has an action, store this information locally so if clicked on the notification, there can be acted upon.
+			receivedNotificationId = notification.notificationId;
+			receivedNotificationUrl = notification.actionUrl;
 		}
 
 		// Show the notification.
-		chrome.notifications.create(notification.id, chromeNotification, null);
+		chrome.notifications.create(notification.notificationId, chromeNotification, null);
 	}
 }
 
@@ -285,9 +309,9 @@ function registerCallback(regId) {
 
 	// If an error occurred, log it.
 	if (chrome.runtime.lastError) {
-		console.error('An error occurred while registering with GCM: ', chrome.runtime.lastError.message);
+		circularify.debug.error('An error occurred while registering with GCM: ', chrome.runtime.lastError.message);
 	} else {
-		console.log("Registered with GCM.");
+		circularify.debug.info("Registered with GCM.");
 
 		// Save the registration id locally.
 		registrationId = regId;
