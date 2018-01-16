@@ -154,12 +154,12 @@ chrome.runtime.onInstalled.addListener(function (details) {
 		message: installMsg
 	}, null);
 
-	// i18n donate messages
+  // i18n donate messages
 	var donateMsg = chrome.i18n.getMessage("donateNotification");
 	var donateBtnMsg = chrome.i18n.getMessage("donateNotificationButton");
-
+	
 	// SHOW DONATE POPUP
-	setTimeout(function () {
+	setTimeout(function() {		
 		chrome.notifications.create("9999", {
 			type: 'basic',
 			iconUrl: chrome.extension.getURL('img/icon.128.png'),
@@ -168,12 +168,12 @@ chrome.runtime.onInstalled.addListener(function (details) {
 			buttons: [
 				{
 					title: donateBtnMsg,
-					iconUrl: chrome.extension.getURL('img/paypal-logo.png'),
+					iconUrl: chrome.extension.getURL('img/paypal-logo.png')
 				}
 			]
 		}, null);
 	}, 500);
-
+  
 	circularify.omni.analytics.registerEvent(details.reason, chrome.runtime.getManifest().version);
 
 	// SHOW INSTALL PAGE (v3.0.x only)
@@ -215,8 +215,7 @@ chrome.notifications.onButtonClicked.addListener(function (notificationId, butto
 	}
 
 	// If a notification with action was received, act upon this notification.
-	if (receivedNotificationId !== -1 &&
-		receivedNotificationUrl !== null) {
+	if (receivedNotificationId !== -1 && receivedNotificationUrl !== null) {
 
 		// Check wether this was the notification that was received.
 		if (notificationId === receivedNotificationId) {
