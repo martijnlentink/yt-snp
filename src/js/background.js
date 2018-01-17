@@ -147,6 +147,26 @@ chrome.runtime.onInstalled.addListener(function(details){
 		title: 'Seek \'n Play',
 		message: installMsg
 	}, null);
+		
+	// i18n donate messages
+	var donateMsg = chrome.i18n.getMessage("donateNotification");
+	var donateBtnMsg = chrome.i18n.getMessage("donateNotificationButton");
+	
+	// SHOW DONATE POPUP
+	setTimeout(function() {		
+ 		chrome.notifications.create("9999", {
+ 			type: 'basic',
+ 			iconUrl: chrome.extension.getURL('img/icon.128.png'),
+ 			title: 'Seek \'n Play',
+ 			message: donateMsg,
+ 			buttons: [
+ 				{
+ 					title: donateBtnMsg,
+ 			iconUrl: chrome.extension.getURL('img/paypal-logo.png'),
+ 				}
+ 			]
+ 		}, null);
+ 	}, 500);
 	
 	// i18n donate messages
 	var donateMsg = chrome.i18n.getMessage("donateNotification");
@@ -169,13 +189,16 @@ chrome.runtime.onInstalled.addListener(function(details){
 	}, 500);
 	
 	circularify.omni.analytics.registerEvent(details.reason, chrome.runtime.getManifest().version);
+	
+	// SHOW INSTALL PAGE (v3.0.x only)
+	chrome.tabs.create({ "url": "html/startup.html"});
 });
 
 // Add Event Listener for Notifications
 chrome.notifications.onClicked.addListener(function(notificationId) {
 
 	// #SNP Update Notifications
-	if(notificationId == "9310") {
+	if (notificationId == "9310") {
 	
 		// Get version number and replace '.' with '-'
 		var vnr = chrome.app.getDetails().version.replace(/\./g, '-');
@@ -184,8 +207,21 @@ chrome.notifications.onClicked.addListener(function(notificationId) {
 		circularify.omni.analytics.registerEvent("notification-update-click-v" + vnr);
 	
 		// Navigate to our website
-		chrome.tabs.create({'url': 'http://circularify.com/release/snp/' + vnr });
+		chrome.tabs.create({'url': 'http://circularify.com/release/snp/' + vnr });	
+	}
+});
+
+// Add Event Listener for Notifications
+chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex) {
 	
+	// #SNP Donate Button
+	if (notificationId == "9999") {
+		
+		// Register with analytics.
+ 		circularify.omni.analytics.registerEvent("notification-donate-click");
+		
+		// Navigate to the donate page.
+		chrome.tabs.create({'url': 'http://paypal.me/circularify' });	
 	}
 });
 

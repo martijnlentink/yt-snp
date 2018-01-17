@@ -153,4 +153,3 @@ circularify.omni.page.injectScript(function () {
 	
 	window.yttrcooldown = 0;
 });
-

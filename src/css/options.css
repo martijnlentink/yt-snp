@@ -1,0 +1,57 @@
+/*
+	Seek 'n Play is an application developed by Circularify
+*/
+
+hr {
+	margin: 15px -10px 10px -10px;
+}
+
+.options {
+	margin-bottom: 20px;	
+}
+
+	.options .option {
+		width: 100%;
+		display: flex;
+	}	
+	
+		.options .option input[type=checkbox] {
+			margin-top: -3px;
+		}
+
+.col-xs {	
+	width: 30px;
+	text-align: left;	
+}
+
+.message {
+	width: 94%;
+	padding: 0 3%;
+	display: flex;	
+    border: 1px solid transparent;
+    border-radius: 2px;
+}
+
+	.message.hidden {
+		display: none;
+	}
+	
+	.message.success {
+		color: #3c763d;
+		background-color: #dff0d8;
+		border-color: #d6e9c6;
+	}
+	
+	.message.error {
+		color: #a94442;
+		background-color: #f2dede;
+		border-color: #ebccd1;
+	}
+	
+	.message p {
+		line-height: 1em;
+	}
+	
+.donate-row img {
+	width: 10px;
+}
