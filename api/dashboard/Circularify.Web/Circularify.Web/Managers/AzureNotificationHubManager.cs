@@ -10,11 +10,13 @@ namespace Circularify.Web.Managers
 {
     public class AzureNotificationHubManager
     {
+        private EventManager _eventManager;
         private NotificationManager _notificationManager;
         private NotificationHubClient _hub;
 
         public AzureNotificationHubManager()
         {
+            _eventManager = new EventManager();
             _notificationManager = new NotificationManager();
             _hub = NotificationHubClient.CreateClientFromConnectionString("Endpoint=sb://nh-seek-n-play.servicebus.windows.net/;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=REDACTED", "NH-Seek-n-Play");
         }
@@ -32,10 +34,15 @@ namespace Circularify.Web.Managers
                     HasAction = notification.HasAction,
                     ActionText = notification.ActionText,
                     ActionUrl = notification.ActionUrl
-
                 }
             };
 
+            // If the message is an event, add the event.
+            if (notification.IsEvent)
+            {
+                message.Data.Event = notification.Event;
+            }
+ 
             // Convert the message to JSON.           
             var jsonMessage = JsonConvert.SerializeObject(message);
 
@@ -43,13 +50,35 @@ namespace Circularify.Web.Managers
             {
                 // Send the notification.
                 await _hub.SendGcmNativeNotificationAsync(jsonMessage).ConfigureAwait(false);
-
-                // Save the notification in the database.
-                _notificationManager.SaveNotification(message.Data);
+                
+                if (notification.IsEvent)
+                {
+                    // Save the event in the database.
+                    _eventManager.SaveEvent(message.Data);
+                }
+                else
+                {
+                    // Save the notification in the database.
+                    _notificationManager.SaveNotification(message.Data);
+                }
             }
             catch (Exception)
             {
             }
+        }
+
+        public async Task SendEventAsync(EventViewModelEntity evt)
+        {
+            // Convert the event to a notification.
+            var nof = new NotificationViewModelEntity
+            {
+                IsEvent = true,
+                IsProduction = evt.IsProduction,
+                Event = evt.Event
+            };
+
+            // Send the notification.
+            await SendNotificationAsync(nof).ConfigureAwait(false);
         }
 
         private int GenerateNotificationId()

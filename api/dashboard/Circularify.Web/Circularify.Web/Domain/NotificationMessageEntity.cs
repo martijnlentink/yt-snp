@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace Circularify.Web.Domain
 {
@@ -23,6 +24,11 @@ namespace Circularify.Web.Domain
 
         [JsonProperty(PropertyName = "actionUrl")]
         public string ActionUrl { get; set; }
+
+        [JsonProperty(PropertyName = "event", Required = Required.AllowNull)]
+        public string Event { get; set; }
+
+        public DateTime Sent { get; set; }
     }
 
     public class AzureMessageEntity

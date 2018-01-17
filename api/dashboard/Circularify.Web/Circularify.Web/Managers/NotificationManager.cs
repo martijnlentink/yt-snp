@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Circularify.Web.Db;
 using Circularify.Web.Db.Models;
@@ -17,8 +18,8 @@ namespace Circularify.Web.Managers
 
         public List<NotificationMessageEntity> LoadNotifications(int? max)
         {
-            // Get all the notfications.
-            var storedNotifications = _db.Notifications;
+            // Get all the notfications (not events).
+            var storedNotifications = _db.Notifications.Where(n => n.IsEvent == false).ToList();
 
             var model = new List<NotificationMessageEntity>();
 
@@ -33,7 +34,8 @@ namespace Circularify.Web.Managers
                     IsProduction = notification.IsProduction,
                     HasAction = notification.HasAction,
                     ActionText = notification.ActionText,
-                    ActionUrl = notification.ActionUrl
+                    ActionUrl = notification.ActionUrl,
+                    Sent = notification.Sent
                 });
             }
 
@@ -57,7 +59,9 @@ namespace Circularify.Web.Managers
                 IsProduction = notification.IsProduction,
                 HasAction = notification.HasAction,
                 ActionText = notification.ActionText,
-                ActionUrl = notification.ActionUrl
+                ActionUrl = notification.ActionUrl,
+                Sent = DateTime.Now,
+                IsEvent = false
             };
 
             // Add the new notification.

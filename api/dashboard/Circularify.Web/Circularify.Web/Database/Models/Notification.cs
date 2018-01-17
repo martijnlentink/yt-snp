@@ -1,4 +1,6 @@
-﻿namespace Circularify.Web.Db.Models
+﻿using System;
+
+namespace Circularify.Web.Db.Models
 {
     public class Notification
     {
@@ -15,5 +17,11 @@
         public string ActionText { get; set; }
         
         public string ActionUrl { get; set; }
+
+        public DateTime Sent { get; set; }
+
+        public bool IsEvent { get; set; }
+
+        public string Event { get; set; }
     }
 }

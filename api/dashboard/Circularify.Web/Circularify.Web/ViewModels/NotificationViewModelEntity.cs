@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Circularify.Web.ViewModels
@@ -25,6 +26,12 @@ namespace Circularify.Web.ViewModels
         [Display(Name = "Action URL")]
         public string ActionUrl { get; set; }
 
+        public DateTime Sent { get; set; }
+
+        public bool IsEvent { get; set; }
+
+        public string Event { get; set; }
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (Title == null)
@@ -47,6 +54,14 @@ namespace Circularify.Web.ViewModels
                 if (ActionUrl == null)
                 {
                     yield return new ValidationResult("If the notification has an action, the Action Url must be given.");
+                }
+            }
+
+            if (IsEvent)
+            {
+                if (Event == null)
+                {
+                    yield return new ValidationResult("If it is an event, event action is required.");
                 }
             }
         }

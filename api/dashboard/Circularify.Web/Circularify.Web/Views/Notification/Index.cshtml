@@ -1,13 +1,13 @@
 ﻿@model IEnumerable<Circularify.Web.ViewModels.NotificationViewModelEntity>
 
 @{
-    ViewBag.Title = "Notification Overview";
+    ViewBag.Title = "Notification overview";
 }
 
 <h2>@ViewBag.Title</h2>
 
 <p>
-    @Html.ActionLink("Create Notification", "Create", null, new { @class = "btn btn-default" })
+    @Html.ActionLink("Create notification", "Create", null, new { @class = "btn btn-default" })
 </p>
 
 <table class="table table-striped">
@@ -40,9 +40,9 @@
                     </td>
                     <td>
                         @{
-                            var isProductionText = item.IsProduction == true ? "Yes" : "No";
+        var isProductionText = item.IsProduction == true ? "Yes" : "No";
                         }
-                        @isProductionText
+                        @isProductionText (@item.Sent.ToString("dd-MM-yyyy HH:mm:ss"))
                     </td>
                     @if (item.HasAction)
                     {

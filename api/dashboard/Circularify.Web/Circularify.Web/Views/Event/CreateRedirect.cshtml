@@ -1,0 +1,12 @@
+﻿
+@{
+    ViewBag.Title = "Event was send!";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<script>
+    window.setTimeout(function () {
+        window.location.href = "http://@Request.Url.Authority/events"
+    }, 3000);
+</script>

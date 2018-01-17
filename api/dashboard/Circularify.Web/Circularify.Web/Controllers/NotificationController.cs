@@ -19,8 +19,7 @@ namespace Circularify.Web.Controllers
             _notificationManager = new NotificationManager();
             _hubManager = new AzureNotificationHubManager();
         }
-
-        // GET: Notification
+        
         public ActionResult Index()
         {
             var storedNotifications = _notificationManager.LoadNotifications(null);
@@ -37,7 +36,8 @@ namespace Circularify.Web.Controllers
                     IsProduction = nof.IsProduction,
                     HasAction = nof.HasAction,
                     ActionText = nof.ActionText,
-                    ActionUrl = nof.ActionUrl
+                    ActionUrl = nof.ActionUrl,
+                    Sent = nof.Sent
                 });
             }
 

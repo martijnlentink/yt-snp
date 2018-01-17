@@ -52,6 +52,35 @@ namespace Circularify.Web
 
             #endregion
 
+            #region Event Controller
+
+            routes.MapRoute(
+              name: "Event Index",
+              url: "events",
+              defaults: new { controller = "Event", action = "Index" });
+
+            routes.MapRoute(
+               name: "Event Create",
+               url: "event/new",
+               defaults: new { controller = "Event", action = "Create" });
+
+            routes.MapRoute(
+               name: "Event Create Redirect",
+               url: "event/new/redirect",
+               defaults: new { controller = "Event", action = "CreateRedirect" });
+
+            routes.MapRoute(
+               name: "Event Delete",
+               url: "event/{id}/delete",
+               defaults: new { controller = "Event", action = "Delete" });
+
+            routes.MapRoute(
+               name: "Event Delete Redirect",
+               url: "event/{id}/delete/redirect",
+               defaults: new { controller = "Event", action = "DeleteRedirect" });
+
+            #endregion
+
             #region User Controller
 
             routes.MapRoute(

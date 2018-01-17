@@ -1,0 +1,77 @@
+﻿@model IEnumerable<Circularify.Web.ViewModels.EventViewModelEntity>
+
+@{
+    ViewBag.Title = "Event overview";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<p>
+    @Html.ActionLink("Create event", "Create", null, new { @class = "btn btn-default" })
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Event)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Sent)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsProduction)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Count() > 0)
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        (#@item.EventId) @item.Event
+                    </td>
+                    <td>
+                        @item.Sent.ToString("dd-MM-yyyy HH:mm:ss")
+                    </td>
+                    <td>
+                        @{
+                            var isProductionText = item.IsProduction == true ? "Yes" : "No";
+                        }
+                        @isProductionText
+                    </td>
+                    <td>
+                        <a class="link-delete" onclick="Delete(@item.EventId)">Delete</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="5">No events yet.</td>
+            </tr>
+        }
+    </tbody>
+
+</table>
+
+<script typr="text/javascript">
+
+    function Delete(id) {
+
+        if (confirm("Are you sure you want to delete this event?")) {
+
+            $.ajax({
+                url: "event/" + id + "/delete"
+            })
+                .done(function (result) {
+                    window.location.href = "event/" + id + "/delete/redirect";
+                });
+        }
+    };
+
+</script>
