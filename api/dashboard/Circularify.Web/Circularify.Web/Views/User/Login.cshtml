@@ -1,0 +1,25 @@
+﻿@model Circularify.Web.ViewModels.UserViewModel
+
+@{
+    ViewBag.Title = "Login";
+
+    @Styles.Render("~/Content/login")
+}
+
+@using (Html.BeginForm("Login", "User", FormMethod.Post, new { @class = "form-signin" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+    <h2 class="form-signin-heading">@ViewBag.Title</h2>
+
+    @Html.LabelFor(a => a.Username, new { @class = "sr-only" })
+    @Html.TextBoxFor(a => a.Username, new { @class = "form-control", placeholder = "Username", required = true, autofocus = true })
+    @Html.ValidationMessageFor(a => a.Username)
+
+    @Html.LabelFor(a => a.Password, new { @class = "sr-only" })
+    @Html.PasswordFor(a => a.Password, new { @class = "form-control", placeholder = "Password", required = true })
+    @Html.ValidationMessageFor(a => a.Password)
+
+    <button class="btn btn-lg btn-primary btn-block">Login</button>
+}
