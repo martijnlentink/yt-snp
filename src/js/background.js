@@ -157,7 +157,7 @@ chrome.runtime.onInstalled.addListener(function (details) {
   // i18n donate messages
 	var donateMsg = chrome.i18n.getMessage("donateNotification");
 	var donateBtnMsg = chrome.i18n.getMessage("donateNotificationButton");
-	
+
 	// SHOW DONATE POPUP
 	setTimeout(function() {		
 		chrome.notifications.create("9999", {
@@ -173,7 +173,7 @@ chrome.runtime.onInstalled.addListener(function (details) {
 			]
 		}, null);
 	}, 500);
-  
+
 	circularify.omni.analytics.registerEvent(details.reason, chrome.runtime.getManifest().version);
 
 	// SHOW INSTALL PAGE (v3.0.x only)
