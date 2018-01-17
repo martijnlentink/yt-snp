@@ -13,5 +13,32 @@
 	},
 	"installNotification": {
 		"message": "Ein neues Update ist installiert. Klicken Sie hier, um die Changelog zu sehen."
+	},
+	"donateNotification": {
+		"message": "Magst du, was wir machen? Überlegen Sie zu spenden!"
+	},
+	"donateNotificationButton": {
+		"message": "Spenden"
+	},
+	"popupMessage": {
+		"message": "Found a bug? Report it at the <a href='http://bugs.circularify.com' target='_blank'>Circularify Bug Tracker</a>."
+	},
+	"settingsHeader": {
+		"message": "Passt Ihre Seek 'n Play for YouTube&trad; Erfahrung an."
+	},
+	"settingsAvailable": {
+		"message": "Einstellungen"
+	},
+	"settingsBtnSave": {
+		"message": "Speichern"
+	},
+	"settingsSaveSuccess": {
+		"message": "Einstellungen gespeichert!"
+	},
+	"settingsSaveError": {
+		"message": "Beim Speichern ist ein Fehler aufgetreten."
+	},
+	"settingsPlayAnywhere": {
+		"message": "PlayAnywhere&trade; einschalten (beta)"
 	}
 }
