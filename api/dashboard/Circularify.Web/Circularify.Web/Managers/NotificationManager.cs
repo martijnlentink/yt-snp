@@ -39,10 +39,12 @@ namespace Circularify.Web.Managers
                 });
             }
 
+            // Order by id, most recent first.
+            model = model.OrderByDescending(n => n.NotificationId).ToList();
+
             // If a max was given, return the last n.
             if (max != null && max.HasValue)
             {
-                model.Reverse();
                 model = model.Take(max.Value).ToList();
             }
 

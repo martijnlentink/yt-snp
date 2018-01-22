@@ -28,12 +28,12 @@ namespace Circularify.Web.Managers
                 Data = new NotificationMessageEntity
                 {
                     NotificationId = GenerateNotificationId(),
-                    Title = notification.Title.Trim(),
-                    Message = notification.Message.Trim(),
+                    Title = notification.Title?.Trim(),
+                    Message = notification.Message?.Trim(),
                     IsProduction = notification.IsProduction,
                     HasAction = notification.HasAction,
-                    ActionText = notification.ActionText.Trim(),
-                    ActionUrl = notification.ActionUrl.Trim()
+                    ActionText = notification.ActionText?.Trim(),
+                    ActionUrl = notification.ActionUrl?.Trim()
                 }
             };
 

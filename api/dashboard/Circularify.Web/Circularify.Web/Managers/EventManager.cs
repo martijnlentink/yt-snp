@@ -34,10 +34,12 @@ namespace Circularify.Web.Managers
                 });
             }
 
+            // Sort by id (most recent first).
+            model = model.OrderByDescending(e => e.NotificationId).ToList();
+
             // If a max was given, return the last n.
             if (max != null && max.HasValue)
-            {
-                model.Reverse();
+            {                
                 model = model.Take(max.Value).ToList();
             }
 
@@ -54,7 +56,7 @@ namespace Circularify.Web.Managers
             {               
                 Sent = DateTime.Now,
                 IsEvent = true,
-                Event = eventSplit[0],
+                Event = eventSplit[1],
                 IsProduction = evt.IsProduction
             };
 

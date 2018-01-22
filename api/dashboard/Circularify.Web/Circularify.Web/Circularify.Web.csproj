@@ -240,6 +240,7 @@
     <Content Include="Views\Event\Create.cshtml" />
     <Content Include="Views\Event\CreateRedirect.cshtml" />
     <Content Include="Views\Event\_LatestEvents.cshtml" />
+    <Content Include="Views\Event\DeleteRedirect.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
