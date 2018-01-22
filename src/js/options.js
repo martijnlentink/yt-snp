@@ -2,6 +2,8 @@
 	Seek 'n Play is an application developed by Circularify
 */
 
+const _playAnywhereSetting = "playAnywhere";
+
 // Main
 (function () {
 	// Init
@@ -24,12 +26,11 @@ async function init() {
 	var enablePlayAnywhere = document.getElementById("playAnywhere");
 
 	// Retrieve stored data
-	let data = await loadSettings();
+	let isEnabled = await circularify.settings.get(_playAnywhereSetting);
 
 	// Set the saved value when true
-	if (data.enablePlayAnywhere) {
+	if (isEnabled)
 		enablePlayAnywhere.setAttribute("checked", "checked");
-	}
 }
 
 /**
@@ -38,7 +39,7 @@ async function init() {
  * @method handleSave()
  * @param event The save event.
  */
-function handleSave(event) {
+async function handleSave(event) {
 	// Reference message placeholder and hide it, default state
 	var message = document.getElementById("message");
 	message.setAttribute("class", "message hidden");
@@ -46,95 +47,21 @@ function handleSave(event) {
 	// Retrieve value from options page.
 	var enablePlayAnywhere = document.getElementById("playAnywhere").checked;
 
-	// Create settings object.
-	var objToSave = { 'enablePlayAnywhere': enablePlayAnywhere };
+	// Add success message.
+	var msg = chrome.i18n.getMessage("settingsSaveSuccess");
+	message.innerHTML = "<p>" + msg + "</p>";
+	message.setAttribute("class", "message success");
 
-	let deferred = new Promise(function (resolve) {
-		// Call save function
-		saveSettings(objToSave)
-			.then(function (success) {
-
-				// When succesfull saving data, communicate this to the user,
-				if (success) {
-					// Retrieve i18n message.
-					var msg = chrome.i18n.getMessage("settingsSaveSuccess");
-
-					// Add success message.
-					message.innerHTML = "<p>" + msg + "</p>";
-
-					// Show message.
-					message.setAttribute("class", "message success");
-				}
-				else {
-					// Retrieve i18n message.
-					var msg = chrome.i18n.getMessage("settingsSaveError");
-
-					// An error occurred.
-					message.innerHTML = "<p>" + msg + "</p>";
-
-					// Show message.
-					message.setAttribute("class", "message error");
-				}
-
-				resolve();
-			});
-	});
-}
-
-/**
- * Loads settings from Chrome Sync asyncrhonously.
- * 
- * @method loadSettings()
- */
-function loadSettings() {
-	let deferred = new Promise((resolve, reject) => {
-
-		// Retrieve data from Chrome Sync
-		chrome.storage.promise.sync.get("seeknplayApp")
-			.then(function (data) {
-				// Parse JSON string to object
-				var obj = JSON.parse(data.seeknplayApp);
-
-				// If nothing was stored, default values
-				if (obj === undefined) {
-					var obj = { 'enablePlayAnywhere': false };
-				}
-
-				resolve(obj);
-			})
-			.catch(function (err) {
-				reject(err);
-			});
-	});
-
-	return deferred;
-}
-
-/**
- * Saves setting to Chrome Sync asynchronously.
- * 
- * @method saveSettings()
- * @param The object to save.
- */
-function saveSettings(setting) {
-	let deferred = new Promise((resolve) => {
-
-		// Stringify the object
-		var stringified = JSON.stringify(setting);
-
-		// Save to Chrome	
-		chrome.storage.promise.sync.set({ 'seeknplayApp': stringified })
-			.then(function () {
-				// Return that it was succesfull.
-				resolve(true);
-			})
-			.catch(function () {
-				// Return that it was not succesfull.
-				resolve(false);
-			});
-	});
-
-	return deferred;
+	try {
+		await circularify.settings.set(_playAnywhereSetting, enablePlayAnywhere);
+	}
+	catch (error) {
+		// An error occurred.
+		// Show message.
+		var msg = chrome.i18n.getMessage("settingsSaveError");
+		message.innerHTML = "<p>" + msg + "</p>";
+		message.setAttribute("class", "message error");
+	}
 }
 
 ////////////////////////////////////////

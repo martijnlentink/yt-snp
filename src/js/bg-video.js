@@ -316,6 +316,10 @@
         chrome.tabs.sendMessage(pushTabId, { image: e });
     });
 
+    circularify.snp.backgroundPlayer.events.subscribe('playingState', function (isPaused) {
+        setSetting("paused", isPaused, true);
+    });
+
     circularify.snp.backgroundPlayer.events.subscribe('videoState', function (cur, dur, state) {
         // updatePlayer(state);
         setSetting("currentTime", cur);

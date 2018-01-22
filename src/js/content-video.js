@@ -110,7 +110,6 @@ circularify.snp.backgroundPlayer = circularify.snp.backgroundPlayer || (function
 			if (!vid)
 				return;
 			if ((document.querySelector(".ad-showing") || document.querySelector(".ad-interrupting")) && vid.src) {
-				//vid.currentTime = vid.duration;
 				vid.src = null;
 				return;
 			}
@@ -125,7 +124,7 @@ circularify.snp.backgroundPlayer = circularify.snp.backgroundPlayer || (function
 						_currentFrame = newFrame;
 					}
 				}
-				 _emitEvent('videoState', vid.currentTime, vid.duration);//, { paused: vid.paused, volume: !vid.muted * vid.volume });
+				 _emitEvent('videoState', vid.currentTime, vid.duration);
 
 				if (_seconds > 1000) {
 					_seconds = _numErrors = 0;
@@ -158,9 +157,13 @@ circularify.snp.backgroundPlayer = circularify.snp.backgroundPlayer || (function
 
 		vid.volume = _grabFromQuery(volume);
 
-		// vid.addEventListener("volumechanged", function () {
-		// 	_emitEvent('volume', vid.volume);
-		// });
+		let _playStateHandler = function () {
+			_emitEvent("playingState", vid.paused);
+		};
+
+		vid.addEventListener("playing", _playStateHandler);
+		vid.addEventListener("play", _playStateHandler);
+		vid.addEventListener("pause", _playStateHandler);
 		//console.log("Resolved!");
 		resolve();
 	});
