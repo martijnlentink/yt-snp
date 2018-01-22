@@ -256,7 +256,7 @@ function shouldShowNotification(isProduction) {
 */
 function messageReceived(message) {
 
-	circularify.debug.log('Received SnP push notification', message);
+	console.log('Received SnP push notification', message);
 
 	// Retrieve the notification body.
 	let notification = message.data;
@@ -317,9 +317,31 @@ function registerCallback(regId) {
 		// Save the registration id locally.
 		registrationId = regId;
 
+		//registerNH();
+		registerFirebase();
+
 		// Set that the client is registered.
 		window.localStorage.setItem("registered", true);
 	}
+}
+
+/**
+ * Register with Firebase.
+ * 
+ * @method registerFirebase()
+ */
+function registerFirebase() {
+
+	// Initialize Firebase
+	var config = {
+		apiKey: "REDACTED",
+		authDomain: "seek-n-play.firebaseapp.com",
+		databaseURL: "https://seek-n-play.firebaseio.com",
+		projectId: "seek-n-play",
+		storageBucket: "seek-n-play.appspot.com",
+		messagingSenderId: senderId
+	};
+	firebase.initializeApp(config);
 }
 
 // Setup the listener.
