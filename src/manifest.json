@@ -66,9 +66,9 @@
 		"scripts": [
 			"js/chrome-storage-promise.js",
 			"js/core/ytapi.js",
-			"js/background.js",
 			"js/core/modules.js",
-			"js/background.js"
+			"js/background.js",
+			"js/bg-video.js"
 		]
 	},
 	"web_accessible_resources": [
