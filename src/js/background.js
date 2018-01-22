@@ -251,8 +251,11 @@ function shouldShowNotification(isProduction) {
 	return false;
 }
 
-/*
-	GCM Message Received Event Handler.
+/**
+ * GCM Message Received Event Handler.
+ * 
+ * @method messageReceived()
+ * @param The received message.
 */
 function messageReceived(message) {
 
@@ -261,36 +264,45 @@ function messageReceived(message) {
 	// Retrieve the notification body.
 	let notification = message.data;
 
-	// Check wether the notification should be processed and shown.
-	if (shouldShowNotification(notification.isProduction)) {
+	// Read out notification.
+	if (notification.event === null) {
 
-		// Create the Chrome notification object.
-		let chromeNotification = {
-			type: 'basic',
-			iconUrl: chrome.extension.getURL('img/icon.128.png'),
-			title: notification.title,
-			message: notification.message
-		};
+		// Check wether the notification should be processed and shown.
+		if (shouldShowNotification(notification.isProduction)) {
 
-		// if the notification has an action attached, show the action button.
-		if (notification.hasAction !== false) {
-			chromeNotification.buttons = [{
-				title: notification.actionText
-			}]
+			// Create the Chrome notification object.
+			let chromeNotification = {
+				type: 'basic',
+				iconUrl: chrome.extension.getURL('img/icon.128.png'),
+				title: notification.title,
+				message: notification.message
+			};
 
-			// The notification has an action, store this information locally so if clicked on the notification, there can be acted upon.
-			receivedNotificationId = notification.notificationId;
-			receivedNotificationUrl = notification.actionUrl;
+			// if the notification has an action attached, show the action button.
+			if (notification.hasAction !== false) {
+				chromeNotification.buttons = [{
+					title: notification.actionText
+				}]
+
+				// The notification has an action, store this information locally so if clicked on the notification, there can be acted upon.
+				receivedNotificationId = notification.notificationId;
+				receivedNotificationUrl = notification.actionUrl;
+			}
+
+			// Show the notification.
+			chrome.notifications.create(notification.notificationId, chromeNotification, null);
 		}
-
-		// Show the notification.
-		chrome.notifications.create(notification.notificationId, chromeNotification, null);
+	} else {
+		// Read out event and save in localStorage so it can be read.
+		circularify.settings.set("snpEvent", notification.event);
 	}
 }
 
-/*
-	Method handling the first time registration to GCM.
-*/
+/**
+ * Method handling the first time registration to GCM.
+ * 
+ * @method firstTimeRegistration()
+ */
 function firstTimeRegistration() {
 	// Retrieve if the client is already registered.
 	let isRegistered = window.localStorage.getItem("registered");
@@ -303,9 +315,12 @@ function firstTimeRegistration() {
 	}
 }
 
-/*
-	Method handling the GCM registration callback.
-*/
+/**
+ * Method handling the GCM registration callback.
+ *
+ * @method registerCallback()
+ * @param regId The registration ID retrieved from GCM. 
+ */
 function registerCallback(regId) {
 
 	// If an error occurred, log it.
@@ -317,7 +332,7 @@ function registerCallback(regId) {
 		// Save the registration id locally.
 		registrationId = regId;
 
-		//registerNH();
+		// Register the client to firebase.
 		registerFirebase();
 
 		// Set that the client is registered.
