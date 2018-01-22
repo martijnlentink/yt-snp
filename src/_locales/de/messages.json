@@ -2,15 +2,6 @@
 	"appDescription": {
 		"message": "Diese Erweiterung ermöglicht Ihnen die Suche auf YouTube, während ein Video abgespielt wird."
 	},
-	"donateNotification": {
-		"message": "Magst du, was wir machen? Überlegen Sie zu spenden!"
-	},
-	"donateNotificationButton": {
-		"message": "Spenden"
-	},
-	"popupMessage": {
-		"message": "Found a bug? Report it at the <a href='http://bugs.circularify.com' target='_blank'>Circularify Bug Tracker</a>."
-	},
 	"installNotification": {
 		"message": "Ein neues Update ist installiert. Klicken Sie hier, um die Changelog zu sehen."
 	},
@@ -19,6 +10,9 @@
 	},
 	"donateNotificationButton": {
 		"message": "Spenden"
+	},
+	"bugReportShort": {
+		"message": "Report a bug"
 	},
 	"popupMessage": {
 		"message": "Found a bug? Report it at the <a href='http://bugs.circularify.com' target='_blank'>Circularify Bug Tracker</a>."
