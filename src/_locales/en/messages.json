@@ -34,5 +34,11 @@
 	},
 	"settingsPlayAnywhere": {
 		"message": "Enable PlayAnywhere&trade; (beta)"
+	},
+	"playAnywhereEnableRestart": {
+		"message": "For this change to take effect the extension has to reload!"
+	},
+	"OK": {
+		"message": "OK"
 	}
 }

@@ -28,6 +28,9 @@
 		"storage",
 		"gcm"
 	],
+	"optional_permissions": [
+		"management"
+	],
 	"externally_connectable": {
 		"matches": [
 			"*://*.youtube.com/*"

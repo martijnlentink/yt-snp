@@ -1,4 +1,11 @@
 (async function () {
+
+    const _playAnywhereSetting = "playAnywhere";
+    let isPlayerAnywhereEnabled = await circularify.settings.get(_playAnywhereSetting);
+
+    if (!isPlayerAnywhereEnabled)
+        return;
+
     chrome.webRequest.onHeadersReceived.addListener(
         function(ev) {
             var headers = stripHeaders(ev.responseHeaders, 'X-Frame-Options', 'Frame-Options');

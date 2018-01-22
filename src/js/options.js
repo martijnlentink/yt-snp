@@ -54,6 +54,12 @@ async function handleSave(event) {
 
 	try {
 		await circularify.settings.set(_playAnywhereSetting, enablePlayAnywhere);
+
+		document.getElementById("confirmDialog").showModal();
+
+		document.getElementById("restartButton").addEventListener("click", function () {
+	        chrome.runtime.reload();
+		})
 	}
 	catch (error) {
 		// An error occurred.
