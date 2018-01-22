@@ -1,24 +1,19 @@
 {
 	"manifest_version": 2,
-	
 	"name": "Seek 'n Play for YouTube™",
 	"description": "__MSG_appDescription__",
-	"version": "2.3.3",  
+	"version": "3.0.0",
 	"homepage_url": "https://chrome.google.com/webstore/detail/aiaeaehoebdkelhnbomepbijjjeakkld/",
 	"short_name": "Seek 'n Play",
-	"key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlyc9z4hKBm8bGk+tzwNpJi/dPdtujnnyDYO6kHVthyKTPtxSK0HhZjUVzptaEDgVT9HVAQk3QRwbm0BT793Ge6Jayzm//JbU+KJaNFPQxQJt22rvZpeWVNgLhHBERs5CMgK+9nq9SOnZnFBOqTBZgG1BnTZ0reEabb0CLJlne2rpwQmp7+N8gWotOI8VOeHLefDF1L3ZFLnCTZvAAk8bq93326c/o850YMt+6IGi6Rl2DUmtY6UyxsCCI0TYRVu2eAKZ66SkigwqHcGcINc7ctA6kBddL6Sxwp+jpldlq+3KKL7o+GktJYZdmwb/NK3P+4MHYWf8n34H02NYfRqS2wIDAQAB",
-	
-	"icons": { 
+	"icons": {
 		"16": "img/icon.16.png",
-        "48": "img/icon.48.png",
-        "128": "img/icon.128.png" 
+		"48": "img/icon.48.png",
+		"128": "img/icon.128.png"
 	},
-		
 	"options_ui": {
 		"page": "html/options.html",
 		"chrome_style": true
 	},
-	
 	"permissions": [
 		"notifications",
 		"webRequest",
@@ -29,18 +24,22 @@
 		"webRequestBlocking",
 		"storage",
 		"activeTab",
-		"tabs"
+		"tabs",
+		"storage",
+		"gcm"
 	],
-
 	"externally_connectable": {
-	  "matches": ["*://*.youtube.com/*"]
+		"matches": [
+			"*://*.youtube.com/*"
+		]
 	},
-
 	"content_scripts": [
 		{
-			"matches": ["*://*.youtube.com/*"],
+			"matches": [
+				"*://*.youtube.com/*"
+			],
 			"js": [
-				"js/core/modules.js",	
+				"js/core/modules.js",
 				"js/contentscript.js"
 			],
 			"run_at": "document_end"
@@ -63,28 +62,23 @@
 		      "run_at": "document_end"
 	    }
 	],
-	
-	"background": 
-	{ 
+	"background": {
 		"scripts": [
 			"js/chrome-storage-promise.js",
-			"js/core/modules.js",
 			"js/core/ytapi.js",
 			"js/background.js",
-			"js/bg-video.js"
-		] 
+			"js/core/modules.js",
+			"js/background.js"
+		]
 	},
-	
 	"web_accessible_resources": [
-		"js/core/modules.js",		
-		"js/core/ytapi.js",		
+		"js/core/modules.js",
+		"js/core/ytapi.js",
 		"js/ytsnp.js",
 		"css/ytsnp.css",
 		"html/player.html",
 		"https://www.google-analytics.com/analytics.js"
 	],
-	
 	"content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
-	
 	"default_locale": "en"
 }
