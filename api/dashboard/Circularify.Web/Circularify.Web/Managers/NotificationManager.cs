@@ -71,6 +71,31 @@ namespace Circularify.Web.Managers
             _db.SaveChanges();
         }
 
+        public NotificationMessageEntity GetNotification(int id)
+        {
+            // Get the notification.
+            var notification = _db.Notifications.FirstOrDefault(n => n.Id == id);
+
+            // If a notification was found, convert and return it.
+            if (notification != null)
+            {
+                return new NotificationMessageEntity
+                {
+                    NotificationId = notification.Id,
+                    Title = notification.Title,
+                    Message = notification.Message,
+                    IsProduction = notification.IsProduction,
+                    HasAction = notification.HasAction,
+                    ActionText = notification.ActionText,
+                    ActionUrl = notification.ActionUrl,
+                    Sent = notification.Sent
+                };
+            }
+
+            // Fallback: No result found.
+            return null;
+        }
+
         public void DeleteNotification(int id)
         {            
             var notification = _db.Notifications.FirstOrDefault(n => n.Id == id);

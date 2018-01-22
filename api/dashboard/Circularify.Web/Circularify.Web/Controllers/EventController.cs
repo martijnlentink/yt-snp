@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Web.Mvc;
 using Circularify.Web.Managers;
 using Circularify.Web.ViewModels;
@@ -27,7 +28,7 @@ namespace Circularify.Web.Controllers
                 eventsModel.Add(new EventViewModelEntity
                 {
                     EventId = evt.NotificationId,
-                    Event = evt.Event,
+                    Event = (EventType)Enum.Parse(typeof(EventType), evt.Event),
                     Sent = evt.Sent
                 });
             }
@@ -47,7 +48,7 @@ namespace Circularify.Web.Controllers
                 eventsModel.Add(new EventViewModelEntity
                 {
                     EventId = evt.NotificationId,
-                    Event = evt.Event,
+                    Event = (EventType)Enum.Parse(typeof(EventType), evt.Event),
                     Sent = evt.Sent
                 });
             }
@@ -67,10 +68,7 @@ namespace Circularify.Web.Controllers
             {
                 return View(evt);
             }
-
-            // Prepend the circularify slug.
-            evt.Event = $"circularify.{evt.Event}";
-
+       
             // Send the notification.
             _hubManager.SendEventAsync(evt).ConfigureAwait(false);
 

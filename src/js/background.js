@@ -6,6 +6,8 @@
 circularify = circularify || {}
 circularify.debugging = false;
 
+circularify.debug.toggle();
+
 // GCM Configuration.
 var registrationId;
 var senderId = "88754012915";
@@ -154,12 +156,12 @@ chrome.runtime.onInstalled.addListener(function (details) {
 		message: installMsg
 	}, null);
 
-  // i18n donate messages
+	// i18n donate messages
 	var donateMsg = chrome.i18n.getMessage("donateNotification");
 	var donateBtnMsg = chrome.i18n.getMessage("donateNotificationButton");
 
 	// SHOW DONATE POPUP
-	setTimeout(function() {		
+	setTimeout(function () {
 		chrome.notifications.create("9999", {
 			type: 'basic',
 			iconUrl: chrome.extension.getURL('img/icon.128.png'),

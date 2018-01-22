@@ -46,12 +46,15 @@ namespace Circularify.Web.Managers
 
         public void SaveEvent(NotificationMessageEntity evt)
         {
+            // Split event (circularify.xxx; xxx being the event).
+            var eventSplit = evt.Event.Split('.');
+
             // Create the database model entity.
             var model = new Notification
             {               
                 Sent = DateTime.Now,
                 IsEvent = true,
-                Event = evt.Event,
+                Event = eventSplit[0],
                 IsProduction = evt.IsProduction
             };
 

@@ -21,26 +21,26 @@ namespace Circularify.Web.Managers
             _hub = NotificationHubClient.CreateClientFromConnectionString("Endpoint=sb://nh-seek-n-play.servicebus.windows.net/;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=REDACTED", "NH-Seek-n-Play");
         }
 
-        public async Task SendNotificationAsync(NotificationViewModelEntity notification)
+        public async Task SendNotificationAsync(NotificationViewModelEntity notification, bool resend)
         {
             var message = new AzureMessageEntity
             {
                 Data = new NotificationMessageEntity
                 {
                     NotificationId = GenerateNotificationId(),
-                    Title = notification.Title,
-                    Message = notification.Message,
+                    Title = notification.Title.Trim(),
+                    Message = notification.Message.Trim(),
                     IsProduction = notification.IsProduction,
                     HasAction = notification.HasAction,
-                    ActionText = notification.ActionText,
-                    ActionUrl = notification.ActionUrl
+                    ActionText = notification.ActionText.Trim(),
+                    ActionUrl = notification.ActionUrl.Trim()
                 }
             };
 
             // If the message is an event, add the event.
             if (notification.IsEvent)
             {
-                message.Data.Event = notification.Event;
+                message.Data.Event = $"circularify.{notification.Event}";
             }
  
             // Convert the message to JSON.           
@@ -50,16 +50,19 @@ namespace Circularify.Web.Managers
             {
                 // Send the notification.
                 await _hub.SendGcmNativeNotificationAsync(jsonMessage).ConfigureAwait(false);
-                
-                if (notification.IsEvent)
+
+                if (resend == false)
                 {
-                    // Save the event in the database.
-                    _eventManager.SaveEvent(message.Data);
-                }
-                else
-                {
-                    // Save the notification in the database.
-                    _notificationManager.SaveNotification(message.Data);
+                    if (notification.IsEvent)
+                    {
+                        // Save the event in the database.
+                        _eventManager.SaveEvent(message.Data);
+                    }
+                    else
+                    {
+                        // Save the notification in the database.
+                        _notificationManager.SaveNotification(message.Data);
+                    }
                 }
             }
             catch (Exception)
@@ -74,11 +77,11 @@ namespace Circularify.Web.Managers
             {
                 IsEvent = true,
                 IsProduction = evt.IsProduction,
-                Event = evt.Event
+                Event = evt.Event.ToString(),
             };
 
             // Send the notification.
-            await SendNotificationAsync(nof).ConfigureAwait(false);
+            await SendNotificationAsync(nof, false).ConfigureAwait(false);
         }
 
         private int GenerateNotificationId()

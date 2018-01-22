@@ -19,8 +19,8 @@
                     var isProd = evt.IsProduction == true ? "Yes" : "No";
 
                     <tr>
-                        <td>(#@evt.EventId) @evt.Event</td>
-                        <td>@isProd (@evt.Sent.ToString("dd-MM-yyyy HH:mm:ss")</td>
+                        <td>(#@evt.EventId) <code>circularify.@evt.Event</code></td>
+                        <td>@isProd (@evt.Sent.ToString("dd-MM-yyyy HH:mm:ss"))</td>
                         <td>@isProd</td>
                     </tr>
                 }

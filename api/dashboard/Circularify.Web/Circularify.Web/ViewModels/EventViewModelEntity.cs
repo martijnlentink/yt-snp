@@ -7,11 +7,22 @@ namespace Circularify.Web.ViewModels
     {
         public int EventId { get; set; }
 
-        public string Event { get; set; }
+        [Required]
+        public EventType Event { get; set; }
 
         public DateTime Sent { get; set; }
 
         [Display(Name = "Is Production event")]
         public bool IsProduction { get; set; }
+
+    }
+
+    public enum EventType
+    {
+        [Display(Name = "Snp.Enable")]
+        SnpEnable,
+
+        [Display(Name = "Snp.Disable")]
+        SnpDisable,        
     }
 }

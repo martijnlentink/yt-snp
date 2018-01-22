@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
 using System.Web.Mvc;
 using Circularify.Web.Managers;
 using Circularify.Web.ViewModels;
@@ -57,6 +54,7 @@ namespace Circularify.Web.Controllers
                 {
                     NotificationId = nof.NotificationId,
                     Title = nof.Title,
+                    Sent = nof.Sent,
                     Message = nof.Message,
                     HasAction = nof.HasAction,
                     ActionText = nof.ActionText,
@@ -81,7 +79,7 @@ namespace Circularify.Web.Controllers
             }
 
             // Send the notification.
-            _hubManager.SendNotificationAsync(notification).ConfigureAwait(false);
+            _hubManager.SendNotificationAsync(notification, false).ConfigureAwait(false);
 
             return RedirectToAction("CreateRedirect");
         }
@@ -102,6 +100,35 @@ namespace Circularify.Web.Controllers
         public ActionResult DeleteRedirect()
         {
             return View();
+        }
+
+        public ActionResult Resend(int id)
+        {
+            var nof = _notificationManager.GetNotification(id);
+
+            // If a notification was found, resend it.
+            if (nof != null)
+            {
+                var model = new NotificationViewModelEntity
+                {
+                    NotificationId = nof.NotificationId,
+                    Title = nof.Title,
+                    Sent = nof.Sent,
+                    Message = nof.Message,
+                    HasAction = nof.HasAction,
+                    ActionText = nof.ActionText,
+                    ActionUrl = nof.ActionUrl
+                };
+
+                // Send the notification to the hub manager, flagging it as a resend.
+                _hubManager.SendNotificationAsync(model, true).ConfigureAwait(false);
+
+                // Return to the send succes page.
+                return RedirectToAction("CreateRedirect");
+            }
+
+            // No action was taken.
+            return RedirectToAction("Index");
         }
     }
 }

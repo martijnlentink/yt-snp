@@ -40,7 +40,7 @@
                     </td>
                     <td>
                         @{
-        var isProductionText = item.IsProduction == true ? "Yes" : "No";
+                            var isProductionText = item.IsProduction == true ? "Yes" : "No";
                         }
                         @isProductionText (@item.Sent.ToString("dd-MM-yyyy HH:mm:ss"))
                     </td>
@@ -57,7 +57,8 @@
                         </td>
                     }
                     <td>
-                        <a class="link-delete" onclick="Delete(@item.NotificationId)">Delete</a>
+                        <a class="btn btn-warning" onclick="Resend(@item.NotificationId)">Resend</a>
+                        <a class="btn btn-danger" onclick="Delete(@item.NotificationId)">Delete</a>
                     </td>
                 </tr>
             }
@@ -73,6 +74,19 @@
 </table>
 
 <script typr="text/javascript">
+
+    function Resend(id) {
+
+        if (confirm("Are you sure you want to resend this notification?")) {
+
+            $.ajax({
+                url: "notification/" + id + "/resend"
+            })
+                .done(function (result) {
+                    window.location.href = "notification/new/redirect";
+                });
+        }
+    };
 
     function Delete(id) {
 

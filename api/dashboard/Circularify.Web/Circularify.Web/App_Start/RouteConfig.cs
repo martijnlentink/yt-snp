@@ -41,6 +41,11 @@ namespace Circularify.Web
                defaults: new { controller = "Notification", action = "CreateRedirect" });
 
             routes.MapRoute(
+               name: "Notification Resend",
+               url: "notification/{id}/resend",
+               defaults: new { controller = "Notification", action = "Resend" });
+
+            routes.MapRoute(
                name: "Notification Delete",
                url: "notification/{id}/delete",
                defaults: new { controller = "Notification", action = "Delete" });
