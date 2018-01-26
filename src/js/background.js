@@ -196,7 +196,7 @@ chrome.notifications.onButtonClicked.addListener(function(notificationId, button
 		circularify.omni.analytics.registerEvent("notification-donate-click");
 	
 		// Navigate to the donate page.
-		chrome.tabs.create({'url': 'http://paypal.me/circularify' });	
+		chrome.tabs.create({'url': 'http://paypal.me/ccircularify' });	
 	}
 });
 
