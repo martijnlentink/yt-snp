@@ -91,7 +91,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 			}
 
 			// Let's nicely return the JavaScript so that YouTube can access it
-			return { redirectUrl: "data:application/javascript," + encodeURIComponent(resp) };
+			return {redirectUrl: "data:application/javascript," + encodeURI(resp) };
 		}
 	}
 	,
