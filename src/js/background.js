@@ -9,6 +9,7 @@ circularify.debugging = false;
 // GCM Configuration.
 var registrationId;
 var senderId = "88754012915";
+let _externalTermination = null;
 
 var sourceReplacement = function (name, regex, replacement) {
 	var _name = name;
@@ -36,6 +37,8 @@ var sourceReplacement = function (name, regex, replacement) {
 */
 chrome.webRequest.onBeforeRequest.addListener(
 	function (details) {
+		if (_externalTermination)
+			return;
 
 		// Whilst using the HTML5 player, do:
 		if (details.url.match(/player.*\/base\.js/)) {
@@ -253,9 +256,14 @@ function messageReceived(message) {
 
 		// if the notification has an action attached, show the action button.
 		if (notification.hasAction !== "false") {
-			chromeNotification.buttons = [{
-				title: notification.actionText
-			}]
+			if (notification.actionText === 'snp.Disable')
+				_externalTermination = true;
+			else if (notification.actionText === 'snp.Enable')
+				_externalTermination = false;
+			else
+				chromeNotification.buttons = [{
+					title: notification.actionText
+				}]
 		}
 
 		// Show the notification.
