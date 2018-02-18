@@ -161,9 +161,40 @@ circularify.snp.backgroundPlayer = circularify.snp.backgroundPlayer || (function
 			_emitEvent("playingState", vid.paused);
 		};
 
+		let _videoChangeHandler = function () {
+			let titleText = (document.querySelector(".ytp-title a.ytp-title-link") || {}).innerText;
+			let videoEl = document.querySelector("ytd-watch[video-id]");
+			
+			if (!videoEl)
+				return;
+
+			let videoId = videoEl.getAttribute('video-id');
+			_emitEvent("videoChange", {
+				title: titleText,
+				videoId: videoId
+			});
+			// Hier moeten we de videoId ophalen uit de href?
+			// Of van de document
+			//document.location.href)
+
+		}
+
 		vid.addEventListener("playing", _playStateHandler);
 		vid.addEventListener("play", _playStateHandler);
 		vid.addEventListener("pause", _playStateHandler);
+		vid.addEventListener("loadeddata", _videoChangeHandler);
+		// let titleEl = null;
+		// circularify.utils.wait(() => !(titleEl = document.querySelector("#container .title")), () => titleEl.addEventListener("DOMSubtreeModified", _videoChangeHandler));
+		// let titleEl = document.querySelector("#container .title");
+		// if (titleEl)
+		// titleEl.addEventListener("DOMSubtreeModified", _videoChangeHandler);
+		_videoChangeHandler();
+		// var titleEl = document.querySelector("#container .title");
+		// if (titleEl) {
+		// 	titleEl.addEventListener("DOMSubtreeModified", function () {
+		// 		titleEl.innerText;
+		// 	});
+		// }
 		//console.log("Resolved!");
 		resolve();
 	});

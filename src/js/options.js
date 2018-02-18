@@ -13,6 +13,8 @@ const _playAnywhereSetting = "playAnywhere";
 	internationalize();
 })();
 
+let _currentSetting = null;
+
 ///////////////////////////////////////
 //////////////// Initialize function //
 ///////////////////////////////////////
@@ -26,10 +28,10 @@ async function init() {
 	var enablePlayAnywhere = document.getElementById("playAnywhere");
 
 	// Retrieve stored data
-	let isEnabled = await circularify.settings.get(_playAnywhereSetting);
+	_currentSetting = await circularify.settings.get(_playAnywhereSetting);
 
 	// Set the saved value when true
-	if (isEnabled)
+	if (_currentSetting)
 		enablePlayAnywhere.setAttribute("checked", "checked");
 }
 
@@ -53,8 +55,12 @@ async function handleSave(event) {
 	message.setAttribute("class", "message success");
 
 	try {
+		if (_currentSetting == enablePlayAnywhere)
+			return;
+		
 		await circularify.settings.set(_playAnywhereSetting, enablePlayAnywhere);
 
+		// TODO: Only if settings have been changed!
 		document.getElementById("confirmDialog").showModal();
 
 		document.getElementById("restartButton").addEventListener("click", function () {

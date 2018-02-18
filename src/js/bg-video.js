@@ -145,6 +145,8 @@
         };
 
         chrome.runtime.onMessage.addListener(function (message) {
+            if (message.request == 'restoreVideo')
+                chrome.tabs.update(vidTabId, { selected: true });
             if (message.request == 'settings') 
                 chrome.tabs.sendMessage(pushTabId, { settings: settings });    
             if (message.func)
@@ -339,6 +341,10 @@
     });
 
     circularify.snp.backgroundPlayer.events.subscribe('volume', function (volume) {
-        setSetting("volume", state.volume, true);
+        setSetting("volume", volume, true);
+    });
+
+    circularify.snp.backgroundPlayer.events.subscribe('videoChange', function (videoNfo) {
+        setSetting("video", videoNfo, true);
     });
 })();
