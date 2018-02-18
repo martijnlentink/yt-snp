@@ -11,7 +11,11 @@ var registrationId;
 var senderId = "88754012915";
 let _externalTermination = null;
 
-var sourceReplacement = function (name, regex, replacement) {
+// Variables containing the last received notification id.
+var receivedNotificationId = -1;
+var receivedNotificationUrl = null;
+
+let sourceReplacement = function (name, regex, replacement) {
 	var _name = name;
 	var _regex = regex;
 	var _replacement = replacement;
@@ -90,47 +94,8 @@ chrome.webRequest.onBeforeRequest.addListener(
 			}
 
 			// Let's nicely return the JavaScript so that YouTube can access it
-			return { redirectUrl: "data:application/javascript," + encodeURIComponent(resp) };
+			return {redirectUrl: "data:application/javascript," + encodeURI(resp) };
 		}
-
-		// Fix for navigation
-		if (details.url.indexOf("spf.js") > -1) {
-			var xhr = new XMLHttpRequest();
-			xhr.open("GET", details.url, false);
-			xhr.send();
-			var resp = xhr.responsetext;
-
-			// look for pattern -- dynamically called
-			var regex2 = new regexp(/(function [a-za-z]\([a-za-z]\)\{var [a-za-z]\=new [a-za-z]{2};)/);
-
-			// our own function
-			var replacestring = '$1 if (typeof (window.ytspnavigating) == "function") {try{window.ytspnavigating();}catch(error){}}';
-
-			// add our own code and return
-			var result = resp.replace(regex2, replacestring);
-
-			return { redirecturl: "data:application/javascript," + encodeuricomponent(result) };
-		}
-
-		// if (details.url.indexOf("desktop_polymer.js" > -1)) {
-		// var xhr = new XMLHttpRequest();
-		// xhr.open("GET", details.url, false);
-		// xhr.send();
-		// var resp = xhr.responseText;
-
-		// var regexs = [ new sourceReplacement("fix-player-functions",
-		// /for\(var ([a-z]) in ([a-z]).api\)\2.api\[\1\]=null;/,
-		// ""
-		// )];
-
-		// for (var idx in regexs) {
-		// var currentRegex = regexs[idx];
-		// resp = currentRegex.performReplace(resp);
-		// }
-
-		// // Let's nicely return the JavaScript so that YouTube can access it
-		// return {redirectUrl: "data:application/javascript," + encodeURIComponent(resp) };
-		// }
 	}
 	,
 	{ urls: ["*://*.youtube.com/*"] },
@@ -153,12 +118,12 @@ chrome.runtime.onInstalled.addListener(function (details) {
 		message: installMsg
 	}, null);
 
-	// i18n donate messages
+  // i18n donate messages
 	var donateMsg = chrome.i18n.getMessage("donateNotification");
 	var donateBtnMsg = chrome.i18n.getMessage("donateNotificationButton");
 
 	// SHOW DONATE POPUP
-	setTimeout(function () {
+	setTimeout(function() {		
 		chrome.notifications.create("9999", {
 			type: 'basic',
 			iconUrl: chrome.extension.getURL('img/icon.128.png'),
@@ -167,7 +132,7 @@ chrome.runtime.onInstalled.addListener(function (details) {
 			buttons: [
 				{
 					title: donateBtnMsg,
-					iconUrl: chrome.extension.getURL('img/paypal-logo.png'),
+					iconUrl: chrome.extension.getURL('img/paypal-logo.png')
 				}
 			]
 		}, null);
@@ -210,7 +175,22 @@ chrome.notifications.onButtonClicked.addListener(function (notificationId, butto
 		circularify.omni.analytics.registerEvent("notification-donate-click");
 
 		// Navigate to the donate page.
-		chrome.tabs.create({ 'url': 'http://paypal.me/circularify' });
+		chrome.tabs.create({ 'url': 'http://paypal.me/ccircularify' });
+	}
+
+	// If a notification with action was received, act upon this notification.
+	if (receivedNotificationId !== -1 && receivedNotificationUrl !== null) {
+
+		// Check wether this was the notification that was received.
+		if (notificationId === receivedNotificationId) {
+
+			// Navigate to the URL that was sent with the received notification.
+			chrome.tabs.create({ 'url': receivedNotificationUrl });
+		}
+
+		// Lastly, clear the variables.
+		receivedNotificationId = -1;
+		receivedNotificationUrl = null;
 	}
 });
 
@@ -238,7 +218,7 @@ function shouldShowNotification(isProduction) {
 */
 function messageReceived(message) {
 
-	console.log('Received SnP push notification', message);
+	circularify.debug.log('Received SnP push notification', message);
 
 	// Retrieve the notification body.
 	let notification = message.data;
@@ -267,7 +247,7 @@ function messageReceived(message) {
 		}
 
 		// Show the notification.
-		chrome.notifications.create(notification.id, chromeNotification, null);
+		chrome.notifications.create(notification.notificationId, chromeNotification, null);
 	}
 }
 
@@ -293,9 +273,9 @@ function registerCallback(regId) {
 
 	// If an error occurred, log it.
 	if (chrome.runtime.lastError) {
-		console.error('An error occurred while registering with GCM: ', chrome.runtime.lastError.message);
+		circularify.debug.error('An error occurred while registering with GCM: ', chrome.runtime.lastError.message);
 	} else {
-		console.log("Registered with GCM.");
+		circularify.debug.info("Registered with GCM.");
 
 		// Save the registration id locally.
 		registrationId = regId;
