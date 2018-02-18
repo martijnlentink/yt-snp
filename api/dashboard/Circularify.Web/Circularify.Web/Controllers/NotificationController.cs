@@ -9,12 +9,12 @@ namespace Circularify.Web.Controllers
     public class NotificationController : Controller
     {
         private NotificationManager _notificationManager;
-        private AzureNotificationHubManager _hubManager;
+        private GcmNotificationManager _gcmManager;
 
         public NotificationController()
         {
             _notificationManager = new NotificationManager();
-            _hubManager = new AzureNotificationHubManager();
+            _gcmManager = new GcmNotificationManager();
         }
         
         public ActionResult Index()
@@ -79,7 +79,7 @@ namespace Circularify.Web.Controllers
             }
 
             // Send the notification.
-            _hubManager.SendNotificationAsync(notification, false).ConfigureAwait(false);
+            _gcmManager.SendNotificationAsync(notification).ConfigureAwait(false);
 
             return RedirectToAction("CreateRedirect");
         }

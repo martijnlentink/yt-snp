@@ -31,9 +31,12 @@ namespace Circularify.Web.Domain
         public DateTime Sent { get; set; }
     }
 
-    public class AzureMessageEntity
+    public class GcmMessageEntity
     {
-        [JsonProperty("data")]
-        public NotificationMessageEntity Data { get; set; }
+        [JsonProperty("to")]
+        public string To { get; set; } = "/topics/all";
+
+        [JsonProperty("notification")]
+        public NotificationMessageEntity Notification { get; set; }
     }
 }

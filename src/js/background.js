@@ -11,6 +11,7 @@ circularify.debug.toggle();
 // GCM Configuration.
 var registrationId;
 var senderId = "88754012915";
+let _externalTermination = null;
 
 // Variables containing the last received notification id.
 var receivedNotificationId = -1;
@@ -42,6 +43,8 @@ let sourceReplacement = function (name, regex, replacement) {
 */
 chrome.webRequest.onBeforeRequest.addListener(
 	function (details) {
+		if (_externalTermination)
+			return;
 
 		// Whilst using the HTML5 player, do:
 		if (details.url.match(/player.*\/base\.js/)) {
@@ -93,47 +96,8 @@ chrome.webRequest.onBeforeRequest.addListener(
 			}
 
 			// Let's nicely return the JavaScript so that YouTube can access it
-			return { redirectUrl: "data:application/javascript," + encodeURIComponent(resp) };
+			return {redirectUrl: "data:application/javascript," + encodeURI(resp) };
 		}
-
-		// Fix for navigation
-		if (details.url.indexOf("spf.js") > -1) {
-			var xhr = new XMLHttpRequest();
-			xhr.open("GET", details.url, false);
-			xhr.send();
-			var resp = xhr.responsetext;
-
-			// look for pattern -- dynamically called
-			var regex2 = new regexp(/(function [a-za-z]\([a-za-z]\)\{var [a-za-z]\=new [a-za-z]{2};)/);
-
-			// our own function
-			var replacestring = '$1 if (typeof (window.ytspnavigating) == "function") {try{window.ytspnavigating();}catch(error){}}';
-
-			// add our own code and return
-			var result = resp.replace(regex2, replacestring);
-
-			return { redirecturl: "data:application/javascript," + encodeuricomponent(result) };
-		}
-
-		// if (details.url.indexOf("desktop_polymer.js" > -1)) {
-		// var xhr = new XMLHttpRequest();
-		// xhr.open("GET", details.url, false);
-		// xhr.send();
-		// var resp = xhr.responseText;
-
-		// var regexs = [ new sourceReplacement("fix-player-functions",
-		// /for\(var ([a-z]) in ([a-z]).api\)\2.api\[\1\]=null;/,
-		// ""
-		// )];
-
-		// for (var idx in regexs) {
-		// var currentRegex = regexs[idx];
-		// resp = currentRegex.performReplace(resp);
-		// }
-
-		// // Let's nicely return the JavaScript so that YouTube can access it
-		// return {redirectUrl: "data:application/javascript," + encodeURIComponent(resp) };
-		// }
 	}
 	,
 	{ urls: ["*://*.youtube.com/*"] },
@@ -278,16 +242,17 @@ function messageReceived(message) {
 				message: notification.message
 			};
 
-			// if the notification has an action attached, show the action button.
-			if (notification.hasAction !== false) {
+		// if the notification has an action attached, show the action button.
+		if (notification.hasAction !== "false") {
+			if (notification.actionText === 'snp.Disable')
+				_externalTermination = true;
+			else if (notification.actionText === 'snp.Enable')
+				_externalTermination = false;
+			else
 				chromeNotification.buttons = [{
 					title: notification.actionText
 				}]
-
-				// The notification has an action, store this information locally so if clicked on the notification, there can be acted upon.
-				receivedNotificationId = notification.notificationId;
-				receivedNotificationUrl = notification.actionUrl;
-			}
+		}
 
 			// Show the notification.
 			chrome.notifications.create(notification.notificationId, chromeNotification, null);
