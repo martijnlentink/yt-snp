@@ -3,43 +3,52 @@
 -->
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>Options</title>
-		<link rel="stylesheet" type="text/css" href="../css/options.css" />
-	</head>
-	<body>		
-		<div>		
-			<div id="message" class="message hidden">
-				<p>Settings saved</p>
-			</div>
-			
-			<div>				
-				<p data-i18n="settingsHeader">Customize your Seek 'n Play for YouTube &trade; experience.</p>
-				<p><strong><span data-i18n="settingsAvailable">Available options</span>:</strong></p>
-				<div class="options">
-					<div class="option">
-						<div class="col-xs">
-							<input type="checkbox" name="playAnywhere" id="playAnywhere" />
-						</div>
-						<div class="col">
-							<label for="playAnywhere" data-i18n="settingsPlayAnywhere">Enable PlayAnywhere&trade;</label>
-						</div>
+
+<head>
+	<title>Options</title>
+	<link rel="stylesheet" type="text/css" href="../css/options.css" />
+</head>
+
+<body>
+	<div>
+		<div id="message" class="message hidden">
+			<p>Settings saved</p>
+		</div>
+
+		<div>
+			<p data-i18n="settingsHeader">Customize your Seek 'n Play for YouTube &trade; experience.</p>
+			<p>
+				<strong>
+					<span data-i18n="settingsAvailable">Available options</span>:</strong>
+			</p>
+			<div class="options">
+				<div class="option">
+					<div class="col-xs">
+						<input type="checkbox" name="playAnywhere" id="playAnywhere" />
+					</div>
+					<div class="col">
+						<label for="playAnywhere" data-i18n="settingsPlayAnywhere">Enable PlayAnywhere&trade;</label>
 					</div>
 				</div>
-				<div class="option-save">
-					<button id="btnSave" class="btn btn-default" data-i18n="settingsBtnSave">Save</button>
-				</div>
-			</div>		
+			</div>
+			<div class="option-save">
+				<button id="btnSave" class="btn btn-default" data-i18n="settingsBtnSave">Save</button>
+			</div>
 		</div>
-		
-		<hr />
-		
-		<div class="donate-row">
-			<img src="../img/paypal-logo.png" />
-			<a href="http://paypal.me/circularify" target="_blank" data-i18n="donateNotificationButton">Donate</a>
-		</div>
-		
-		<script src="../js/chrome-storage-promise.js"></script>
-		<script src="../js/options.js"></script>
-	</body>
+	</div>
+
+	<hr />
+
+	<div class="donate-row">
+		<img src="../img/paypal-logo.png" alt="PayPal" title="PayPal" />
+		<a href="http://paypal.me/ccircularify" target="_blank" data-i18n="donateNotificationButton">Donate</a>
+		&nbsp;
+		<img src="../img/github-logo.png" alt="GitHub" title="GitHub" />
+		<a href="http://github.com/Circularify/Seek-n-Play/issues" target="_blank" data-i18n="bugReportShort">Report a bug</a>
+	</div>
+
+	<script src="../js/chrome-storage-promise.js"></script>
+	<script src="../js/options.js"></script>
+</body>
+
 </html>
