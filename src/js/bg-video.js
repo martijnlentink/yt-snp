@@ -146,7 +146,10 @@
 
         chrome.runtime.onMessage.addListener(function (message) {
             if (message.request == 'restoreVideo')
-                chrome.tabs.update(vidTabId, { selected: true });
+                chrome.tabs.update(vidTabId, { selected: true }, function (tab) {
+                    if (!tab || chrome.runtime.lastError)
+                        chrome.tabs.create({ url: "http://youtube.com/watch?v=" + settings.video.videoId + "&t=" + (Math.round(settings.currentTime) || 0) })
+                });
             if (message.request == 'settings') 
                 chrome.tabs.sendMessage(pushTabId, { settings: settings });    
             if (message.func)
