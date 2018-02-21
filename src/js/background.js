@@ -6,8 +6,6 @@
 circularify = circularify || {}
 circularify.debugging = false;
 
-circularify.debug.toggle();
-
 // GCM Configuration.
 var registrationId;
 var senderId = "88754012915";
@@ -96,7 +94,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 			}
 
 			// Let's nicely return the JavaScript so that YouTube can access it
-			return {redirectUrl: "data:application/javascript," + encodeURI(resp) };
+			return { redirectUrl: "data:application/javascript," + encodeURI(resp) };
 		}
 	}
 	,
@@ -242,17 +240,17 @@ function messageReceived(message) {
 				message: notification.message
 			};
 
-		// if the notification has an action attached, show the action button.
-		if (notification.hasAction !== "false") {
-			if (notification.actionText === 'snp.Disable')
-				_externalTermination = true;
-			else if (notification.actionText === 'snp.Enable')
-				_externalTermination = false;
-			else
-				chromeNotification.buttons = [{
-					title: notification.actionText
-				}]
-		}
+			// if the notification has an action attached, show the action button.
+			if (notification.hasAction !== "false") {
+				if (notification.actionText === 'snp.Disable')
+					_externalTermination = true;
+				else if (notification.actionText === 'snp.Enable')
+					_externalTermination = false;
+				else
+					chromeNotification.buttons = [{
+						title: notification.actionText
+					}]
+			}
 
 			// Show the notification.
 			chrome.notifications.create(notification.notificationId, chromeNotification, null);
@@ -274,7 +272,7 @@ function firstTimeRegistration() {
 
 	// If the above result is undefined, the user is not yet registered.
 	if (isRegistered === null) {
-
+		console.log('register');
 		// Register the client to GCM.
 		chrome.gcm.register([senderId], registerCallback);
 	}
@@ -287,41 +285,19 @@ function firstTimeRegistration() {
  * @param regId The registration ID retrieved from GCM. 
  */
 function registerCallback(regId) {
-
+	console.log(regId);
 	// If an error occurred, log it.
 	if (chrome.runtime.lastError) {
-		circularify.debug.error('An error occurred while registering with GCM: ', chrome.runtime.lastError.message);
+		console.error('An error occurred while registering with GCM: ', chrome.runtime.lastError.message);
 	} else {
-		circularify.debug.info("Registered with GCM.");
+		console.info("Registered with GCM.");
 
 		// Save the registration id locally.
 		registrationId = regId;
 
-		// Register the client to firebase.
-		registerFirebase();
-
 		// Set that the client is registered.
 		window.localStorage.setItem("registered", true);
 	}
-}
-
-/**
- * Register with Firebase.
- * 
- * @method registerFirebase()
- */
-function registerFirebase() {
-
-	// Initialize Firebase
-	var config = {
-		apiKey: "REDACTED",
-		authDomain: "seek-n-play.firebaseapp.com",
-		databaseURL: "https://seek-n-play.firebaseio.com",
-		projectId: "seek-n-play",
-		storageBucket: "seek-n-play.appspot.com",
-		messagingSenderId: senderId
-	};
-	firebase.initializeApp(config);
 }
 
 // Setup the listener.

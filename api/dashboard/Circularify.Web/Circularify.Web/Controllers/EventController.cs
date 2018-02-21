@@ -9,12 +9,12 @@ namespace Circularify.Web.Controllers
     public class EventController : Controller
     {
         private EventManager _eventManager;
-        private AzureNotificationHubManager _hubManager;
+        private GcmNotificationManager _gcmManager;
 
         public EventController()
         {
             _eventManager = new EventManager();
-            _hubManager = new AzureNotificationHubManager();
+            _gcmManager = new GcmNotificationManager();
         }
         
         public ActionResult Index()
@@ -70,7 +70,7 @@ namespace Circularify.Web.Controllers
             }
        
             // Send the notification.
-            _hubManager.SendEventAsync(evt).ConfigureAwait(false);
+            _gcmManager.SendEventAsync(evt).ConfigureAwait(false);
 
             return RedirectToAction("CreateRedirect");
         }

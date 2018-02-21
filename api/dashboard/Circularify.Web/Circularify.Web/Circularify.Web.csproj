@@ -166,7 +166,6 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Managers\AzureNotificationHubManager.cs" />
     <Compile Include="Managers\EventManager.cs" />
     <Compile Include="Managers\GcmNotificationManager.cs" />
     <Compile Include="Managers\NotificationManager.cs" />

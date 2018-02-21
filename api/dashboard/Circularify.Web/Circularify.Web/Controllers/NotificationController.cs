@@ -121,7 +121,7 @@ namespace Circularify.Web.Controllers
                 };
 
                 // Send the notification to the hub manager, flagging it as a resend.
-                _hubManager.SendNotificationAsync(model, true).ConfigureAwait(false);
+                _gcmManager.SendNotificationAsync(model, true).ConfigureAwait(false);
 
                 // Return to the send succes page.
                 return RedirectToAction("CreateRedirect");
