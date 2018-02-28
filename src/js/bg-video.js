@@ -305,6 +305,10 @@
         return await sendFunction(tabId, arguments.callee.name);
     }
 
+    function syncVideoChange(vidId) {
+        sendFunction(vidTabId, arguments.callee.name, vidId);
+    }
+
     function syncState(tabId) {
         sendFunction(tabId, arguments.callee.name, settings);
     }
@@ -349,5 +353,7 @@
 
     circularify.snp.backgroundPlayer.events.subscribe('videoChange', function (videoNfo) {
         setSetting("video", videoNfo, true);
+        vidId = videoNfo.videoId;
+        syncVideoChange(videoNfo.videoId);
     });
 })();

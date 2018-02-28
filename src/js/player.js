@@ -52,6 +52,9 @@ document.YTSNPisDeployed || ((async function () {
 	});
 
 	var secondsToTime = function secToTime (secs, total) {
+		if (!secs)
+			return null;
+
 		var sec_num = parseInt(secs, 10); // don't forget the second param
 	    var hours   = Math.floor(sec_num / 3600);
 	    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
@@ -61,9 +64,10 @@ document.YTSNPisDeployed || ((async function () {
 	    if (minutes < 10) {minutes = "0"+minutes;}
 	    if (seconds < 10) {seconds = "0"+seconds;}
 
-	    if (!total)
+	    let totalTime = secToTime(total);
+	    if (!totalTime)
 	    	return (secs < 3600 ? '' : hours+':')+minutes+':'+seconds;
-	    return (secs < 3600 ? '' : hours+':')+minutes+':'+seconds + " / " + secToTime(total);
+	    return (secs < 3600 ? '' : hours+':')+minutes+':'+seconds + " / " + totalTime;
 	}
 
 	var updateProgress = function() {
@@ -166,6 +170,22 @@ document.YTSNPisDeployed || ((async function () {
 		});
 
 		return resp;
+	}
+
+	this.syncVideoChange = async function (videoId) {
+			console.log("Sync zou moeten werken?");
+			console.log(videoId);
+		if (videoId && document.location.href.indexOf("v=" + videoId) == -1)
+		{
+			console.log("Stimmit");
+			let urlToNavigateTo = "https://youtube.com/watch?v=" + videoId;
+			_injectScript(function (urlN) {
+				console.log("Nieuwe url: " + urlN);
+
+				// TODO: translate to correct object
+				spf.navigate(urlN);
+			}, urlToNavigateTo);
+		}
 	}
 
 	this.syncState = function(state) {

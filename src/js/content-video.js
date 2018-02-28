@@ -163,12 +163,13 @@ circularify.snp.backgroundPlayer = circularify.snp.backgroundPlayer || (function
 
 		let _videoChangeHandler = function () {
 			let titleText = (document.querySelector(".ytp-title a.ytp-title-link") || {}).innerText;
-			let videoEl = document.querySelector("ytd-watch[video-id]");
-			
-			if (!videoEl)
+			// let videoEl = document.querySelector("ytd-watch[video-id]");
+			// let videoId = videoEl.getAttribute('video-id');
+			let videoId = circularify.ytapi.getVideoId();
+
+			if (!videoId)
 				return;
 
-			let videoId = videoEl.getAttribute('video-id');
 			_emitEvent("videoChange", {
 				title: titleText,
 				videoId: videoId
@@ -183,6 +184,12 @@ circularify.snp.backgroundPlayer = circularify.snp.backgroundPlayer || (function
 		vid.addEventListener("play", _playStateHandler);
 		vid.addEventListener("pause", _playStateHandler);
 		vid.addEventListener("loadeddata", _videoChangeHandler);
+
+		let videoEl = document.querySelector("ytd-watch[video-id]");
+		if (videoEl)
+			videoEl.addEventListener("DOMSubtreeModified", _videoChangeHandler);
+
+		window.addEventListener("popstate", _videoChangeHandler);
 		// let titleEl = null;
 		// circularify.utils.wait(() => !(titleEl = document.querySelector("#container .title")), () => titleEl.addEventListener("DOMSubtreeModified", _videoChangeHandler));
 		// let titleEl = document.querySelector("#container .title");
