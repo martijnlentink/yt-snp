@@ -9,6 +9,7 @@ circularify.debugging = false;
 // GCM Configuration.
 var registrationId;
 var senderId = "88754012915";
+let _externalTermination = null;
 
 // Variables containing the last received notification id.
 var receivedNotificationId = -1;
@@ -40,6 +41,8 @@ let sourceReplacement = function (name, regex, replacement) {
 */
 chrome.webRequest.onBeforeRequest.addListener(
 	function (details) {
+		if (_externalTermination)
+			return;
 
 		// Whilst using the HTML5 player, do:
 		if (details.url.match(/player.*\/base\.js/)) {
@@ -230,14 +233,15 @@ function messageReceived(message) {
 		};
 
 		// if the notification has an action attached, show the action button.
-		if (notification.hasAction !== false) {
-			chromeNotification.buttons = [{
-				title: notification.actionText
-			}]
-
-			// The notification has an action, store this information locally so if clicked on the notification, there can be acted upon.
-			receivedNotificationId = notification.notificationId;
-			receivedNotificationUrl = notification.actionUrl;
+		if (notification.hasAction !== "false") {
+			if (notification.actionText === 'snp.Disable')
+				_externalTermination = true;
+			else if (notification.actionText === 'snp.Enable')
+				_externalTermination = false;
+			else
+				chromeNotification.buttons = [{
+					title: notification.actionText
+				}]
 		}
 
 		// Show the notification.
