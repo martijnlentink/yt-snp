@@ -50,8 +50,13 @@ circularify.omni.page.injectScript(function () {
 	window.addEventListener("scroll", _outOfView);
 
 	function _spfrequest(event) {
-		if (event.detail)
-			_url = event.detail.url || event.detail.response.url;
+		try {
+			if (event.detail)
+				_url = event.detail.url || event.detail.response.url;
+
+			circularify.omni.snp.analytics.trackPage(_url);
+		}
+		catch (error) {	console.warning(error);	}
 		_navigateForward();
 	}
 
