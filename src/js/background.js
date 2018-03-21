@@ -1,10 +1,12 @@
-/*
+/*!
  * Seek 'n Play is an application developed by Circularify
  */
+ /** @define {boolean} */
+var CIRC_DEBUG = true;
 
 // Debugging property.
 circularify = circularify || {}
-circularify.debugging = false;
+circularify.debugging = CIRC_DEBUG;
 
 // GCM Configuration.
 var registrationId;

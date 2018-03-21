@@ -56,7 +56,7 @@ circularify.omni.page.injectScript(function () {
 
 			circularify.omni.snp.analytics.trackPage(_url);
 		}
-		catch (error) {	console.warning(error);	}
+		catch (error) {	console.warn(error);	}
 		_navigateForward();
 	}
 
