@@ -29,24 +29,17 @@ var lastHandledNotification = -1;
 
  // WebRequest Listener
 chrome.webRequest.onBeforeRequest.addListener(
-	function(details) {
-	// Remove false when we're using this again!
-		if (false && Date.now() - lastNotificationCheck >= interval)
-		{
-			lastnotificationcheck = Date.now();
-			checkNotifications();
-		}
-	
+	function (details) {
+
 		// Whilst using the HTML5 player, do:
 		if (details.url.match(/player.*\/base\.js/)) {
-		
 			// Let, just, me, get that YT API JavaScript file
 			var xhr = new XMLHttpRequest();
 			xhr.open("GET", details.url, false);
 			xhr.send();
 			var resp = xhr.responseText;
-
-			var regexs = [
+			
+			let regexs = [
 				// Makes sure that YT doens't restart buffering when we navigate to the video we're watching
 				new sourceReplacement("requeue-prevention",
 					/([A-Za-z]{1,3}\(this\,\"loadVideoByPlayerVars\"\,)(this\.[A-Za-z]{1,3})(\)\;)/,
@@ -74,10 +67,10 @@ chrome.webRequest.onBeforeRequest.addListener(
 					/([A-Za-z]{1,3}\(this\,\"stopVideo\"\,)this\.[A-Za-z@$%&*]{1,3}\)\;/,
 					'$1function(){});'
 				),
-				//stopPlayer_:function(){var a=this.getInterface(Ds).getPlayer();a&&5!=a.getPlayerState()&&a.stopVideo()}
-				new sourceReplacement("disable-stop-polymer",
-					/(stopPlayer\_.*?&&a.stopVideo)(\(\))/,
-					'$1'
+				//Tsa=function(a){var b=a.o.g,c=new g.VN({video_id:b.videoId,oauth_token:b.oauthToken});a.g.experiments.g("html5_stopVideo_copy_thumbs_killswitch")||(c.Kh=g.bc(b.Kh));i0(a,c,1);null!=a.P&&a.P.stop()};
+				new sourceReplacement("disable-stop-navigate-polymer",
+					/([a-zA-Z]{3,4}=function\(a\){)(.*?video\_id.*?oauth\_token.*?\.stop\(\))/,
+					'$1return;$2'
 				)
 			];
 
@@ -85,13 +78,12 @@ chrome.webRequest.onBeforeRequest.addListener(
 				var currentRegex = regexs[idx];
 				resp = currentRegex.performReplace(resp);
 			}
-			
+
 			// Let's nicely return the JavaScript so that YouTube can access it
 			return {redirectUrl: "data:application/javascript," + encodeURI(resp) };
 		}
-	}
-	, 
-	{ urls: ["*://*.youtube.com/*"]},
+	},
+	{ urls: ["*://*.youtube.com/*", "*://*.ytimg.com/*"] },
 	["blocking"]
 );
 
