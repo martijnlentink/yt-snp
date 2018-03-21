@@ -11,9 +11,6 @@
 	"donateNotificationButton": {
 		"message": "Doneer"
 	},
-	"bugReportShort": {
-		"message": "Meld een probleem"
-	},
 	"popupMessage": {
 		"message": "Een fout gevonden? Meld deze via de <a href='http://bugs.circularify.com' target='_blank'>Circularify Bug Tracker</a>."
 	},
