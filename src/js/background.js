@@ -43,47 +43,55 @@ chrome.webRequest.onBeforeRequest.addListener(
 
 		// Whilst using the HTML5 player, do:
 		if (details.url.match(/player.*\/base\.js/)) {
-
 			// Let, just, me, get that YT API JavaScript file
 			var xhr = new XMLHttpRequest();
 			xhr.open("GET", details.url, false);
 			xhr.send();
 			var resp = xhr.responseText;
+			let regexs = null;
 
-			var regexs = [
-				// Makes sure that YT doens't restart buffering when we navigate to the video we're watching
-				new sourceReplacement("requeue-prevention",
-					/([A-Za-z]{1,3}\(this\,\"loadVideoByPlayerVars\"\,)(this\.[A-Za-z]{1,3})(\)\;)/,
-					"$1 function (obj) { if (typeof (YTSPPreventRequeue) != \"function\" || YTSPPreventRequeue(obj.video_id)) { $2.apply(this, arguments); } } $3"
-				),
-				// Disable the pauseVideo function that the advertisers call so that the original video can get loaded
-				// Matches: this.j&&this.A&&this.ha.pauseVideo()
-				new sourceReplacement("enable-advertisements-pause",
-					/(this\.[a-zA-Z]{1,2}&&this\.[a-zA-Z]{1,2}&&this\.[a-zA-Z]{1,3}\.)(pauseVideo\(\))/,
-					"$1YTSNP$2"
-				),
-				// Remove the pauseVideo command from the API, so we can keep on playin'
-				new sourceReplacement("disable-pause",
-					/([A-Za-z]{1,3}\(this\,\")(pauseVideo\"\,this\.[A-Za-z]{1,}\)\;)/,
-					'$1YTSNP$2'
-				),//var a=this.app.W(),b=xh()==this.element;if(b&&Ht())return new ve(window.outerWidth,window.outerHeight);
-				// We need a reference to this class to update the size of the window
-				// Matches: h.Ja=function(){var a=this.app.V,b=Jh()==this.element;if(b&&rq())return new Xe(window.outerWidth,window.outerHeight);
-				new sourceReplacement("update-window-size",
-					/([a-z]\.[a-zA-Z]{2,3}=function\(\)\{var a=this\.app\.[a-zA-Z]{1,2}.+?;if\(.+?)(\)return new ([^(]+)[^;]+)/,
-					"$1 || (!!window.YTSNPIsCorner && b)$2;if (!!window.YTSNPIsCorner) { return new $3(480,270);}"
-				),
-				// Remove the stopVideo command from the API, so we can keep on playin'
-				new sourceReplacement("disable-stop",
-					/([A-Za-z]{1,3}\(this\,\"stopVideo\"\,)this\.[A-Za-z@$%&*]{1,3}\)\;/,
-					'$1function(){});'
-				),
-				//stopPlayer_:function(){var a=this.getInterface(Ds).getPlayer();a&&5!=a.getPlayerState()&&a.stopVideo()}
-				new sourceReplacement("disable-stop-polymer",
-					/(stopPlayer\_.*?&&a.stopVideo)(\(\))/,
-					'$1'
-				)
-			];
+			if (details.url.indexOf("youtube.com") > -1) {
+				// Served from youtube domain
+				regexs = [
+					// Makes sure that YT doens't restart buffering when we navigate to the video we're watching
+					new sourceReplacement("requeue-prevention",
+						/([A-Za-z]{1,3}\(this\,\"loadVideoByPlayerVars\"\,)(this\.[A-Za-z]{1,3})(\)\;)/,
+						"$1 function (obj) { if (typeof (YTSPPreventRequeue) != \"function\" || YTSPPreventRequeue(obj.video_id)) { $2.apply(this, arguments); } } $3"
+					),
+					// Disable the pauseVideo function that the advertisers call so that the original video can get loaded
+					// Matches: this.j&&this.A&&this.ha.pauseVideo()
+					new sourceReplacement("enable-advertisements-pause",
+						/(this\.[a-zA-Z]{1,2}&&this\.[a-zA-Z]{1,2}&&this\.[a-zA-Z]{1,3}\.)(pauseVideo\(\))/,
+						"$1YTSNP$2"
+					),
+					// Remove the pauseVideo command from the API, so we can keep on playin'
+					new sourceReplacement("disable-pause",
+						/([A-Za-z]{1,3}\(this\,\")(pauseVideo\"\,this\.[A-Za-z]{1,}\)\;)/,
+						'$1YTSNP$2'
+					),//var a=this.app.W(),b=xh()==this.element;if(b&&Ht())return new ve(window.outerWidth,window.outerHeight);
+					// We need a reference to this class to update the size of the window
+					// Matches: h.Ja=function(){var a=this.app.V,b=Jh()==this.element;if(b&&rq())return new Xe(window.outerWidth,window.outerHeight);
+					new sourceReplacement("update-window-size",
+						/([a-z]\.[a-zA-Z]{2,3}=function\(\)\{var a=this\.app\.[a-zA-Z]{1,2}.+?;if\(.+?)(\)return new ([^(]+)[^;]+)/,
+						"$1 || (!!window.YTSNPIsCorner && b)$2;if (!!window.YTSNPIsCorner) { return new $3(480,270);}"
+					),
+					// Remove the stopVideo command from the API, so we can keep on playin'
+					new sourceReplacement("disable-stop",
+						/([A-Za-z]{1,3}\(this\,\"stopVideo\"\,)this\.[A-Za-z@$%&*]{1,3}\)\;/,
+						'$1function(){});'
+					),
+				];
+			}
+			else {
+				// Served from ytimg domain
+				regexs = [
+					//Tsa=function(a){var b=a.o.g,c=new g.VN({video_id:b.videoId,oauth_token:b.oauthToken});a.g.experiments.g("html5_stopVideo_copy_thumbs_killswitch")||(c.Kh=g.bc(b.Kh));i0(a,c,1);null!=a.P&&a.P.stop()};
+					new sourceReplacement("disable-stop-navigate-polymer",
+						/([a-zA-Z]{3,4}=function\(a\){)(.*?video\_id.*?oauth\_token.*?\.stop\(\))/,
+						'$1return;$2'
+					)
+				];
+			}
 
 			for (var idx in regexs) {
 				var currentRegex = regexs[idx];
@@ -95,7 +103,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 		}
 	}
 	,
-	{ urls: ["*://*.youtube.com/*"] },
+	{ urls: ["*://*.youtube.com/*", "*://*.ytimg.com/*"] },
 	["blocking"]
 );
 
