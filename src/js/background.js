@@ -88,7 +88,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 );
 
 // Install listener
-chrome.runtime.onInstalled.addListener(function(details){
+chrome.runtime.onInstalled.addListener(async function(details){
 
 	// i18n install message
 	var installMsg = chrome.i18n.getMessage("installNotification");
@@ -143,8 +143,12 @@ chrome.runtime.onInstalled.addListener(function(details){
 	
 	circularify.omni.analytics.registerEvent(details.reason, chrome.runtime.getManifest().version);
 	
+	let birthdayStartup = await circularify.settings.get("birthday-startup", false);
 	// SHOW INSTALL PAGE (v3.0.x only)
-	chrome.tabs.create({ "url": "html/startup.html"});
+	if (!birthdayStartup && circularify.utils.checkMinVersion("3.0.0")) {
+		chrome.tabs.create({ "url": "html/startup.html"});
+		circularify.settings.set("birthday-startup", true);
+	}
 });
 
 // Add Event Listener for Notifications
