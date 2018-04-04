@@ -109,10 +109,10 @@ circularify.snp.backgroundPlayer = circularify.snp.backgroundPlayer || (function
 		_pushIntervalId = setInterval(function () {
 			if (!vid)
 				return;
-			if ((document.querySelector(".ad-showing") || document.querySelector(".ad-interrupting")) && vid.src) {
-				vid.src = null;
-				return;
-			}
+			// if ((document.querySelector(".ad-showing") || document.querySelector(".ad-interrupting")) && vid.src) {
+			// 	vid.src = null;
+			// 	return;
+			// }
 
 			try {
 				_seconds += 1.0 / videoFps;
