@@ -14,10 +14,6 @@ function ytsnp() {
 		smallHeight: "270px"
 	}
 	
-	// Reference the player object using a 'wait' call.
-	var el;
-	circularify.utils.wait(function() { return (el = document.getElementsByClassName("ytp-chrome-controls")[0]);}, addButtons);	
-	
 	// Get a reference job
 	function _getPlayer() {
 		return circularify.ytapi.getPlayer();
@@ -136,8 +132,18 @@ function ytsnp() {
 	
 	/* Player Options */
 	
+	let _buttonsAdded = false;
 	// Function to add the close & back buttons to the player
 	function addButtons() {
+		if (_buttonsAdded)
+			return;
+
+		let els = document.getElementsByClassName("ytp-chrome-controls");
+		if (!els.length) {
+			circularify.omni.snp.analytics.registerEvent("player-controls-undefined");
+			return;
+		}
+		let el = els[0];
 	
 		// Inject close button code in YouTube player
 		var button = document.createElement('button');
@@ -174,6 +180,8 @@ function ytsnp() {
 			_performNavigation(url);
 			_hideButtons();
 		});
+
+		_buttonsAdded = true;
 	}
 	
 	
@@ -182,6 +190,7 @@ function ytsnp() {
 		var closeButton;
 		var backButton;
 		var sizeButton;
+		addButtons();
 		
 		circularify.utils.wait(function () { return (closeButton = document.getElementsByClassName("closeButton")[0]) && (backButton = document.getElementsByClassName("backToVideoButton")[0]) && (sizeButton = document.getElementsByClassName('ytp-size-button ytp-button')[0]); }, function () {
 			
@@ -196,6 +205,7 @@ function ytsnp() {
 		var closeButton;
 		var backButton;
 		var sizeButton;
+		addButtons();
 		
 		circularify.utils.wait(function () { return (closeButton = document.getElementsByClassName("closeButton")[0]) && (backButton = document.getElementsByClassName("backToVideoButton")[0]) && (sizeButton = document.getElementsByClassName('ytp-size-button ytp-button')[0]); }, function () {
 			closeButton.style.display = 'none';
