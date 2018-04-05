@@ -109,10 +109,10 @@ circularify.snp.backgroundPlayer = circularify.snp.backgroundPlayer || (function
 		_pushIntervalId = setInterval(function () {
 			if (!vid)
 				return;
-			if ((document.querySelector(".ad-showing") || document.querySelector(".ad-interrupting")) && vid.src) {
-				vid.src = null;
-				return;
-			}
+			// if ((document.querySelector(".ad-showing") || document.querySelector(".ad-interrupting")) && vid.src) {
+			// 	vid.src = null;
+			// 	return;
+			// }
 
 			try {
 				_seconds += 1.0 / videoFps;
@@ -161,10 +161,26 @@ circularify.snp.backgroundPlayer = circularify.snp.backgroundPlayer || (function
 			_emitEvent("playingState", vid.paused);
 		};
 
+		let _videoChangeHandler = function () {
+			let titleText = (document.querySelector(".ytp-title a.ytp-title-link") || {}).innerText;
+			let videoId = circularify.ytapi.getVideoId();
+
+			if (!videoId)
+				return;
+
+			_emitEvent("videoChange", {
+				title: titleText,
+				videoId: videoId
+			});
+		}
+
 		vid.addEventListener("playing", _playStateHandler);
 		vid.addEventListener("play", _playStateHandler);
 		vid.addEventListener("pause", _playStateHandler);
-		//console.log("Resolved!");
+		vid.addEventListener("loadeddata", _videoChangeHandler);
+		window.addEventListener("popstate", _videoChangeHandler);
+		_videoChangeHandler();
+
 		resolve();
 	});
 

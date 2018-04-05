@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 	"name": "Seek 'n Play for YouTube™",
 	"description": "__MSG_appDescription__",
-	"version": "3.0.0",
+	"version": "0.0.0",
 	"homepage_url": "https://chrome.google.com/webstore/detail/aiaeaehoebdkelhnbomepbijjjeakkld/",
 	"short_name": "Seek 'n Play",
 	"icons": {
@@ -67,6 +67,8 @@
 	],
 	"background": {
 		"scripts": [
+			"js/lib/CryptoJS/rollups/hmac-sha256.js",
+			"js/lib/CryptoJS/components/enc-base64-min.js",
 			"js/chrome-storage-promise.js",
 			"js/core/ytapi.js",
 			"js/core/modules.js",

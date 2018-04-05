@@ -40,12 +40,21 @@ document.YTSNPisDeployed || ((async function () {
 	var mutebutton = document.querySelector("#YTSNP-mute");
 	var playtime = document.querySelector("#YTSNP-time");
 	var closeBtn = document.querySelector("#YTSNP-player-everywhere .close");
+	let header = document.querySelector("#YTSNP-player-everywhere header");
+	let restoreBtn = document.querySelector("#YTSNP-restore");
+
+	restoreBtn.addEventListener("click", function () {
+		chrome.runtime.sendMessage({ request: "restoreVideo" });
+	});
 
 	closeBtn.addEventListener("click", function () {
 		chrome.runtime.sendMessage({ setting: 'playerVisible', val: false, propagate: true, func: 'stopVideo' });
 	});
 
 	var secondsToTime = function secToTime (secs, total) {
+		if (!secs)
+			return null;
+
 		var sec_num = parseInt(secs, 10); // don't forget the second param
 	    var hours   = Math.floor(sec_num / 3600);
 	    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
@@ -55,16 +64,17 @@ document.YTSNPisDeployed || ((async function () {
 	    if (minutes < 10) {minutes = "0"+minutes;}
 	    if (seconds < 10) {seconds = "0"+seconds;}
 
-	    if (!total)
+	    let totalTime = secToTime(total);
+	    if (!totalTime)
 	    	return (secs < 3600 ? '' : hours+':')+minutes+':'+seconds;
-	    return (secs < 3600 ? '' : hours+':')+minutes+':'+seconds + " / " + secToTime(total);
+	    return (secs < 3600 ? '' : hours+':')+minutes+':'+seconds + " / " + totalTime;
 	}
 
 	var updateProgress = function() {
 	  var ran = range.value / range.max;
 	  range.style.background = '-webkit-gradient(linear, left top, right top, color-stop(' + ran + ', #F12B24), color-stop(' + ran + ', rgba(255, 255, 255, 0.4)))';
 		
-	  	playtime.innerHTML = secondsToTime(range.value, range.max);
+	  	playtime.innerText = secondsToTime(range.value, range.max);
 	};
 
 	range.addEventListener('input', updateProgress);
@@ -162,6 +172,22 @@ document.YTSNPisDeployed || ((async function () {
 		return resp;
 	}
 
+	this.syncVideoChange = async function (videoId) {
+			console.log("Sync zou moeten werken?");
+			console.log(videoId);
+		if (videoId && document.location.href.indexOf("v=" + videoId) == -1)
+		{
+			console.log("Stimmit");
+			let urlToNavigateTo = "https://youtube.com/watch?v=" + videoId;
+			_injectScript(function (urlN) {
+				console.log("Nieuwe url: " + urlN);
+
+				// TODO: translate to correct object
+				spf.navigate(urlN);
+			}, urlToNavigateTo);
+		}
+	}
+
 	this.syncState = function(state) {
 		for (var idx in state) {
 			videoEl[idx] = state[idx];
@@ -186,7 +212,6 @@ document.YTSNPisDeployed || ((async function () {
 	}
 
 	// Incoming messages from the background
-
 	chrome.runtime.onMessage.addListener(function (message, sender, resp) {
 		videoEl = document.querySelector("video");
 		let funcAsFunction = this[message.func];// || eval(message.func); //eval dirty fix1
@@ -203,6 +228,7 @@ document.YTSNPisDeployed || ((async function () {
 			volume.value = message.settings.volume * !message.settings.muted;
 			setPosition(container, message.settings.move[0], message.settings.move[1]);
 			videoImg.parentNode.classList.toggle("hide", !message.settings.playerVisible || !message.settings.started);
+			header.innerText = message.settings.video.title;
 		}
 	});
 

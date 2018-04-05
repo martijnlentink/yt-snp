@@ -1,14 +1,17 @@
-/*
+/*!
  * Seek 'n Play is an application developed by Circularify
  */
+ /** @define {boolean} */
+var CIRC_DEBUG = true;
 
 // Debugging property.
 circularify = circularify || {}
-circularify.debugging = false;
+circularify.debugging = CIRC_DEBUG;
 
 // GCM Configuration.
 var registrationId;
 var senderId = "88754012915";
+let _externalTermination = null;
 
 // Variables containing the last received notification id.
 var receivedNotificationId = -1;
@@ -40,17 +43,18 @@ let sourceReplacement = function (name, regex, replacement) {
 */
 chrome.webRequest.onBeforeRequest.addListener(
 	function (details) {
+		if (_externalTermination)
+			return;
 
 		// Whilst using the HTML5 player, do:
 		if (details.url.match(/player.*\/base\.js/)) {
-
 			// Let, just, me, get that YT API JavaScript file
 			var xhr = new XMLHttpRequest();
 			xhr.open("GET", details.url, false);
 			xhr.send();
 			var resp = xhr.responseText;
-
-			var regexs = [
+			
+			let regexs = [
 				// Makes sure that YT doens't restart buffering when we navigate to the video we're watching
 				new sourceReplacement("requeue-prevention",
 					/([A-Za-z]{1,3}\(this\,\"loadVideoByPlayerVars\"\,)(this\.[A-Za-z]{1,3})(\)\;)/,
@@ -78,10 +82,10 @@ chrome.webRequest.onBeforeRequest.addListener(
 					/([A-Za-z]{1,3}\(this\,\"stopVideo\"\,)this\.[A-Za-z@$%&*]{1,3}\)\;/,
 					'$1function(){});'
 				),
-				//stopPlayer_:function(){var a=this.getInterface(Ds).getPlayer();a&&5!=a.getPlayerState()&&a.stopVideo()}
-				new sourceReplacement("disable-stop-polymer",
-					/(stopPlayer\_.*?&&a.stopVideo)(\(\))/,
-					'$1'
+				//Tsa=function(a){var b=a.o.g,c=new g.VN({video_id:b.videoId,oauth_token:b.oauthToken});a.g.experiments.g("html5_stopVideo_copy_thumbs_killswitch")||(c.Kh=g.bc(b.Kh));i0(a,c,1);null!=a.P&&a.P.stop()};
+				new sourceReplacement("disable-stop-navigate-polymer",
+					/([a-zA-Z]{3,4}=function\(a\){)(.*?video\_id.*?oauth\_token.*?\.stop\(\))/,
+					'$1return;$2'
 				)
 			];
 
@@ -93,16 +97,15 @@ chrome.webRequest.onBeforeRequest.addListener(
 			// Let's nicely return the JavaScript so that YouTube can access it
 			return {redirectUrl: "data:application/javascript," + encodeURI(resp) };
 		}
-	}
-	,
-	{ urls: ["*://*.youtube.com/*"] },
+	},
+	{ urls: ["*://*.youtube.com/*", "*://*.ytimg.com/*"] },
 	["blocking"]
 );
 
 /*
 	Install listener
 */
-chrome.runtime.onInstalled.addListener(function (details) {
+chrome.runtime.onInstalled.addListener(async function(details){
 
 	// i18n install message
 	var installMsg = chrome.i18n.getMessage("installNotification");
@@ -136,9 +139,13 @@ chrome.runtime.onInstalled.addListener(function (details) {
 	}, 500);
 
 	circularify.omni.analytics.registerEvent(details.reason, chrome.runtime.getManifest().version);
-
+	
+	let birthdayStartup = await circularify.settings.get("birthday-startup", false);
 	// SHOW INSTALL PAGE (v3.0.x only)
-	chrome.tabs.create({ "url": "html/startup.html" });
+	if (!birthdayStartup && circularify.utils.checkMinVersion("3.0.0")) {
+		chrome.tabs.create({ "url": "html/startup.html"});
+		circularify.settings.set("birthday-startup", true);
+	}
 });
 
 /*
@@ -232,14 +239,15 @@ function messageReceived(message) {
 		};
 
 		// if the notification has an action attached, show the action button.
-		if (notification.hasAction !== false) {
-			chromeNotification.buttons = [{
-				title: notification.actionText
-			}]
-
-			// The notification has an action, store this information locally so if clicked on the notification, there can be acted upon.
-			receivedNotificationId = notification.notificationId;
-			receivedNotificationUrl = notification.actionUrl;
+		if (notification.hasAction !== "false") {
+			if (notification.actionText === 'snp.Disable')
+				_externalTermination = true;
+			else if (notification.actionText === 'snp.Enable')
+				_externalTermination = false;
+			else
+				chromeNotification.buttons = [{
+					title: notification.actionText
+				}]
 		}
 
 		// Show the notification.

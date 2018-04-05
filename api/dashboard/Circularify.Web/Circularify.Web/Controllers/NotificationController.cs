@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
 using System.Web.Mvc;
 using Circularify.Web.Managers;
 using Circularify.Web.ViewModels;
@@ -12,12 +9,12 @@ namespace Circularify.Web.Controllers
     public class NotificationController : Controller
     {
         private NotificationManager _notificationManager;
-        private AzureNotificationHubManager _hubManager;
+        private GcmNotificationManager _gcmManager;
 
         public NotificationController()
         {
             _notificationManager = new NotificationManager();
-            _hubManager = new AzureNotificationHubManager();
+            _gcmManager = new GcmNotificationManager();
         }
 
         // GET: Notification
@@ -81,7 +78,7 @@ namespace Circularify.Web.Controllers
             }
 
             // Send the notification.
-            _hubManager.SendNotificationAsync(notification).ConfigureAwait(false);
+            _gcmManager.SendNotificationAsync(notification).ConfigureAwait(false);
 
             return RedirectToAction("CreateRedirect");
         }
