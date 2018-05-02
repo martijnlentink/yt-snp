@@ -22,6 +22,13 @@ document.YTSNPisDeployed || ((async function () {
 	while (!document.body)
 		await (new Promise(r => setTimeout(r, 100)));
 
+	if (document.location.href.indexOf("youtube.com/watch") > -1) {
+		window.onbeforeunload = function () {
+			var currentState = this.getCurrentState();
+			chrome.runtime.sendMessage({ request: "ytNavigateState", state: currentState });
+		}
+	}
+
 	let playerResponse = await fetch(chrome.extension.getURL("html/player.html"));
 	let playerHtml = await playerResponse.text();
 	let injectEl = document.createElement("div");

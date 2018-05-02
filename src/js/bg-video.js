@@ -7,13 +7,13 @@
         return;
 
     chrome.webRequest.onHeadersReceived.addListener(
-        function(ev) {
+        function (ev) {
             var headers = stripHeaders(ev.responseHeaders, 'X-Frame-Options', 'Frame-Options');
-            return {responseHeaders: headers};
+            return { responseHeaders: headers };
         },
         {
-            urls: [ '*://*.youtube.com/*', '*://youtu.be/*' ],
-            types: [ 'sub_frame' ]
+            urls: ['*://*.youtube.com/*', '*://youtu.be/*'],
+            types: ['sub_frame']
         },
         ['blocking', 'responseHeaders']
     );
@@ -25,22 +25,24 @@
     var previousTab = null;
 
     var ytAdUrls = ["ssl.google-analytics.com",
-"www-google-analytics.l.google.com",
-"stats.g.doubleclick.net",
-"clients.l.google.com",
-"pagead.l.doubleclick.net",
-"www-googletagmanager.l.google.com",
-"googleadapis.l.google.com"];
+        "www-google-analytics.l.google.com",
+        "stats.g.doubleclick.net",
+        "clients.l.google.com",
+        "pagead.l.doubleclick.net",
+        "www-googletagmanager.l.google.com",
+        "googleadapis.l.google.com"];
 
     chrome.webRequest.onBeforeRequest.addListener(
-        function(details) {
+        function (details) {
+            // if (details.tabId == vidTabId && details.url != 'http://www.google.com/gen_204' && details.frameId == 0 && details.type == 'main_frame')
+            //     return {redirectUrl: 'http://www.google.com/gen_204'};
             //if (details.frameId > 0)
-          return {cancel: ytAdUrls.filter(url => details.url.indexOf(url) > -1) > 0};
+            return { cancel: ytAdUrls.filter(url => details.url.indexOf(url) > -1) > 0 };
         },
-        {urls: ["<all_urls>"]},
+        { urls: ["<all_urls>"] },
         ["blocking"]
     );
-      
+
     // chrome.webRequest.onBeforeRequest.addListener(
     // function(details) {
     //     // Whilst using the HTML5 player, do:
@@ -64,7 +66,7 @@
             var header = headers[idx];
             for (var i in toRemove) {
                 if (toRemove[i].toLowerCase() == header.name.toLowerCase())
-                headers.splice(idx, 1);
+                    headers.splice(idx, 1);
             }
         }
 
@@ -78,7 +80,7 @@
         settings[key] = val;
         chrome.storage.local.set({ everywhereSettings: settings });
         if (propagate)
-            chrome.tabs.sendMessage(pushTabId, { settings: settings });  
+            chrome.tabs.sendMessage(pushTabId, { settings: settings });
     }
 
     var _callbacks = {};
@@ -125,17 +127,14 @@
         }
 
         function _onMessageListener(request, sender, sendResponse) {
-            if (request.type == 'callback')
-            {
+            if (request.type == 'callback') {
                 var callback = _callbacks[request.id];
-                if (callback)
-                {
+                if (callback) {
                     callback.apply(this, [request.response]);
                     delete _callbacks[request.id];
-                }    
+                }
             }
-            if (request.type == 'event')
-            {
+            if (request.type == 'event') {
                 var callbacks = _events[request.name];
                 for (var idx in callbacks) {
                     var call = callbacks[idx];
@@ -145,13 +144,20 @@
         };
 
         chrome.runtime.onMessage.addListener(function (message) {
-            if (message.request == 'restoreVideo')
+            if (message.request == 'restoreVideo') {
+                circularify.debug.log("Restoring to YT tab");
                 chrome.tabs.update(vidTabId, { selected: true }, function (tab) {
-                    if (!tab || chrome.runtime.lastError)
-                        chrome.tabs.create({ url: "http://youtube.com/watch?v=" + settings.video.videoId + "&t=" + (Math.round(settings.currentTime) || 0) })
+                    if (tab && tab.url && circularify.ytapi.getVideoId(tab.url))
+                        return;
+
+                    circularify.debug.log("Tab didnt exist anymore; recreating tab");
+                    chrome.tabs.create({ url: "http://youtube.com/watch?v=" + settings.video.videoId + "&t=" + (Math.round(settings.currentTime) || 0) })
                 });
-            if (message.request == 'settings') 
-                chrome.tabs.sendMessage(pushTabId, { settings: settings });    
+            }
+            if (message.request == 'ytNavigateState')
+                handlegetCurrentStateAsync(message.state);
+            if (message.request == 'settings')
+                chrome.tabs.sendMessage(pushTabId, { settings: settings });
             if (message.func)
                 _port.postMessage(new VideoIframeMessage(message.func, null, message.args));
 
@@ -160,20 +166,20 @@
                 setSetting(message.setting, message.val, message.propagate || false);
             }
         });
-        
-        chrome.runtime.onConnect.addListener(function(port) {
+
+        chrome.runtime.onConnect.addListener(function (port) {
             if (port.name != 'snp-background-video')
                 return;
-            
+
             _port = port;
-            _port.onDisconnect.addListener(function(port) {
+            _port.onDisconnect.addListener(function (port) {
             });
 
             _port.onMessage.addListener(_onMessageListener);
         });
 
         function _getVideoUrl(volume) {
-            return "https://www.youtube.com/watch?v=" + _videoId + "&vq=medium&autoplay=1&play_small=true&t=" + Math.round(_startTime || 0) + "s&volume=" + (volume||1) + "&bgplay=YTSNP";
+            return "https://www.youtube.com/watch?v=" + _videoId + "&vq=medium&autoplay=1&play_small=true&t=" + Math.round(_startTime || 0) + "s&volume=" + (volume || 1) + "&bgplay=YTSNP";
         }
 
         async function _setVideo(id, time, volume) {
@@ -196,7 +202,7 @@
             });
         }
 
-        function _subscribeEvent (event, callback) {
+        function _subscribeEvent(event, callback) {
             var subArray = _events[event] || [];
             subArray.push(callback);
             _events[event] = subArray;
@@ -207,8 +213,8 @@
             getVideoId: function () { return _videoId; },
             setVideo: _setVideo,
             setState: function (state) { _callExternal("setState", null, state); },
-            setVideoDimensions: function (width, height) { _callExternal('setVideoDimensions', null, width, height)},
-            getCurrentFrame: function (callback) { _callExternal('getCurrentFrame', callback)},
+            setVideoDimensions: function (width, height) { _callExternal('setVideoDimensions', null, width, height) },
+            getCurrentFrame: function (callback) { _callExternal('getCurrentFrame', callback) },
             pauseVideo: function () { _callExternal('stopVideo') },
             startPaused: function () { _callExternal('startPaused') },
             playVideo: function () { _callExternal('play') },
@@ -236,69 +242,75 @@
             _tabChanged(tab);
     });
 
+    async function handlegetCurrentStateAsync(state) {
+        if (!state)
+            return;
+
+        for (let name in state)
+            settings[name] = state[name];
+
+        if (circularify.snp.backgroundPlayer.getVideoId() == vidId)
+            circularify.snp.backgroundPlayer.setState(state);
+        else {
+            await circularify.snp.backgroundPlayer.setVideo(vidId, state.currentTime, state.volume);
+            if (state.paused)
+                circularify.snp.backgroundPlayer.startPaused();
+            else
+                circularify.snp.backgroundPlayer.playVideo();
+        }
+
+        chrome.tabs.sendMessage(pushTabId, { settings: settings });
+    }
+
     var counter = 0;
     async function _tabChanged(tab) {
+        if (tab.url.indexOf("chrome-devtools://") > -1)
+            return;
+        pushTabId = tab.id;
         counter++;
         // If current URL is YT then get the video
         var vid = circularify.ytapi.getVideoId(tab.url);
 
         // Continue playing video after tab switch
-        if (vidTabId && vidTabId != tab.id && previousTab == vidTabId) {
-            setSetting("playerVisible", !vid);
-            if (vid == null) {
-                getCurrentState(vidTabId).then(async function (state) {
-                    if (!state)
-                        return;
-                    
-                    for (let name in state)
-                        settings[name] = state[name];
+        // Conditions:
+        // We switch tabs OR we navigate away from YT
+        // previous tab was YT!
+        if (vidTabId && previousTab == vidTabId && tab.url.indexOf("youtube.com/watch") == -1) {
+            // If we navigate the video tab, we will not have a tab to return to.
+            if (vidTabId == tab.id)
+                vidTabId = null;
 
-                    if (circularify.snp.backgroundPlayer.getVideoId() == vidId)
-                        circularify.snp.backgroundPlayer.setState(state);
-                    else
-                    {
-                        await circularify.snp.backgroundPlayer.setVideo(vidId, state.currentTime, state.volume);
-                        if (state.paused)
-                            circularify.snp.backgroundPlayer.startPaused();
-                        else
-                            circularify.snp.backgroundPlayer.playVideo();
-                    }
-                    
-                    chrome.tabs.sendMessage(tab.id, { settings: settings }); 
-                });
-            }
+            setSetting("playerVisible", !vid);
+            if (vid == null)
+                getCurrentState(vidTabId).then(handlegetCurrentStateAsync);
+
             chrome.tabs.update(vidTabId, { muted: true });
         }
 
-        // Exclude devtools pages
-        if (tab.url.indexOf("chrome-devtools://") == -1) {
-            pushTabId = tab.id;
-
-            if (vid) {
-                setSetting("playerVisible", false);
-                // If we are playing a video, this means we need to remove
-                // the small player and continue in the page. So we check
-                // if vidTabId is set and sync the video to the right moment.
-                if (vidTabId) {
-                    if (vid == vidId)
-                        syncState(vidTabId);
-                    else
-                        setSetting("started", false, true);
-                    circularify.snp.backgroundPlayer.pauseVideo();
-                }
-                chrome.tabs.update(tab.id, { muted: false });
-
-                // Register the current tab as the YT-tab
-                vidId = vid;
-                vidTabId = pushTabId || tabs[0].id;
+        if (vid) {
+            setSetting("playerVisible", false);
+            // If we are playing a video, this means we need to remove
+            // the small player and continue in the page. So we check
+            // if vidTabId is set and sync the video to the right moment.
+            if (vidTabId) {
+                if (vid == vidId)
+                    syncState(vidTabId);
+                else
+                    setSetting("started", false, true);
+                circularify.snp.backgroundPlayer.pauseVideo();
             }
+            chrome.tabs.update(tab.id, { muted: false });
 
-            // De onderstaande regel wordt momenteel alleen gebruikt zodat, wanneer de YT float wordt ge-force-closed
-            // Dat hij ook verdwijnt in andere tabbladen!
-            chrome.tabs.sendMessage(pushTabId, { settings: settings }); 
-            chrome.tabs.executeScript(null, {file: 'js/player.js', runAt: 'document_start'});
-            previousTab = tab.id;      
+            // Register the current tab as the YT-tab
+            vidId = vid;
+            vidTabId = pushTabId || tabs[0].id;
         }
+
+        // De onderstaande regel wordt momenteel alleen gebruikt zodat, wanneer de YT float wordt ge-force-closed
+        // Dat hij ook verdwijnt in andere tabbladen!
+        chrome.tabs.sendMessage(pushTabId, { settings: settings });
+        chrome.tabs.executeScript(null, { file: 'js/player.js', runAt: 'document_start' });
+        previousTab = tab.id;
     }
 
     async function getCurrentState(tabId) {
