@@ -24,7 +24,7 @@ let sourceReplacement = function (name, regex, replacement) {
 
 	var _performReplace = function (source) {
 		if (source.search(_regex) == -1)
-			circularify.omni.analytics.registerEvent("regex-error-" + _name);
+			circularify.omni.analytics.registerEvent("Regex", "Regex-error-" + _name);
 		else
 			return source.replace(_regex, _replacement);
 		return source;
@@ -160,7 +160,7 @@ chrome.notifications.onClicked.addListener(function (notificationId) {
 		var vnr = chrome.app.getDetails().version.replace(/\./g, '-');
 
 		// Register with analytics.
-		circularify.omni.analytics.registerEvent("notification-update-click-v" + vnr);
+		circularify.omni.analytics.registerEvent("Notification-Click", "Update-v" + vnr);
 
 		// Navigate to our website
 		chrome.tabs.create({ 'url': 'http://circularify.com/release/snp/' + vnr });
@@ -176,7 +176,7 @@ chrome.notifications.onButtonClicked.addListener(function (notificationId, butto
 	if (notificationId == "9999") {
 
 		// Register with analytics.
-		circularify.omni.analytics.registerEvent("notification-donate-click");
+		circularify.omni.analytics.registerEvent("Notification-Click", "Donate");
 
 		// Navigate to the donate page.
 		chrome.tabs.create({ 'url': 'http://paypal.me/ccircularify' });
