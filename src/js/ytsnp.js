@@ -48,7 +48,7 @@ function ytsnp() {
 
 				// GA
 				if(window.yttrcooldown == 0) {
-					circularify.omni.snp.analytics.registerEvent('Seek \'n Play cornerize', 'Seek \'n Play Cornerize');
+					circularify.omni.snp.analytics.registerEvent("Action", "Cornerize");
 					window.yttrcooldown = 1;
 					setTimeout(function() {
 						window.yttrcooldown = 0;
@@ -113,7 +113,7 @@ function ytsnp() {
 		
 		// GA
 		if(window.yttrcooldown == 0) {
-			circularify.omni.snp.analytics.registerEvent('Seek \'n Play decornerize', 'Seek \'n Play Decornerize');
+			circularify.omni.snp.analytics.registerEvent("Action", "Decornerize");
 			window.yttrcooldown = 1;
 			setTimeout(function() {
 				window.yttrcooldown = 0;
@@ -140,7 +140,7 @@ function ytsnp() {
 
 		let els = document.getElementsByClassName("ytp-chrome-controls");
 		if (!els.length) {
-			circularify.omni.snp.analytics.registerEvent("player-controls-undefined");
+			circularify.omni.snp.analytics.registerEvent("Error", "Player Controls Undefined");
 			return;
 		}
 		let el = els[0];
