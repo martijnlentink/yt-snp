@@ -160,6 +160,14 @@
                 chrome.tabs.sendMessage(pushTabId, { settings: settings });
             if (message.func)
                 _port.postMessage(new VideoIframeMessage(message.func, null, message.args));
+            // Fail-safe for closing all windows
+            if (message.func === "stopVideo") {
+                chrome.tabs.query({}, function(tabs) {
+                    for (var i=0; i<tabs.length; ++i) {
+                        chrome.tabs.sendMessage(tabs[i].id, { settings: settings });
+                    }
+                });
+            }
 
             // Upon updating settings write it to localStorage
             if (message.setting) {
@@ -268,19 +276,22 @@
             return;
         pushTabId = tab.id;
         counter++;
+
+        let isYt = tab.url.indexOf("youtube.com") > -1;
         // If current URL is YT then get the video
-        var vid = circularify.ytapi.getVideoId(tab.url);
+        var vid = circularify.ytapi.getVideoId(tab.url) || (isYt ? vidId : null);
 
         // Continue playing video after tab switch
         // Conditions:
         // We switch tabs OR we navigate away from YT
         // previous tab was YT!
-        if (vidTabId && previousTab == vidTabId && tab.url.indexOf("youtube.com/watch") == -1) {
-            // If we navigate the video tab, we will not have a tab to return to.
-            if (vidTabId == tab.id)
-                vidTabId = null;
-
+        if (vidTabId && previousTab == vidTabId && !isYt) {
             setSetting("playerVisible", !vid);
+
+            // If we navigate the video tab, we will not have a tab to return to.
+            //if (vidTabId == pushTabId)
+            //    vidTabId = null;
+
             if (vid == null)
                 getCurrentState(vidTabId).then(handlegetCurrentStateAsync);
 
@@ -292,9 +303,13 @@
             // If we are playing a video, this means we need to remove
             // the small player and continue in the page. So we check
             // if vidTabId is set and sync the video to the right moment.
-            if (vidTabId) {
+            //
+            // !! The second check is a quick fix to ensure that, when
+            // you navigate away from YT on the YT-tab. The video can be
+            // restored when pressing the back button
+            if (vidTabId || (!vidTabId && vid == vidId)) {
                 if (vid == vidId)
-                    syncState(vidTabId);
+                    syncState(vidTabId || pushTabId);
                 else
                     setSetting("started", false, true);
                 circularify.snp.backgroundPlayer.pauseVideo();
@@ -322,7 +337,16 @@
     }
 
     function syncState(tabId) {
-        sendFunction(tabId, arguments.callee.name, settings);
+        let funcName = arguments.callee.name;
+        chrome.tabs.get(tabId, async function (tab) {
+            if (tab.status === "complete")
+                sendFunction(tabId, funcName, settings);
+            else {
+                circularify.debug.log("Waiting to syncState");
+                await (new Promise(r => setTimeout(r, 100)));
+                syncState(tabId);
+            }
+        });
     }
 
     function updateTime(time, duration) {
@@ -332,7 +356,7 @@
     async function sendFunction(tabId, funcName) {
         let args = Array.prototype.slice.call(arguments, 2);
         return new Promise(function (resolve, reject) {
-            chrome.tabs.sendMessage(tabId, { func: funcName, args: args }, function (message) {
+            chrome.tabs.sendMessage(tabId, { func: funcName, args: args }, null, function (message) {
                 resolve(message);
             });
             setTimeout(() => reject("Took too long to complete"), 5000);

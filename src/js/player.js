@@ -180,8 +180,8 @@ document.YTSNPisDeployed || ((async function () {
 	}
 
 	this.syncVideoChange = async function (videoId) {
-			console.log("Sync zou moeten werken?");
-			console.log(videoId);
+		circularify.debug.log("Sync zou moeten werken?");
+		circularify.debug.log(videoId);
 		if (videoId && document.location.href.indexOf("v=" + videoId) == -1)
 		{
 			console.log("Stimmit");
@@ -196,6 +196,8 @@ document.YTSNPisDeployed || ((async function () {
 	}
 
 	this.syncState = function(state) {
+		circularify.debug.log("syncState");
+		circularify.debug.log(state);
 		for (var idx in state) {
 			videoEl[idx] = state[idx];
 		}
