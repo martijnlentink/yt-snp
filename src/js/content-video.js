@@ -155,7 +155,7 @@ circularify.snp.backgroundPlayer = circularify.snp.backgroundPlayer || (function
 			await (new Promise(r => setTimeout(r, 100)));
 		}
 
-		vid.volume = _grabFromQuery(volume);
+		vid.volume = _grabFromQuery("volume");
 
 		let _playStateHandler = function () {
 			_emitEvent("playingState", vid.paused);

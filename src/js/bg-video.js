@@ -321,9 +321,6 @@
             vidTabId = pushTabId || tabs[0].id;
         }
 
-        // De onderstaande regel wordt momenteel alleen gebruikt zodat, wanneer de YT float wordt ge-force-closed
-        // Dat hij ook verdwijnt in andere tabbladen!
-        chrome.tabs.sendMessage(pushTabId, { settings: settings });
         chrome.tabs.executeScript(null, { file: 'js/player.js', runAt: 'document_start' });
         previousTab = tab.id;
     }
@@ -336,15 +333,18 @@
         sendFunction(vidTabId, arguments.callee.name, vidId);
     }
 
-    function syncState(tabId) {
+    // The predefSettings are needed when we need to wait before injection
+    // but we still want the 'old' settings (without pausing)
+    function syncState(tabId, predefSettings) {
+        predefSettings = predefSettings || settings;
         let funcName = arguments.callee.name;
         chrome.tabs.get(tabId, async function (tab) {
             if (tab.status === "complete")
-                sendFunction(tabId, funcName, settings);
+                sendFunction(tabId, funcName, predefSettings);
             else {
                 circularify.debug.log("Waiting to syncState");
                 await (new Promise(r => setTimeout(r, 100)));
-                syncState(tabId);
+                syncState(tabId, predefSettings);
             }
         });
     }

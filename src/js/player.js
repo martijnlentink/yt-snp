@@ -131,10 +131,10 @@ document.YTSNPisDeployed || ((async function () {
 	var offset = {};
 
 	var setPosition = function (t, x, y) {
-		let target = t || target;
-		if (target) {
-			target.style.left = Math.min(Math.max(x, 0), window.innerWidth - target.clientWidth) + "px";
-			target.style.top = Math.min(Math.max(y, 0), window.innerHeight - target.clientHeight) + "px";
+		let locTarget = t || target;
+		if (locTarget) {
+			locTarget.style.left = Math.min(Math.max(x, 0), window.innerWidth - locTarget.clientWidth) + "px";
+			locTarget.style.top = Math.min(Math.max(y, 0), window.innerHeight - locTarget.clientHeight) + "px";
 		}
 	};
 
@@ -180,8 +180,6 @@ document.YTSNPisDeployed || ((async function () {
 	}
 
 	this.syncVideoChange = async function (videoId) {
-		circularify.debug.log("Sync zou moeten werken?");
-		circularify.debug.log(videoId);
 		if (videoId && document.location.href.indexOf("v=" + videoId) == -1)
 		{
 			console.log("Stimmit");
@@ -195,9 +193,13 @@ document.YTSNPisDeployed || ((async function () {
 		}
 	}
 
-	this.syncState = function(state) {
-		circularify.debug.log("syncState");
-		circularify.debug.log(state);
+	this.syncState = async function(state) {
+		while (videoEl.readyState < 4) {
+			await (new Promise(r => setTimeout(r, 100)));
+		}
+			
+		console.log("We've received syncing!");
+		console.log("Pauze!?: " +state.paused);
 		for (var idx in state) {
 			videoEl[idx] = state[idx];
 		}
