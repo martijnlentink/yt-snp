@@ -50,6 +50,9 @@ document.YTSNPisDeployed || ((async function () {
 	let header = document.querySelector("#YTSNP-player-everywhere header");
 	let restoreBtn = document.querySelector("#YTSNP-restore");
 
+	// Remove the forced 'display:none'
+	container.removeAttribute("style");
+
 	restoreBtn.addEventListener("click", function () {
 		chrome.runtime.sendMessage({ request: "restoreVideo" });
 	});

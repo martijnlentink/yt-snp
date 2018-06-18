@@ -104,6 +104,8 @@
         var _canvasElement = document.createElement("canvas");
         var _port;
 
+        _videoElement.setAttribute("allow", "autoplay");
+
         if (typeof video_id !== "undefined")
             _setVideo(video_id);
 
@@ -121,6 +123,8 @@
             // could happend if we switch between pages on YouTube
             if (!_port)
                 return;
+
+            circularify.debug.log("External call: "+name);
 
             var args = Array.prototype.slice.call(arguments, 2);
             _port.postMessage(new VideoIframeMessage(name, callback, args));
@@ -263,8 +267,8 @@
             await circularify.snp.backgroundPlayer.setVideo(vidId, state.currentTime, state.volume);
             if (state.paused)
                 circularify.snp.backgroundPlayer.startPaused();
-            else
-                circularify.snp.backgroundPlayer.playVideo();
+            //else
+              //  circularify.snp.backgroundPlayer.playVideo();
         }
 
         chrome.tabs.sendMessage(pushTabId, { settings: settings });
@@ -308,6 +312,7 @@
             // you navigate away from YT on the YT-tab. The video can be
             // restored when pressing the back button
             if (vidTabId || (!vidTabId && vid == vidId)) {
+                circularify.debug.log("Current state of playing: " + settings.paused);
                 if (vid == vidId)
                     syncState(vidTabId || pushTabId);
                 else
@@ -336,15 +341,16 @@
     // The predefSettings are needed when we need to wait before injection
     // but we still want the 'old' settings (without pausing)
     function syncState(tabId, predefSettings) {
-        predefSettings = predefSettings || settings;
+        predefSettings = circularify.utils.deepCopy(predefSettings || settings);
         let funcName = arguments.callee.name;
-        chrome.tabs.get(tabId, async function (tab) {
+
+        chrome.tabs.get(tabId, function (tab) {
             if (tab.status === "complete")
                 sendFunction(tabId, funcName, predefSettings);
             else {
-                circularify.debug.log("Waiting to syncState");
-                await (new Promise(r => setTimeout(r, 100)));
-                syncState(tabId, predefSettings);
+                setTimeout(function () {  
+                    syncState(tabId, predefSettings);
+                }, 100);
             }
         });
     }
@@ -369,6 +375,7 @@
     });
 
     circularify.snp.backgroundPlayer.events.subscribe('playingState', function (isPaused) {
+        circularify.debug.log("playingState pause change: " + isPaused);
         setSetting("paused", isPaused, true);
     });
 
@@ -377,6 +384,7 @@
         setSetting("currentTime", cur);
         if (state) {
             setSetting("volume", state.volume, true);
+            circularify.debug.log("videoState pause change: " + state.paused);
             setSetting("paused", state.paused, true);
         }
         // settings.state = { currentTime: cur, volume: state.volume, paused: state.paused };

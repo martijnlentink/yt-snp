@@ -29,7 +29,7 @@ circularify.snp.backgroundPlayer = circularify.snp.backgroundPlayer || (function
 	this.startPaused = async function () {
 		let prevVolume = vid.volume;
 		vid.volume = 0;
-		 vid.autoplay = false;
+		vid.autoplay = false;
 		//console.log("Trying to start paused!");
 
 		while(!vid.paused || vid.readyState < 4) {
