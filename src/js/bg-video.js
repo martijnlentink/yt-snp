@@ -283,7 +283,7 @@
 
         let isYt = tab.url.indexOf("youtube.com") > -1;
         // If current URL is YT then get the video
-        var vid = circularify.ytapi.getVideoId(tab.url) || (isYt ? vidId : null);
+        var vid = circularify.ytapi.getVideoId(tab.url);// || (isYt ? vidId : null);
 
         // Continue playing video after tab switch
         // Conditions:
@@ -311,7 +311,7 @@
             // !! The second check is a quick fix to ensure that, when
             // you navigate away from YT on the YT-tab. The video can be
             // restored when pressing the back button
-            if (vidTabId || (!vidTabId && vid == vidId)) {
+            if (vidTabId) {// && !(vidTabId == pushTabId && isYt)) { // || (!vidTabId && vid == vidId)) {
                 circularify.debug.log("Current state of playing: " + settings.paused);
                 if (vid == vidId)
                     syncState(vidTabId || pushTabId);
