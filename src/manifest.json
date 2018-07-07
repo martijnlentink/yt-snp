@@ -17,12 +17,19 @@
 	"permissions": [
 		"notifications",
 		"webRequest",
-		"*://*.youtube.com/*",
-		"*://*.ytimg.com/*",
+		"*://*.ytsnp.helper/*",
+		"*://*.youtube.com/*", 
+		"*://*.ytimg.com/*", 
+		"<all_urls>",
 		"webRequestBlocking",
-		"https://*.servicebus.windows.net/*",
+		"storage",
+		"activeTab",
+		"tabs",
 		"storage",
 		"gcm"
+	],
+	"optional_permissions": [
+		"management"
 	],
 	"externally_connectable": {
 		"matches": [
@@ -39,15 +46,34 @@
 				"js/contentscript.js"
 			],
 			"run_at": "document_end"
-		}
+		},
+		{
+	      "matches": [ "*://*.youtube.com/watch*&bgplay=YTSNP" ],
+	      "js": [ 
+		     	"js/core/modules.js",
+		      	"js/core/ytapi.js",
+		      	"js/content-video.js"
+	      	],
+	      "all_frames": true,
+	      "run_at": "document_end"
+	    },
+	    {
+	    	"matches": [ "*://*/*" ],
+		      	"css": [
+		      		"css/player.css"
+		      	],
+		      "run_at": "document_end"
+	    }
 	],
 	"background": {
 		"scripts": [
 			"js/lib/CryptoJS/rollups/hmac-sha256.js",
 			"js/lib/CryptoJS/components/enc-base64-min.js",
 			"js/chrome-storage-promise.js",
+			"js/core/ytapi.js",
 			"js/core/modules.js",
-			"js/background.js"
+			"js/background.js",
+			"js/bg-video.js"
 		]
 	},
 	"web_accessible_resources": [
@@ -55,6 +81,7 @@
 		"js/core/ytapi.js",
 		"js/ytsnp.js",
 		"css/ytsnp.css",
+		"html/player.html",
 		"https://www.google-analytics.com/analytics.js"
 	],
 	"content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",

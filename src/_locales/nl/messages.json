@@ -34,5 +34,11 @@
 	},
 	"settingsPlayAnywhere": {
 		"message": "Zet PlayAnywhere&trade; aan (beta)"
+	},
+	"playAnywhereEnableRestart": {
+		"message": "Seek 'n Play zal opnieuw worden geladen!"
+	},
+	"OK": {
+		"message": "OK"
 	}
 }
