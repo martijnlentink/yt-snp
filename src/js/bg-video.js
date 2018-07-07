@@ -19,6 +19,7 @@
     );
 
     var settings = (await chrome.storage.promise.local.get("everywhereSettings")).everywhereSettings || {};
+    var previousYt;
     var pushTabId = null;
     var vidTabId = null;
     var vidId = null;
@@ -254,6 +255,15 @@
             _tabChanged(tab);
     });
 
+    chrome.windows.onFocusChanged.addListener(function (currentWindowId) {
+        // Don't go to small player if  we have multiple windows, where one has YT as active tab
+        if (!previousYt)
+        chrome.tabs.query({ active: true, windowId: currentWindowId}, function (tabs) {
+            if (tabs.length)
+                _tabChanged(tabs[0]);
+        });
+    });
+
     async function handlegetCurrentStateAsync(state) {
         if (!state)
             return;
@@ -311,7 +321,7 @@
             // !! The second check is a quick fix to ensure that, when
             // you navigate away from YT on the YT-tab. The video can be
             // restored when pressing the back button
-            if (vidTabId) {// && !(vidTabId == pushTabId && isYt)) { // || (!vidTabId && vid == vidId)) {
+            if (vidTabId && !previousYt) {// && !(vidTabId == pushTabId && isYt)) { // || (!vidTabId && vid == vidId)) {
                 circularify.debug.log("Current state of playing: " + settings.paused);
                 if (vid == vidId)
                     syncState(vidTabId || pushTabId);
@@ -328,6 +338,7 @@
 
         chrome.tabs.executeScript(null, { file: 'js/player.js', runAt: 'document_start' });
         previousTab = tab.id;
+        previousYt = isYt;
     }
 
     async function getCurrentState(tabId) {

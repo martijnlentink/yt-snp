@@ -1,5 +1,4 @@
 //circularify.omni.analytics.initialize('UA-50232941-1');
-//var port = chrome.runtime.connect(chrome.runtime.id, { name: 'snp-browser'});
 document.YTSNPisDeployed || ((async function () {
 	document.YTSNPisDeployed = true;
 	console.log("Playerjs injected");
@@ -248,4 +247,9 @@ document.YTSNPisDeployed || ((async function () {
 
 	// Upon initialisation sync settings
 	chrome.runtime.sendMessage({ request: 'settings'});
+
+	var port = chrome.runtime.connect(chrome.runtime.id, { name: 'snp-browser'});
+	port.onDisconnect.addListener(function () {
+		container.setAttribute("style", "display:none;");
+	});
 })());
