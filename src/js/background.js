@@ -1,15 +1,30 @@
-/*
+/*!
  * Seek 'n Play is an application developed by Circularify
  */
+ /** @define {boolean} */
+var CIRC_DEBUG = true;
 
-var sourceReplacement = function (name, regex, replacement) {
+// Debugging property.
+circularify = circularify || {}
+circularify.debugging = CIRC_DEBUG;
+
+// GCM Configuration.
+var registrationId;
+var senderId = "88754012915";
+let _externalTermination = null;
+
+// Variables containing the last received notification id.
+var receivedNotificationId = -1;
+var receivedNotificationUrl = null;
+
+let sourceReplacement = function (name, regex, replacement) {
 	var _name = name;
 	var _regex = regex;
 	var _replacement = replacement;
 
-	var _performReplace = function(source) {
+	var _performReplace = function (source) {
 		if (source.search(_regex) == -1)
-			circularify.omni.analytics.registerEvent("regex-error-" + _name);
+			circularify.omni.analytics.registerEvent("Regex", "Regex-error-" + _name);
 		else
 			return source.replace(_regex, _replacement);
 		return source;
@@ -22,14 +37,14 @@ var sourceReplacement = function (name, regex, replacement) {
 		performReplace: _performReplace
 	};
 }
- 
-var lastNotificationCheck = Date.now();
-var interval = 60 * 60 * 1000;
-var lastHandledNotification = -1;
 
- // WebRequest Listener
+/*
+	WebRequest Listener
+*/
 chrome.webRequest.onBeforeRequest.addListener(
 	function (details) {
+		if (_externalTermination)
+			return;
 
 		// Whilst using the HTML5 player, do:
 		if (details.url.match(/player.*\/base\.js/)) {
@@ -87,7 +102,9 @@ chrome.webRequest.onBeforeRequest.addListener(
 	["blocking"]
 );
 
-// Install listener
+/*
+	Install listener
+*/
 chrome.runtime.onInstalled.addListener(async function(details){
 
 	// i18n install message
@@ -100,31 +117,11 @@ chrome.runtime.onInstalled.addListener(async function(details){
 		title: 'Seek \'n Play',
 		message: installMsg
 	}, null);
-		
-	// i18n donate messages
+
+  // i18n donate messages
 	var donateMsg = chrome.i18n.getMessage("donateNotification");
 	var donateBtnMsg = chrome.i18n.getMessage("donateNotificationButton");
-	
-	// SHOW DONATE POPUP
-	setTimeout(function() {		
- 		chrome.notifications.create("9999", {
- 			type: 'basic',
- 			iconUrl: chrome.extension.getURL('img/icon.128.png'),
- 			title: 'Seek \'n Play',
- 			message: donateMsg,
- 			buttons: [
- 				{
- 					title: donateBtnMsg,
- 			iconUrl: chrome.extension.getURL('img/paypal-logo.png'),
- 				}
- 			]
- 		}, null);
- 	}, 500);
-	
-	// i18n donate messages
-	var donateMsg = chrome.i18n.getMessage("donateNotification");
-	var donateBtnMsg = chrome.i18n.getMessage("donateNotificationButton");
-	
+
 	// SHOW DONATE POPUP
 	setTimeout(function() {		
 		chrome.notifications.create("9999", {
@@ -135,12 +132,12 @@ chrome.runtime.onInstalled.addListener(async function(details){
 			buttons: [
 				{
 					title: donateBtnMsg,
-			iconUrl: chrome.extension.getURL('img/paypal-logo.png'),
+					iconUrl: chrome.extension.getURL('img/paypal-logo.png')
 				}
 			]
 		}, null);
 	}, 500);
-	
+
 	circularify.omni.analytics.registerEvent(details.reason, chrome.runtime.getManifest().version);
 	
 	let birthdayStartup = await circularify.settings.get("birthday-startup", false);
@@ -151,91 +148,150 @@ chrome.runtime.onInstalled.addListener(async function(details){
 	}
 });
 
-// Add Event Listener for Notifications
-chrome.notifications.onClicked.addListener(function(notificationId) {
+/*
+	Add Event Listener for Notifications.
+*/
+chrome.notifications.onClicked.addListener(function (notificationId) {
 
 	// #SNP Update Notifications
 	if (notificationId == "9310") {
-	
+
 		// Get version number and replace '.' with '-'
 		var vnr = chrome.app.getDetails().version.replace(/\./g, '-');
-	
+
 		// Register with analytics.
-		circularify.omni.analytics.registerEvent("notification-update-click-v" + vnr);
-	
+		circularify.omni.analytics.registerEvent("Notification-Click", "Update-v" + vnr);
+
 		// Navigate to our website
-		chrome.tabs.create({'url': 'http://circularify.com/release/snp/' + vnr });	
+		chrome.tabs.create({ 'url': 'http://circularify.com/release/snp/' + vnr });
 	}
 });
 
-// Add Event Listener for Notifications
-chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex) {
-	
+/* 
+	Add Event Listener for Notifications.
+*/
+chrome.notifications.onButtonClicked.addListener(function (notificationId, buttonIndex) {
+
 	// #SNP Donate Button
 	if (notificationId == "9999") {
-		
+
 		// Register with analytics.
- 		circularify.omni.analytics.registerEvent("notification-donate-click");
-		
+		circularify.omni.analytics.registerEvent("Notification-Click", "Donate");
+
 		// Navigate to the donate page.
-		chrome.tabs.create({'url': 'http://paypal.me/circularify' });	
+		chrome.tabs.create({ 'url': 'http://paypal.me/ccircularify' });
 	}
-});
 
-// Add Event Listener for Notification Button Clicks
-chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex) {
-	
-	// #SNP Donate Button
-	if (notificationId == "9999") {
-		
-		// Register with analytics.
-		circularify.omni.analytics.registerEvent("notification-donate-click");
-	
-		// Navigate to the donate page.
-		chrome.tabs.create({'url': 'http://paypal.me/ccircularify' });	
-	}
-});
+	// If a notification with action was received, act upon this notification.
+	if (receivedNotificationId !== -1 && receivedNotificationUrl !== null) {
 
-function showNotification(id, message, title, iconUrl, type)
-{
-	title = title || 'Seek \'n Play';
-	iconUrl = iconUrl || 'img/icon.128.png';
-	if (!iconUrl.indexOf("://"))
-		iconUrl = chrome.extension.getURL(iconUrl);
-	type = type || 'basic';
-	
-	chrome.notifications.create(id, {
-		type: type,
-		iconUrl: iconUrl,
-		title: title,
-		message: message
-	}, null);
-}
+		// Check wether this was the notification that was received.
+		if (notificationId === receivedNotificationId) {
 
-function checkNotifications()
-{
-	// We're doing a HttpRequest looking for new notifications
-	// We'll pass the last notification that we showed in order
-	// to get the remaining notifications
-	var xhr = new XMLHttpRequest();
-	xhr.open("GET", "http://circularify.com/notify/" + lastHandledNotification);
-	xhr.addEventListener("load", handleNotification);
-	xhr.send();
-}
-
-function handleNotification()
-{
-	var array = JSON.parse(this.responseText);
-	
-	if (array.length > 0)
-	{
-		// We'll now be showing notification(s)
-		// TODO: Determine what to do when we got multiple notifications to show
-		for (var i in array)
-		{
-			var notification = array[i];
-			showNotification(notification.id, notification.message, notification.title);
-			circularify.omni.analytics.registerEvent("displayed_notification", notification.id);
+			// Navigate to the URL that was sent with the received notification.
+			chrome.tabs.create({ 'url': receivedNotificationUrl });
 		}
+
+		// Lastly, clear the variables.
+		receivedNotificationId = -1;
+		receivedNotificationUrl = null;
+	}
+});
+
+/*
+	Check wether the received notification should be shown.
+*/
+function shouldShowNotification(isProduction) {
+
+	// Production messages should always be shown!
+	if (isProduction === "true") {
+		return true;
+	}
+
+	// If debugging is enabled, then always show any message.
+	if (circularify.debugging == true) {
+		return true;
+	}
+
+	// Default case: false.
+	return false;
+}
+
+/*
+	GCM Message Received Event Handler.
+*/
+function messageReceived(message) {
+
+	circularify.debug.log('Received SnP push notification', message);
+
+	// Retrieve the notification body.
+	let notification = message.data;
+
+	// Check wether the notification should be processed and shown.
+	if (shouldShowNotification(notification.isProduction)) {
+
+		// Create the Chrome notification object.
+		let chromeNotification = {
+			type: 'basic',
+			iconUrl: chrome.extension.getURL('img/icon.128.png'),
+			title: notification.title,
+			message: notification.message
+		};
+
+		// if the notification has an action attached, show the action button.
+		if (notification.hasAction !== "false") {
+			if (notification.actionText === 'snp.Disable')
+				_externalTermination = true;
+			else if (notification.actionText === 'snp.Enable')
+				_externalTermination = false;
+			else
+				chromeNotification.buttons = [{
+					title: notification.actionText
+				}]
+		}
+
+		// Show the notification.
+		chrome.notifications.create(notification.notificationId, chromeNotification, null);
 	}
 }
+
+/*
+	Method handling the first time registration to GCM.
+*/
+function firstTimeRegistration() {
+	// Retrieve if the client is already registered.
+	let isRegistered = window.localStorage.getItem("registered");
+
+	// If the above result is undefined, the user is not yet registered.
+	if (isRegistered === null) {
+
+		// Register the client to GCM.
+		chrome.gcm.register([senderId], registerCallback);
+	}
+}
+
+/*
+	Method handling the GCM registration callback.
+*/
+function registerCallback(regId) {
+
+	// If an error occurred, log it.
+	if (chrome.runtime.lastError) {
+		circularify.debug.error('An error occurred while registering with GCM: ', chrome.runtime.lastError.message);
+	} else {
+		circularify.debug.info("Registered with GCM.");
+
+		// Save the registration id locally.
+		registrationId = regId;
+
+		// Set that the client is registered.
+		window.localStorage.setItem("registered", true);
+	}
+}
+
+// Setup the listener.
+chrome.gcm.onMessage.addListener(messageReceived);
+
+// Register the client to the hub on installation, and on startup.
+chrome.runtime.onInstalled.addListener(firstTimeRegistration);
+chrome.runtime.onStartup.addListener(firstTimeRegistration);

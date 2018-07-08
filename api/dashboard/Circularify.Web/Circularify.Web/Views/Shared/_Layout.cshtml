@@ -1,0 +1,66 @@
+﻿@{
+    var isLoginPage = (ViewBag.IsLoginPage != null && ViewBag.IsLoginPage == true);
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Circularify</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    @if (isLoginPage == false)
+    {
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a href="@Url.Action("Index", "Home")" class="navbar-brand"><span class="glyphicon glyphicon-dashboard"></span> Circularify</a>
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                        <li>@Html.ActionLink("Notifications", "Index", "Notification")</li>
+                        <li>@Html.ActionLink("About", "About", "Home")</li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        @if (Session["Username"] != null)
+                        {
+                            DateTime lastLogin = (DateTime)@Session["LastLogin"];
+                            var lastLoginText = lastLogin == DateTime.MinValue ? "Never" : lastLogin.ToString("dd-MM-yyyy HH:mm:ss");
+
+                            <li class="no-hover"><a>Hello, @Session["Username"]. Last login: @lastLoginText</a></li>
+                            <li>@Html.ActionLink("Logout", "Logout", "User")</li>
+                        }
+                        else
+                        {
+                            <li>@Html.ActionLink("Login", "Login", "User")</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    }
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        @if (isLoginPage == false)
+        {
+            <footer>
+                <p>&copy; @DateTime.Now.Year - Circularify Notifier</p>
+            </footer>
+        }
+    </div>
+
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

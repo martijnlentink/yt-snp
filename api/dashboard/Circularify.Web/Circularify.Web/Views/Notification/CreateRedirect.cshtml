@@ -1,0 +1,12 @@
+﻿
+@{
+    ViewBag.Title = "Notification was send!";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<script>
+    window.setTimeout(function () {
+        window.location.href = "http://@Request.Url.Authority/notifications"
+    }, 3000);
+</script>

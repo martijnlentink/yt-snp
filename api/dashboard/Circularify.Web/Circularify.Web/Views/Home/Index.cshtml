@@ -1,0 +1,10 @@
+﻿
+@{
+    ViewBag.Title = "Home";
+}
+
+<div class="row">
+    @{ 
+        Html.RenderAction("LoadLatestNotifications", "Notification");
+    }
+</div>

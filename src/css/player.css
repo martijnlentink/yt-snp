@@ -1,0 +1,393 @@
+/*#seek-n-play-er {
+	z-index: 99999999999;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 360px;
+	height: 340px;
+}
+*/
+
+#YTSNP-player-everywhere .close {
+  transition: opacity 0.2s;
+  opacity: 0;
+  background-color: rgba(33,33,33,0.7);
+  color: #fff;
+  font-size: 2em;
+  border-radius: 100%;
+  padding: 3px;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  font-size: 20px;
+  text-align: center;
+  line-height: 1;
+  position: absolute;
+  right: -10px;
+  top: -10px;
+  z-index: 999;
+}
+
+#YTSNP-player-everywhere:hover .close {
+  opacity: 1;
+  cursor: pointer;
+}
+
+#YTSNP-player-everywhere.hide {
+  display: none;
+}
+
+#YTSNP-player-everywhere * {
+ animation : none;
+    animation-delay : 0;
+    animation-direction : normal;
+    animation-duration : 0;
+    animation-fill-mode : none;
+    animation-iteration-count : 1;
+    animation-name : none;
+    animation-play-state : running;
+    animation-timing-function : ease;
+    backface-visibility : visible;
+    background : 0;
+    background-attachment : scroll;
+    background-clip : border-box;
+    background-color : transparent;
+    background-image : none;
+    background-origin : padding-box;
+    background-position : 0 0;
+    background-position-x : 0;
+    background-position-y : 0;
+    background-repeat : repeat;
+    background-size : auto auto;
+    border : 0;
+    border-style : none;
+    border-width : medium;
+    border-color : inherit;
+    border-bottom : 0;
+    border-bottom-color : inherit;
+    border-bottom-left-radius : 0;
+    border-bottom-right-radius : 0;
+    border-bottom-style : none;
+    border-bottom-width : medium;
+    border-collapse : separate;
+    border-image : none;
+    border-left : 0;
+    border-left-color : inherit;
+    border-left-style : none;
+    border-left-width : medium;
+    border-radius : 0;
+    border-right : 0;
+    border-right-color : inherit;
+    border-right-style : none;
+    border-right-width : medium;
+    border-spacing : 0;
+    border-top : 0;
+    border-top-color : inherit;
+    border-top-left-radius : 0;
+    border-top-right-radius : 0;
+    border-top-style : none;
+    border-top-width : medium;
+    bottom : auto;
+    box-shadow : none;
+    box-sizing : content-box;
+    caption-side : top;
+    clear : none;
+    clip : auto;
+    color : inherit;
+    columns : auto;
+    column-count : auto;
+    column-fill : balance;
+    column-gap : normal;
+    column-rule : medium none currentColor;
+    column-rule-color : currentColor;
+    column-rule-style : none;
+    column-rule-width : none;
+    column-span : 1;
+    column-width : auto;
+    content : normal;
+    counter-increment : none;
+    counter-reset : none;
+    cursor : auto;
+    direction : ltr;
+    display : inline;
+    empty-cells : show;
+    float : none;
+    font : normal;
+    font-family : inherit;
+    font-size : medium;
+    font-style : normal;
+    font-variant : normal;
+    font-weight : normal;
+    height : auto;
+    hyphens : none;
+    left : auto;
+    letter-spacing : normal;
+    line-height : normal;
+    list-style : none;
+    list-style-image : none;
+    list-style-position : outside;
+    list-style-type : disc;
+    margin : 0;
+    margin-bottom : 0;
+    margin-left : 0;
+    margin-right : 0;
+    margin-top : 0;
+    max-height : none;
+    max-width : none;
+    min-height : 0;
+    min-width : 0;
+    opacity : 1;
+    orphans : 0;
+    outline : 0;
+    outline-color : invert;
+    outline-style : none;
+    outline-width : medium;
+    overflow : visible;
+    overflow-x : visible;
+    overflow-y : visible;
+    padding : 0;
+    padding-bottom : 0;
+    padding-left : 0;
+    padding-right : 0;
+    padding-top : 0;
+    page-break-after : auto;
+    page-break-before : auto;
+    page-break-inside : auto;
+    perspective : none;
+    perspective-origin : 50% 50%;
+    position : static;
+    /* May need to alter quotes for different locales (e.g fr) */
+    quotes : '\201C' '\201D' '\2018' '\2019';
+    right : auto;
+    tab-size : 8;
+    table-layout : auto;
+    text-align : inherit;
+    text-align-last : auto;
+    text-decoration : none;
+    text-decoration-color : inherit;
+    text-decoration-line : none;
+    text-decoration-style : solid;
+    text-indent : 0;
+    text-shadow : none;
+    text-transform : none;
+    top : auto;
+    transform : none;
+    transform-style : flat;
+    transition : none;
+    transition-delay : 0s;
+    transition-duration : 0s;
+    transition-property : none;
+    transition-timing-function : ease;
+    unicode-bidi : normal;
+    vertical-align : baseline;
+    visibility : visible;
+    white-space : normal;
+    widows : 0;
+    width : auto;
+    word-spacing : normal;
+    z-index : auto;
+}
+
+#YTSNP-player-everywhere header {
+  color: #eee;
+  transition: opacity 0.2s 1s;
+  opacity: 0;
+  position: absolute;
+  padding: 10px;
+  box-sizing: border-box;
+  width: 100%;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: inline;
+  overflow: hidden;
+  text-shadow: 0 0 5px #000;
+}
+
+#YTSNP-player-everywhere > * {
+  font-family: Roboto;
+}
+
+#YTSNP-player-everywhere #YTSNP-pauseplay > .hidden {
+  display:none;
+}
+
+#YTSNP-player-everywhere > img {
+  display: block;
+}
+
+#YTSNP-player-everywhere .controls {
+  transition: opacity 0.2s 1s;
+  opacity: 0;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+#YTSNP-player-everywhere .controls .bar {
+    height: 36px;
+    display: flex;
+    margin: 0 5px;
+    position: relative;
+    z-index: 99;
+}
+
+#YTSNP-player-everywhere .controls .bar * {
+    height: 100%;
+    display: flex;
+}
+
+#YTSNP-player-everywhere:hover .controls, #YTSNP-player-everywhere:hover header {
+  transition: opacity 0.2s;
+  opacity: 1;
+}
+
+#YTSNP-player-everywhere #YTSNP-progressbar {
+  display: block;
+  background: transparent;
+  -webkit-appearance: none;
+  margin: 10px 0;
+  width: 100%;
+}
+
+#YTSNP-player-everywhere #YTSNP-progressbar:focus {
+  outline: none;
+}
+
+#YTSNP-player-everywhere .video-range-container:hover  #YTSNP-progressbar::-webkit-slider-runnable-track, #YTSNP-player-everywhere .video-range-container:active input[type=range]::-webkit-slider-runnable-track {
+  height: 5px;
+}
+
+#YTSNP-player-everywhere  #YTSNP-progressbar::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 2px;
+  cursor: pointer;
+  transition: all 0.2s;
+  /* background: #F12B24; */
+  /* background-image: -webkit-gradient(
+        linear,
+        left top,
+        right top,
+        color-stop(0.15, #F12B24),
+        color-stop(0.15, rgba(255, 255, 255, 0.4))
+    ); */
+}
+
+#YTSNP-player-everywhere .video-range-container:hover #YTSNP-progressbar::-webkit-slider-thumb, #YTSNP-player-everywhere #YTSNP-progressbar:active::-webkit-slider-thumb {
+  opacity: 1;
+  transform: scale(1);
+}
+
+#YTSNP-player-everywhere #YTSNP-progressbar::-webkit-slider-thumb {
+  opacity: 0;
+  transform: scale(0);
+  box-shadow: 0px 0px 0px #000031;
+  border: 0px solid #00001E;
+  height: 12px;
+  width: 12px;
+  border-radius: 50px;
+  background: #BF221D;
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: -3.5px;
+  transition: all 0.05s;
+}
+
+#YTSNP-player-everywhere button {
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  outline: 0;
+  box-shadow: 0;
+}
+
+#YTSNP-volume {
+  display: inline-block;
+  height: 100%;
+  width: 0px;
+  opacity: 0;
+  /*animation: volume-hide;*/
+  transition: width 0.1s, opacity 0.1s 0.1s;
+}
+#YTSNP-mute-container {
+  display: inline-block;
+}
+
+#YTSNP-mute-container:hover #YTSNP-volume, #YTSNP-mute-container:active #YTSNP-volume {
+  width: 60px;
+  opacity: 1;
+  /*animation-name: volume-hide;*/
+  transition: opacity 0.1s, width 0.1s 0.1s;
+  animation-duration: 0.1;
+}
+
+#YTSNP-player-everywhere .controls #YTSNP-time {
+  display: inline-block;
+  height: 36px;
+  /*font-weight: 700;*/
+  color: #eee;
+  text-shadow: 0 0 2px #333;
+  line-height: 0;
+  transform: translateY(50%);
+}
+
+#YTSNP-player-everywhere .ytp-svg-fill {
+  fill: #fff;
+}
+
+#YTSNP-player-everywhere #YTSNP-restore { 
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAq0lEQVR42u2WMQ6AMAwDefr9vCwMDBRaUSQ7+KROzRC3iZNtCyEESdoacBaA8w/gXEI49wDOTYy7C1HBRnEXYN/EJWy0xCCTXSU4jqUATne4lRAX97g0MTcxqNsoA3GoDjJmYuVWia8fZ/aB1JJvsyWqmPyUSagmP2zTyskPDUr15B9XFRcBXRxKSFfAChHKNuoj4I0IxVUiAlJCv2piaxu1HmQlVokQQuiyA8w7ot5QnoO3AAAAAElFTkSuQmCC); 
+  margin-left: auto; 
+  width: 30px !important; 
+  height: 36px !important; 
+  background-repeat: no-repeat; 
+  background-size: 18px; 
+  background-position: center;
+}
+
+#YTSNP-player-everywhere #YTSNP-progressbar  #YTSNP-progressbar:hover::-webkit-slider-runnable-track {
+ /*   background: -webkit-gradient(
+        linear,
+        left top,
+        right top,
+        color-stop(0.15, #F12B24),
+        color-stop(0.15, rgba(255, 255, 255, 0.4))
+    );  */
+}
+
+#YTSNP-player-everywhere:active {
+	cursor: move;
+}
+
+#YTSNP-player-everywhere {
+  font-family: serif;
+	position: fixed;
+	display: inline-block;
+	-webkit-user-drag: none;
+	user-drag: none;
+	left: 0;
+	top: 0;
+	z-index: 99999999999;
+}
+
+#YTSNP-player-everywhere .gradient-background {
+  left: 0;
+	bottom: 0;
+	height:98px;
+	width: 100%;
+	background-position: bottom;
+	position: absolute;
+	background-repeat: repeat-x;
+	transition: opacity .25s cubic-bezier(0.0,0.0,0.2,1);
+	pointer-events: none;
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAADGCAYAAAAT+OqFAAAAdklEQVQoz42QQQ7AIAgEF/T/D+kbq/RWAlnQyyazA4aoAB4FsBSA/bFjuF1EOL7VbrIrBuusmrt4ZZORfb6ehbWdnRHEIiITaEUKa5EJqUakRSaEYBJSCY2dEstQY7AuxahwXFrvZmWl2rh4JZ07z9dLtesfNj5q0FU3A5ObbwAAAABJRU5ErkJggg==);
+}
+
+#YTSNP-player-everywhere .video-range-container {
+	z-index: 20;
+  display:flex;
+  padding: 0 10px;
+  position: relative;
+}

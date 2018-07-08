@@ -11,6 +11,9 @@
 	"donateNotificationButton": {
 		"message": "Donate"
 	},
+	"bugReportShort": {
+		"message": "Report a bug"
+	},
 	"popupMessage": {
 		"message": "Found a bug? Report it at the <a href='http://bugs.circularify.com' target='_blank'>Circularify Bug Tracker</a>."
 	},
@@ -31,5 +34,11 @@
 	},
 	"settingsPlayAnywhere": {
 		"message": "Enable PlayAnywhere&trade; (beta)"
+	},
+	"playAnywhereEnableRestart": {
+		"message": "For this change to take effect the extension has to reload!"
+	},
+	"OK": {
+		"message": "OK"
 	}
 }
