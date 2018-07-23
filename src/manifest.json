@@ -26,7 +26,8 @@
 		"activeTab",
 		"tabs",
 		"storage",
-		"gcm"
+		"gcm",
+		"contextMenus"
 	],
 	"optional_permissions": [
 		"management"
@@ -42,6 +43,7 @@
 				"*://*.youtube.com/*"
 			],
 			"js": [
+				"js/chrome-storage-promise.js",
 				"js/core/modules.js",
 				"js/contentscript.js"
 			],
