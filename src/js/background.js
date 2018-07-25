@@ -93,7 +93,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 				// Matches: h.Ja=function(){var a=this.app.V,b=Jh()==this.element;if(b&&rq())return new Xe(window.outerWidth,window.outerHeight);
 				new sourceReplacement("update-window-size",
 					/([a-z]\.[a-zA-Z]{2,3}=function\(\)\{var a=this\.app\.[a-zA-Z]{1,2}.+?;if\(.+?)(\)return new ([^(]+)[^;]+)/,
-					"$1 || (!!window.YTSNPIsCorner && b)$2;if (!!window.YTSNPIsCorner) { return new $3(480,270);}"
+					"$1 || (!!window.YTSNPIsCorner && b)$2;if (!!window.YTSNPIsCorner) { return new $3(window.YTSNPWidth || 480,window.YTSNPHeight || 270);}"
 				),
 				// Remove the stopVideo command from the API, so we can keep on playin'
 				new sourceReplacement("disable-stop",

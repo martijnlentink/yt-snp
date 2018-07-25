@@ -6,12 +6,8 @@
 function ytsnp() {
 
 	var videoSize = {
-		width: null,
-		height: null,
 		left: "0px",
-		top: "0px",
-		smallWidth: "480px",
-		smallHeight: "270px"
+		top: "0px"
 	}
 	
 	// Get a reference job
@@ -71,8 +67,8 @@ function ytsnp() {
 					element.firstChild.style.display = "block";
 
 				// Player sizing and positioning
-				element.style.width = videoSize.smallWidth
-				element.style.height = videoSize.smallHeight;
+				element.style.width = (window.YTSNPWidth || 480) + "px";
+				element.style.height = (window.YTSNPHeight || 270) + "px";
 				element.style.right = "10px";
 				element.style.position = "fixed";
 				element.style.zIndex = "999";
@@ -91,6 +87,41 @@ function ytsnp() {
 				// We're searching, so add the buttons (close & back)
 				if (showButtons)
 					_displayButtons();
+
+				// Resize button
+				let button = document.querySelector("ytp-button resize");
+				if (!button) {
+					let playerCont = document.querySelector(".html5-video-player");
+					button = document.createElement('button');
+					button.className = 'ytp-button resize';
+					button.setAttribute('role', 'button');
+					button.setAttribute('aria-label', 'Close player');
+					button.setAttribute('tabindex', '6243');
+
+					button.addEventListener("mousedown", function (ev) {
+						if (ev.which != 1)
+							return;
+
+						let handleFunc = function (evNew) {
+							console.log((playerCont.clientHeight + ev.pageY - evNew.pageY));
+							let newHeight = Math.min(Math.max(playerCont.clientHeight + ev.pageY - evNew.pageY, 191),596);
+							playerCont.style.height = newHeight + "px";
+							playerCont.style.width = (newHeight * 480 / 270) + "px";
+							ev = evNew;
+						};
+						document.addEventListener("mousemove", handleFunc);
+						document.addEventListener("mouseup", function () {
+							window.YTSNPWidth = playerCont.clientWidth;
+							window.YTSNPHeight = playerCont.clientHeight;
+							_forceResize();
+							//circularify.omni.snp.resizePlayer(playerCont.clientWidth, playerCont.clientHeight);
+							document.removeEventListener("mousemove", handleFunc);
+						}, { once: true });
+					});
+					playerCont.appendChild(button);
+				}
+				button.style.display = "auto";
+
 				_forceResize();
 			}
 		}
@@ -119,6 +150,10 @@ function ytsnp() {
 				window.yttrcooldown = 0;
 			}, 1500);
 		}
+
+		let resizeButton = document.querySelector("ytp-button resize");
+		if (resizeButton)
+			resizeButton.style.display = 'none'; 
 		
 		_hideButtons();
 		_forceResize();
@@ -146,7 +181,7 @@ function ytsnp() {
 		let el = els[0];
 	
 		// Inject close button code in YouTube player
-		var button = document.createElement('button');
+		button = document.createElement('button');
 		button.className = 'ytp-button closeButton';
 		button.setAttribute('role', 'button');
 		button.setAttribute('aria-label', 'Close player');
