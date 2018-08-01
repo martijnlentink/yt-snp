@@ -51,10 +51,9 @@ function ytsnp() {
 					}, 1500);
 				}
 
-				var polymer = document.getElementsByTagName("ytd-watch");
-				if (polymer.length > 0) {
+				var polymer = document.querySelector("ytd-watch, ytd-watch-flexy");
+				if (polymer) {
 					if (_shouldCornerize()) {
-						polymer = polymer[0];
 						polymer.removeAttribute("hidden");
 						polymer.style.visibility = 'collapse';
 						polymer.style.position = 'absolute';
@@ -133,9 +132,8 @@ function ytsnp() {
 		var element = circularify.ytapi.getVideoElement();
 		// The player is no longer cornerized
 		window.YTSNPIsCorner = false;
-		var polymer = document.getElementsByTagName("ytd-watch");
-		if (polymer.length > 0) {
-			polymer = polymer[0];
+		var polymer = document.querySelector("ytd-watch, ytd-watch-flexy");
+		if (polymer) {
 			polymer.style.visibility = '';
 			polymer.style.position = '';
 			element = document.getElementById("movie_player");
