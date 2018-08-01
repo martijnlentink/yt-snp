@@ -342,18 +342,18 @@
     }
 
     async function getCurrentState(tabId) {
-        return await sendFunction(tabId, arguments.callee.name);
+        return await sendFunction(tabId, getCurrentState.name);
     }
 
     function syncVideoChange(vidId) {
-        sendFunction(vidTabId, arguments.callee.name, vidId);
+        sendFunction(vidTabId, syncVideoChange.name, vidId);
     }
 
     // The predefSettings are needed when we need to wait before injection
     // but we still want the 'old' settings (without pausing)
     function syncState(tabId, predefSettings) {
         predefSettings = circularify.utils.deepCopy(predefSettings || settings);
-        let funcName = arguments.callee.name;
+        let funcName = syncState.name;
 
         chrome.tabs.get(tabId, function (tab) {
             if (tab.status === "complete")
@@ -367,7 +367,7 @@
     }
 
     function updateTime(time, duration) {
-        sendFunction(pushTabId, arguments.callee.name, time, duration).catch(e => console.error(e));
+        sendFunction(pushTabId, updateTime.name, time, duration).catch(e => console.error(e));
     }
 
     async function sendFunction(tabId, funcName) {
