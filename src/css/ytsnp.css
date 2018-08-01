@@ -28,10 +28,12 @@
 }
 
 .ytp-button.resize {
-	background-image: url('data:image/svg+xml;utf8,<svg width="24" height="24" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.83884 0.353553C9.0341 0.158291 9.0341 -0.158291 8.83884 -0.353553L5.65685 -3.53553C5.46159 -3.7308 5.14501 -3.7308 4.94975 -3.53553C4.75449 -3.34027 4.75449 -3.02369 4.94975 -2.82843L7.77818 0L4.94975 2.82843C4.75449 3.02369 4.75449 3.34027 4.94975 3.53553C5.14501 3.7308 5.46159 3.7308 5.65685 3.53553L8.83884 0.353553ZM0 0.5H8.48528V-0.5H0V0.5Z" transform="translate(7 7) rotate(-135)" fill="white"/></svg>');
+	background-image: url('data:image/svg+xml;utf8,<svg width="30" height="30" viewBox="0 0 143 143" fill="none" xmlns="http://www.w3.org/2000/svg"><g filter="url(#filter0_d)"><path d="M0 4.63341e-06L-3.0598e-07 -7L-7 -7L-7 4.63341e-06H0ZM7 106V4.63341e-06H-7V106H7ZM106 -7L-3.0598e-07 -7L3.0598e-07 7L106 7L106 -7Z" transform="translate(22 22)" fill="white"/></g><defs><filter id="filter0_d" x="0" y="0" width="143" height="143" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 255 0"/><feOffset/><feGaussianBlur stdDeviation="7.5"/><feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/><feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow"/><feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape"/></filter></defs></svg>');
 	width: 24px;
 	height: 24px;
 	position: absolute;
 	z-index: 999;
 	cursor: nwse-resize !important;
+	left: 0;
+	top: 8px;
 }

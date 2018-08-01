@@ -72,7 +72,7 @@ function ytsnp() {
 				element.style.right = "10px";
 				element.style.position = "fixed";
 				element.style.zIndex = "999";
-				element.style.left = 'inherit';
+				element.style.left = 'auto';
 				// Positioned on bottoms
 				element.style.bottom = "10px";
 				
@@ -89,11 +89,11 @@ function ytsnp() {
 					_displayButtons();
 
 				// Resize button
-				let button = document.querySelector("ytp-button resize");
+				let button = document.querySelector(".ytp-button.resize");
 				if (!button) {
 					let playerCont = document.querySelector(".html5-video-player");
 					button = document.createElement('button');
-					button.className = 'ytp-button resize';
+					button.className = 'ytp-button resize ytp-cards-button';
 					button.setAttribute('role', 'button');
 					button.setAttribute('aria-label', 'Close player');
 					button.setAttribute('tabindex', '6243');
@@ -118,9 +118,9 @@ function ytsnp() {
 							document.removeEventListener("mousemove", handleFunc);
 						}, { once: true });
 					});
-					playerCont.appendChild(button);
+					document.querySelector(".ytp-chrome-top-buttons").appendChild(button);
 				}
-				button.style.display = "auto";
+				button.style.display = "initial";
 
 				_forceResize();
 			}
@@ -151,7 +151,7 @@ function ytsnp() {
 			}, 1500);
 		}
 
-		let resizeButton = document.querySelector("ytp-button resize");
+		let resizeButton = document.querySelector(".ytp-button.resize");
 		if (resizeButton)
 			resizeButton.style.display = 'none'; 
 		
