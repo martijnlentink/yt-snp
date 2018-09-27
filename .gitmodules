@@ -1,6 +1,3 @@
 [submodule "src/js/core"]
 	path = src/js/core
 	url = https://circularify.visualstudio.com/Seek%20n%20Play/_git/Circularify.Extensions.Core
-#[submodule "bld"]
-#	path = bld
-#	url = https://github.com/martijnlentink/chrome-extensions-build.git
