@@ -5,6 +5,8 @@
 // YTSNP Object
 function ytsnp() {
 
+	_nativeSupported = !!document.pictureInPictureEnabled;
+
 	var videoSize = {
 		width: null,
 		height: null,
@@ -34,6 +36,13 @@ function ytsnp() {
 	
 	// Put the element in the corner
 	function _cornerize(showButtons) {
+
+		if (_nativeSupported) {
+			circularify.omni.background.requestPip();
+			//eval('let vidEl = document.querySelector("video"); vidEl.requestPictureInPicture();');
+			return;
+		}
+
 		showButtons = typeof showButtons !== 'undefined' ? showButtons : true;	
 		var element = circularify.ytapi.getVideoElement();
 		// The player is cornerized
@@ -98,6 +107,11 @@ function ytsnp() {
 	
 	// Removes the player from the corner and resets player size
 	function _decornerize() {
+
+		if (_nativeSupported && document.pictureInPictureElement) {
+			pictureInPictureElement.exitPictureInPicture();
+			return;
+		}
 
 		var element = circularify.ytapi.getVideoElement();
 		// The player is no longer cornerized

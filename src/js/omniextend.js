@@ -1,4 +1,4 @@
-var omniObj = circularify.omni.analytics ? circularify.omni : circularify.omni.snp;
+var omniObj = circularify.omni.snp ? circularify.omni.snp : circularify.omni;
 
 omniObj.extend((function () {
 	var _page = function () {
@@ -14,8 +14,24 @@ omniObj.extend((function () {
 			circularify.snp.backgroundPlayer.pauseVideo();
 		}
 
+		function _requestPip() {
+			chrome.tabs.injectScript(null, { code: 'let vidEl = document.querySelector("video"); vidEl.requestPictureInPicture();'});
+		}
+
 		return {
-			pauseVideo: _pauseVideo
+			pauseVideo: _pauseVideo,
+			requestPip: _requestPip
 		};
 	}();
-})(), null);
+
+	return {
+		background: _background,
+		page: _page
+	}
+})(), function (callOmni, inst) {
+
+	return {
+		requestPip: function () { callOmni("background", [], null, false, inst) }
+	};
+
+});

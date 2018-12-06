@@ -9,6 +9,10 @@ circularify.omni.page.injectCss('css/ytsnp.css');
 
 // Add SNP to the Circularify list of installed extension
 circularify.omni.register("snp");
+
+window.addEventListener(circularify.core.events.circConnectionRequested, function () {
+//	circularify.omni.page.injectScript('js/omniextend.js');
+});
  
 // Main method.
 circularify.omni.page.injectScript(function () {
