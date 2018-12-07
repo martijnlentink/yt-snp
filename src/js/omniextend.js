@@ -1,21 +1,40 @@
-var omniObj = circularify.omni.analytics ? circularify.omni : circularify.omni.snp;
+if (chrome.storage)
+	extend(circularify.omni);
+else
+circularify.utils.executeOrSubscribe(circularify.core.events.extRegistered, function (ev) {
+	if (ev.detail.id != 'snp')
+		return;
 
-omniObj.extend((function () {
-	var _page = function () {
+	extend(circularify.omni.snp);
+});
+
+function extend (omniObj) {
+	omniObj.extend((function () {
+		var _page = function () {
+
+			return {
+
+			};
+		}();
+
+		var _background = function () {
+
+			function _resizePlayer(width, height) {
+				circularify.settings.set("playerSize", { width: width, height: height});
+			}
+
+			return {
+				resizePlayer: _resizePlayer
+			};
+		}();
 
 		return {
-
+			background: _background,
+			page: _page
 		};
-	}();
-
-	var _background = function () {
-
-		function _pauseVideo() {
-			circularify.snp.backgroundPlayer.pauseVideo();
-		}
-
+	})(), function (callOmni, inst) {
 		return {
-			pauseVideo: _pauseVideo
-		};
-	}();
-})(), null);
+				resizePlayer: function (width, height) { callOmni("background", "resizePlayer", [width, height], null, false, inst) }
+			};
+	});
+}

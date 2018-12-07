@@ -17,6 +17,24 @@ let _externalTermination = null;
 var receivedNotificationId = -1;
 var receivedNotificationUrl = null;
 
+let _enableDisableStrings = { true: "Disable Seek 'n Player", false: "Enable Seek 'n Player" };
+
+/* Right click menu for disabling snp temporary */
+circularify.settings.get("floatingPlayerEnabled", true, async function (floatingPlayerEnabled) {
+	let _contextMenu = chrome.contextMenus.create({
+		type: "normal",
+		contexts: ["all"],
+		title: _enableDisableStrings[floatingPlayerEnabled],
+		documentUrlPatterns: ["*://*.youtube.com/*"],
+		onclick: (info, tab) => {
+			floatingPlayerEnabled = !floatingPlayerEnabled;
+			circularify.settings.set("floatingPlayerEnabled", floatingPlayerEnabled);
+			chrome.contextMenus.update(_contextMenu, { title: _enableDisableStrings[floatingPlayerEnabled] } );
+		}
+	});
+});
+
+
 let sourceReplacement = function (name, regex, replacement) {
 	var _name = name;
 	var _regex = regex;
@@ -75,7 +93,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 				// Matches: h.Ja=function(){var a=this.app.V,b=Jh()==this.element;if(b&&rq())return new Xe(window.outerWidth,window.outerHeight);
 				new sourceReplacement("update-window-size",
 					/([a-z]\.[a-zA-Z]{2,3}=function\(\)\{var a=this\.app\.[a-zA-Z]{1,2}.+?;if\(.+?)(\)return new ([^(]+)[^;]+)/,
-					"$1 || (!!window.YTSNPIsCorner && b)$2;if (!!window.YTSNPIsCorner) { return new $3(480,270);}"
+					"$1 || (!!window.YTSNPIsCorner && b)$2;if (!!window.YTSNPIsCorner) { return new $3(window.YTSNPWidth || 480,window.YTSNPHeight || 270);}"
 				),
 				// Remove the stopVideo command from the API, so we can keep on playin'
 				new sourceReplacement("disable-stop",
