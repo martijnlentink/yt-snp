@@ -54,26 +54,33 @@ async function handleSave(event) {
 	message.innerHTML = "<p>" + msg + "</p>";
 	message.setAttribute("class", "message success");
 
-	try {
 		if (_currentSetting == enablePlayAnywhere)
 			return;
 		
-		await circularify.settings.set(_playAnywhereSetting, enablePlayAnywhere);
-
-		// TODO: Only if settings have been changed!
 		document.getElementById("confirmDialog").showModal();
-
 		document.getElementById("restartButton").addEventListener("click", function () {
-	        chrome.runtime.reload();
-		})
-	}
-	catch (error) {
-		// An error occurred.
-		// Show message.
-		var msg = chrome.i18n.getMessage("settingsSaveError");
-		message.innerHTML = "<p>" + msg + "</p>";
-		message.setAttribute("class", "message error");
-	}
+			chrome.extension.getBackgroundPage().requestAnywherePermissions();
+		// chrome.permissions.request({
+		// 	origins: ['<all_urls>']
+		// 	}, async function(granted) {
+		// 	try {
+		// 		if (granted) {
+		// 			await circularify.settings.set(_playAnywhereSetting, enablePlayAnywhere);
+		// 			chrome.runtime.reload();
+		// 		}
+		// 		else {
+		// 			throw new Error();
+		// 		}
+		// 	}
+		// 	catch (error) {
+		// 		// An error occurred.
+		// 		// Show message.
+		// 		var msg = chrome.i18n.getMessage("settingsSaveError");
+		// 		message.innerHTML = "<p>" + msg + "</p>";
+		// 		message.setAttribute("class", "message error");
+		// 	}
+		// });
+	});
 }
 
 ////////////////////////////////////////
