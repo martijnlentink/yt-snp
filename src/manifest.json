@@ -49,24 +49,7 @@
 				"js/contentscript.js"
 			],
 			"run_at": "document_end"
-		},
-		{
-	      "matches": [ "*://*.youtube.com/watch*&bgplay=YTSNP" ],
-	      "js": [ 
-		     	"js/core/modules.js",
-		      	"js/core/ytapi.js",
-		      	"js/content-video.js"
-	      	],
-	      "all_frames": true,
-	      "run_at": "document_end"
-	    },
-	    {
-	    	"matches": [ "*://*/*" ],
-		      	"css": [
-		      		"css/player.css"
-		      	],
-		      "run_at": "document_end"
-	    }
+		}
 	],
 	"background": {
 		"scripts": [
@@ -85,7 +68,6 @@
 		"js/core/ytapi.js",
 		"js/ytsnp.js",
 		"css/ytsnp.css",
-		"html/player.html",
 		"https://www.google-analytics.com/analytics.js",
 		"js/omniextend.js"
 	],

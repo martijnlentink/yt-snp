@@ -43,14 +43,10 @@ circularify.settings.get("floatingPlayerEnabled", true, function (floatingPlayer
 		window.addEventListener("spfrequest", _spfrequest);
 		document.addEventListener("yt-navigate-finish", _spfrequest);
 
-		document.addEventListener("click", async function () { 
-				//await (new Promise(r => setTimeout(r, 100)));
+		document.addEventListener("click", async function (e) {
+			circularify.debug.log(e);
+			if (e.clientX == e.clientY && e.clientY == -999)
 				document.querySelector("video").requestPictureInPicture(); 
-				/*await (new Promise(r => setTimeout(r, 100)));
-				document.querySelector("video").disablePictureInPicture = true;
-				document.querySelector("video").disablePictureInPicture = false;
-				await (new Promise(r => setTimeout(r, 100)));
-				document.querySelector("video").requestPictureInPicture(); */
 		}, {once: false});
 
 		(function(send, open, setHeader) {

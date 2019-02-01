@@ -32,9 +32,14 @@ function extend(omniObj) {
 
 
             function _requestPip() {
-                chrome.tabs.executeScript(null, {
-                    code: 'document.querySelector("video").requestPictureInPicture();'
-                });
+            	let clickLocation = -999;
+            	chrome.debugger.getTargets((res) => {
+					target = res.filter(a => a.url.indexOf("youtube") > -1 && a.type == "page")[0];
+					chrome.debugger.attach({tabId: target.tabId }, "1.2", async function() {
+					    chrome.debugger.sendCommand({tabId: target.tabId }, "Input.dispatchMouseEvent", { type: "mousePressed", x: clickLocation, y: clickLocation, clickCount: 1, button: "left"});
+						chrome.debugger.sendCommand({tabId: target.tabId }, "Input.dispatchMouseEvent", { type: "mouseReleased", x: clickLocation, y: clickLocation, clickCount: 1, button: "left"}, () => { chrome.debugger.detach({tabId: target.tabId }); });
+				    });
+				});
             }
 
             return {

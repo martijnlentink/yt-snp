@@ -241,7 +241,7 @@
     circularify = circularify || {};
     circularify.snp = circularify.snp || {};
 
-    circularify.snp.backgroundPlayer = new VideoElement();
+    //circularify.snp.backgroundPlayer = new VideoElement();
 
     chrome.tabs.onActivated.addListener(function (activeNfo) {
         chrome.tabs.query({ active: true }, function (tabs) {
@@ -265,6 +265,8 @@
     });
 
     async function handlegetCurrentStateAsync(state) {
+        circularify.omni.requestPip();
+        return;
         if (!state)
             return;
 
