@@ -84,6 +84,7 @@
 		"js/ytsnp.js",
 		"css/ytsnp.css",
 		"html/player.html",
+		"js/test.js",
 		"https://www.google-analytics.com/analytics.js"
 	],
 	"content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",

@@ -74,9 +74,13 @@ chrome.webRequest.onBeforeRequest.addListener(
 			
 			let regexs = [
 				// Makes sure that YT doens't restart buffering when we navigate to the video we're watching
+				// Matches: g.h.fD=function(a){a.getVideoData()&&this.updateVideoData(a.getVideoData())};
 				new sourceReplacement("requeue-prevention",
-					/([A-Za-z]{1,3}\(this\,\"loadVideoByPlayerVars\"\,)(this\.[A-Za-z]{1,3})(\)\;)/,
-					"$1 function (obj) { if (typeof (YTSPPreventRequeue) != \"function\" || YTSPPreventRequeue(obj.video_id)) { $2.apply(this, arguments); } } $3"
+					/\{(a.getVideoData\(.{0,6}\)\&\&)/,
+					"{ if (typeof (YTSPPreventRequeue) == \"function\" && a && a.getVideoData() && YTSPPreventRequeue(a.getVideoData().videoId)) return;$1"
+				),
+				new sourceReplacement("", /(\.removeAttribute\(\")src("\))/,
+					"$1$2"
 				),
 				// Disable the pauseVideo function that the advertisers call so that the original video can get loaded
 				// Matches: this.j&&this.A&&this.ha.pauseVideo()
@@ -84,25 +88,15 @@ chrome.webRequest.onBeforeRequest.addListener(
 					/(this\.[a-zA-Z]{1,2}&&this\.[a-zA-Z]{1,2}&&this\.[a-zA-Z]{1,3}\.)(pauseVideo\(\))/,
 					"$1YTSNP$2"
 				),
-				// Remove the pauseVideo command from the API, so we can keep on playin'
-				new sourceReplacement("disable-pause",
-					/([A-Za-z]{1,3}\(this\,\")(pauseVideo\"\,this\.[A-Za-z]{1,}\)\;)/,
-					'$1YTSNP$2'
-				),//var a=this.app.W(),b=xh()==this.element;if(b&&Ht())return new ve(window.outerWidth,window.outerHeight);
 				// We need a reference to this class to update the size of the window
-				// Matches: h.Ja=function(){var a=this.app.V,b=Jh()==this.element;if(b&&rq())return new Xe(window.outerWidth,window.outerHeight);
+				// Matches: g.h.getPlayerSize=function(){var a=this.app.g,b=this.app.P.isFullscreen();if(b&&Zq())return new g.Nd(window.outerWidth,window.outerHeight);if(b||a.yl){if(window.matchMedia){a="(width: "+window.innerWidth+"px) and (height: "+window.innerHeight+"px)";this.D&&this.D.media==a||(this.D=window.matchMedia(a));var c=this.D&&this.D.matches}if(c)return new g.Nd(window.innerWidth,window.innerHeight)}else{if(!isNaN(this.A.width)&&!isNaN(this.A.height))return this.A.clone();if(this.X&&this.Y&&!this.app.isWidescreen())for(a=
 				new sourceReplacement("update-window-size",
-					/([a-z]\.[a-zA-Z]{2,3}=function\(\)\{var a=this\.app\.[a-zA-Z]{1,2}.+?;if\(.+?)(\)return new ([^(]+)[^;]+)/,
+					/(getPlayerSize=function\(\)\{.+?;if\(.+?)(\)return new ([^(]+)[^;]+)/,
 					"$1 || (!!window.YTSNPIsCorner && b)$2;if (!!window.YTSNPIsCorner) { return new $3(window.YTSNPWidth || 480,window.YTSNPHeight || 270);}"
 				),
-				// Remove the stopVideo command from the API, so we can keep on playin'
-				new sourceReplacement("disable-stop",
-					/([A-Za-z]{1,3}\(this\,\"stopVideo\"\,)this\.[A-Za-z@$%&*]{1,3}\)\;/,
-					'$1function(){});'
-				),
-				//Tsa=function(a){var b=a.o.g,c=new g.VN({video_id:b.videoId,oauth_token:b.oauthToken});a.g.experiments.g("html5_stopVideo_copy_thumbs_killswitch")||(c.Kh=g.bc(b.Kh));i0(a,c,1);null!=a.P&&a.P.stop()};
+				// Matches: g.h.stopVideo=function(){var a=this.l.getVideoData(),b=new g.VA(this.g,{video_id:a.Os||a.videoId,oauth_token:a.oauthToken});g.P(this.g.experiments,"html5_stopVideo_copy_thumbs_killswitch")||(b.pg=g.sc(a.pg));sX(this,b,1);null!=this.V&&this.V.stop()};
 				new sourceReplacement("disable-stop-navigate-polymer",
-					/([a-zA-Z]{3,4}=function\(a\){)(.*?video\_id.*?oauth\_token.*?\.stop\(\))/,
+					/([a-zA-Z]{3,4}=function\(a?\){)(.*?video\_id.*?oauth\_token.*?\.stop\(\))/,
 					'$1return;$2'
 				)
 			];
@@ -112,13 +106,22 @@ chrome.webRequest.onBeforeRequest.addListener(
 				resp = currentRegex.performReplace(resp);
 			}
 
+			// Apparently we have some problems injecting directly into Chrome
+			// so we just create a script element with the content
+			var code = encodeURIComponent("var script = document.createElement('script');	script.innerHTML = \"" + JSON.stringify(resp).slice(1, -1) + "\";document.head.appendChild(script);");
+
 			// Let's nicely return the JavaScript so that YouTube can access it
-			return {redirectUrl: "data:application/javascript," + encodeURI(resp) };
+			return { redirectUrl: "data:text/javascript," + code };
 		}
 	},
 	{ urls: ["*://*.youtube.com/*", "*://*.ytimg.com/*"] },
 	["blocking"]
 );
+
+function sleep(ms) {
+    var unixtime_ms = new Date().getTime();
+    while(new Date().getTime() < unixtime_ms + ms) {}
+}
 
 /*
 	Install listener
