@@ -74,10 +74,10 @@ chrome.webRequest.onBeforeRequest.addListener(
 			
 			let regexs = [
 				// Makes sure that YT doens't restart buffering when we navigate to the video we're watching
-				// Matches: g.h.fD=function(a){a.getVideoData()&&this.updateVideoData(a.getVideoData())};
+				// Matches: g.h.loadVideoByPlayerVars=function(a,b,c,d){this.app.loadVideoByPlayerVars(a,c||this.playerType,b,d)};
 				new sourceReplacement("requeue-prevention",
-					/\{(a.getVideoData\(.{0,6}\)\&\&)/,
-					"{ if (typeof (YTSPPreventRequeue) == \"function\" && a && a.getVideoData() && YTSPPreventRequeue(a.getVideoData().videoId)) return;$1"
+					/(\.loadVideoByPlayerVars=function\(a(\,\w)*\)\{)(this.app.loadVideoByPlayerVars)/,
+					"$1if (typeof (YTSPPreventRequeue) == \"function\" && a && !YTSPPreventRequeue(a.video_id)) return;$3"
 				),
 				new sourceReplacement("", /(\.removeAttribute\(\")src("\))/,
 					"$1$2"
