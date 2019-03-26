@@ -61,6 +61,7 @@ let sourceReplacement = function (name, regex, replacement) {
 */
 chrome.webRequest.onBeforeRequest.addListener(
 	function (details) {
+		return;
 		if (_externalTermination)
 			return;
 

@@ -241,176 +241,62 @@
     circularify = circularify || {};
     circularify.snp = circularify.snp || {};
 
+    let autoChange = false;
+    let ytTab = null;
     //circularify.snp.backgroundPlayer = new VideoElement();
-
     chrome.tabs.onActivated.addListener(function (activeNfo) {
-        chrome.tabs.query({ active: true }, function (tabs) {
-            var currentTab = tabs.find(tab => tab.id === activeNfo.tabId);
-            _tabChanged(currentTab);
-        });
+        if (autoChange)
+            return;
+
+        chrome.tabs.query({ active: true, currentWindow: true}, function (tabs) {
+            let first = tabs[0];
+
+            if (previousTab === ytTab) {
+                if (ytTab != null) {
+
+                    // This executeScript ensures that if there is an PIP playing
+                    // we will not try to initiate a new window
+                    chrome.tabs.executeScript(ytTab, { code: "!!document.pictureInPictureElement"}, function (result) {
+                        if (result[0])
+                            return;
+
+                        autoChange = true;
+                        chrome.tabs.update(ytTab, {active: true}, async function () {
+                            circularify.omni.requestPip(ytTab);
+
+                            await (new Promise(r => setTimeout(r, 100)));
+                            chrome.tabs.update(first.id, {active: true}, function () {
+                                autoChange = false;
+                            });
+                        });
+                    });
+                }
+            }
+            if (first.url.indexOf("youtube.com/watch") > -1)
+                ytTab = first.id;
+            previousTab = first.id;
+        })
+
+        
+        // circularify.omni.requestPip();
+        // chrome.tabs.query({ active: true }, function (tabs) {
+        //     var currentTab = tabs.find(tab => tab.id === activeNfo.tabId);
+        //     _tabChanged(currentTab);
+        // });
+        
     });
     // chrome.tabs.onCreated.addListener(_tabChanged);
-    chrome.tabs.onUpdated.addListener(function (tabId, changeNfo, tab) {
-        if (changeNfo.status === 'loading' && tab.active)
-            _tabChanged(tab);
-    });
+    // chrome.tabs.onUpdated.addListener(function (tabId, changeNfo, tab) {
+    //     if (changeNfo.status === 'loading' && tab.active)
+    //         _tabChanged(tab);
+    // });
 
     chrome.windows.onFocusChanged.addListener(function (currentWindowId) {
         // Don't go to small player if  we have multiple windows, where one has YT as active tab
-        if (!previousYt)
-        chrome.tabs.query({ active: true, windowId: currentWindowId}, function (tabs) {
-            if (tabs.length)
-                _tabChanged(tabs[0]);
-        });
-    });
-
-    async function handlegetCurrentStateAsync(state) {
-        circularify.omni.requestPip();
-        return;
-        if (!state)
-            return;
-
-        for (let name in state)
-            settings[name] = state[name];
-
-        if (circularify.snp.backgroundPlayer.getVideoId() == vidId)
-            circularify.snp.backgroundPlayer.setState(state);
-        else {
-            await circularify.snp.backgroundPlayer.setVideo(vidId, state.currentTime, state.volume);
-            if (state.paused)
-                circularify.snp.backgroundPlayer.startPaused();
-            //else
-              //  circularify.snp.backgroundPlayer.playVideo();
-        }
-
-        chrome.tabs.sendMessage(pushTabId, { settings: settings });
-    }
-
-    var counter = 0;
-    async function _tabChanged(tab) {
-        if (tab.url.indexOf("chrome-devtools://") > -1)
-            return;
-        pushTabId = tab.id;
-        counter++;
-
-        let isYt = tab.url.indexOf("youtube.com") > -1;
-        // If current URL is YT then get the video
-        var vid = circularify.ytapi.getVideoId(tab.url);// || (isYt ? vidId : null);
-
-        // Continue playing video after tab switch
-        // Conditions:
-        // We switch tabs OR we navigate away from YT
-        // previous tab was YT!
-        if (vidTabId && previousTab == vidTabId && !isYt) {
-            setSetting("playerVisible", !vid);
-
-            // If we navigate the video tab, we will not have a tab to return to.
-            //if (vidTabId == pushTabId)
-            //    vidTabId = null;
-
-            if (vid == null)
-                getCurrentState(vidTabId).then(handlegetCurrentStateAsync);
-
-            chrome.tabs.update(vidTabId, { muted: true });
-        }
-
-        if (vid) {
-            setSetting("playerVisible", false);
-            // If we are playing a video, this means we need to remove
-            // the small player and continue in the page. So we check
-            // if vidTabId is set and sync the video to the right moment.
-            //
-            // !! The second check is a quick fix to ensure that, when
-            // you navigate away from YT on the YT-tab. The video can be
-            // restored when pressing the back button
-            if (vidTabId && !previousYt) {// && !(vidTabId == pushTabId && isYt)) { // || (!vidTabId && vid == vidId)) {
-                circularify.debug.log("Current state of playing: " + settings.paused);
-                if (vid == vidId)
-                    syncState(vidTabId || pushTabId);
-                else
-                    setSetting("started", false, true);
-                circularify.snp.backgroundPlayer.pauseVideo();
-            }
-            chrome.tabs.update(tab.id, { muted: false });
-
-            // Register the current tab as the YT-tab
-            vidId = vid;
-            vidTabId = pushTabId || tabs[0].id;
-        }
-
-        chrome.tabs.executeScript(null, { file: 'js/player.js', runAt: 'document_start' });
-        previousTab = tab.id;
-        previousYt = isYt;
-    }
-
-    async function getCurrentState(tabId) {
-        return await sendFunction(tabId, getCurrentState.name);
-    }
-
-    function syncVideoChange(vidId) {
-        sendFunction(vidTabId, syncVideoChange.name, vidId);
-    }
-
-    // The predefSettings are needed when we need to wait before injection
-    // but we still want the 'old' settings (without pausing)
-    function syncState(tabId, predefSettings) {
-        predefSettings = circularify.utils.deepCopy(predefSettings || settings);
-        let funcName = syncState.name;
-
-        chrome.tabs.get(tabId, function (tab) {
-            if (tab.status === "complete")
-                sendFunction(tabId, funcName, predefSettings);
-            else {
-                setTimeout(function () {  
-                    syncState(tabId, predefSettings);
-                }, 100);
-            }
-        });
-    }
-
-    function updateTime(time, duration) {
-        sendFunction(pushTabId, updateTime.name, time, duration).catch(e => console.error(e));
-    }
-
-    async function sendFunction(tabId, funcName) {
-        let args = Array.prototype.slice.call(arguments, 2);
-        return new Promise(function (resolve, reject) {
-            chrome.tabs.sendMessage(tabId, { func: funcName, args: args }, null, function (message) {
-                resolve(message);
-            });
-            setTimeout(() => reject("Took too long to complete"), 5000);
-        });
-    }
-
-    circularify.snp.backgroundPlayer.events.subscribe('frame', function (e) {
-        settings.lastFrame = e;
-        chrome.tabs.sendMessage(pushTabId, { image: e });
-    });
-
-    circularify.snp.backgroundPlayer.events.subscribe('playingState', function (isPaused) {
-        circularify.debug.log("playingState pause change: " + isPaused);
-        setSetting("paused", isPaused, true);
-    });
-
-    circularify.snp.backgroundPlayer.events.subscribe('videoState', function (cur, dur, state) {
-        // updatePlayer(state);
-        setSetting("currentTime", cur);
-        if (state) {
-            setSetting("volume", state.volume, true);
-            circularify.debug.log("videoState pause change: " + state.paused);
-            setSetting("paused", state.paused, true);
-        }
-        // settings.state = { currentTime: cur, volume: state.volume, paused: state.paused };
-        updateTime(cur, dur);
-    });
-
-    circularify.snp.backgroundPlayer.events.subscribe('volume', function (volume) {
-        setSetting("volume", volume, true);
-    });
-
-    circularify.snp.backgroundPlayer.events.subscribe('videoChange', function (videoNfo) {
-        setSetting("video", videoNfo, true);
-        vidId = videoNfo.videoId;
-        syncVideoChange(videoNfo.videoId);
+        // if (!previousYt)
+        // chrome.tabs.query({ active: true, windowId: currentWindowId}, function (tabs) {
+        //     if (tabs.length)
+        //         _tabChanged(tabs[0]);
+        // });
     });
 })();

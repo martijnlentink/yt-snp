@@ -33,6 +33,7 @@ circularify.settings.listen("floatingPlayerEnabled", function (newValue) {
 // Main method.
 circularify.settings.get("floatingPlayerEnabled", true, function (floatingPlayerEnabled) {
 	circularify.omni.page.injectScript(function (floatingPlayerEnabled) {
+
 		// Next URL
 		var _url = window.location.href;
 		document.ytSnpEnabled = floatingPlayerEnabled === "true";
@@ -44,6 +45,7 @@ circularify.settings.get("floatingPlayerEnabled", true, function (floatingPlayer
 		document.addEventListener("yt-navigate-finish", _spfrequest);
 
 		document.addEventListener("click", async function (e) {
+			debugger;
 			circularify.debug.log(e);
 			if (e.clientX == e.clientY && e.clientY == -999)
 				document.querySelector("video").requestPictureInPicture(); 
