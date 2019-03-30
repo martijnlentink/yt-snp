@@ -12,8 +12,16 @@ function extend(omniObj) {
     omniObj.extend((() => {
         var _page = function() {
 
-            return {
+            function _initialize() {
+                document.addEventListener("click", async function (e) {
+                    circularify.debug.log(e);
+                    if (e.clientX == e.clientY && e.clientY == -999)
+                        document.querySelector("video").requestPictureInPicture(); 
+                }, {once: false});
+            }
 
+            return {
+                initialize: _initialize
             };
         }();
 
@@ -37,7 +45,7 @@ function extend(omniObj) {
 					target = res.filter(a => (a.tabId == tabId || a.url.indexOf("youtube") > -1) && a.type == "page")[0];
 					chrome.debugger.attach({tabId: target.tabId }, "1.2", async function() {
 					    chrome.debugger.sendCommand({tabId: target.tabId }, "Input.dispatchMouseEvent", { type: "mousePressed", x: clickLocation, y: clickLocation, clickCount: 1, button: "left"});
-						chrome.debugger.sendCommand({tabId: target.tabId }, "Input.dispatchMouseEvent", { type: "mouseReleased", x: clickLocation, y: clickLocation, clickCount: 1, button: "left"}, () => {  });
+						chrome.debugger.sendCommand({tabId: target.tabId }, "Input.dispatchMouseEvent", { type: "mouseReleased", x: clickLocation, y: clickLocation, clickCount: 1, button: "left"}, () => { });
                         chrome.debugger.detach({tabId: target.tabId });
 				    });
 				});

@@ -30,6 +30,7 @@
 		"contextMenus",
 		"debugger"
 	],
+	"minimum_chrome_version": "69.0.3483.0",
 	"optional_permissions": [
 		"management"
 	],
